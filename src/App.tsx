@@ -1,10 +1,24 @@
 import './App.css'
-import { router } from './router'
-import { RouterProvider, Router, Link } from '@tanstack/react-router'
+import React, { StrictMode } from 'react'
+import ReactDOM from 'react-dom/client'
+import {
+  Outlet,
+  RouterProvider,
+  Link,
+  Router,
+  Route,
+  RootRoute,
+} from '@tanstack/react-router'
 
+import { router } from "./router"
+// Register your router for maximum type safety
+declare module '@tanstack/router' {
+  interface Register {
+    router: typeof router
+  }
+}
 function App() {
-  (<>
-    abqs
+  return (<>
     <RouterProvider router={router} />
   </>
   )

@@ -1,18 +1,18 @@
 import {
     Router,
     RootRoute,
-    Route,
-    Outlet,
-    Link,
+    Route, Link, Outlet
 } from "@tanstack/react-router"
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 import { Home } from "./components/Home"
+import { Test } from "./components/test"
+import { Error } from "./components/error"
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
+
 
 const Root = () => {
     return (<>
-        <p>Test</p>
-        <Link to="/test">Test</Link>
-        <Link to="/a">Home</Link>
+        <Link to="/test">Test</Link><br />
+        <Link to="/">Home</Link>
         <Outlet />
         <TanStackRouterDevtools />
     </>)
@@ -31,7 +31,7 @@ const homeRoute = new Route({
 const testRoute = new Route({
     getParentRoute: () => rootRoute,
     path: '/test',
-    component: Home,
+    component: Test,
 })
 
 
@@ -39,7 +39,7 @@ const testRoute = new Route({
 const errorRoute = new Route({
     getParentRoute: () => rootRoute,
     path: '*',
-    component: Home,
+    component: Error,
 })
 
 
@@ -49,9 +49,9 @@ const routeTree = rootRoute.addChildren([homeRoute, testRoute, errorRoute])
 // Create the router using your route tree
 const router = new Router({ routeTree })
 
-declare module '@tanstack/router' {
-    interface Register {
-        router: typeof router
-    }
-}
+// declare module '@tanstack/react-router' {
+//     interface Register {
+//         router: typeof router
+//     }
+// }
 export { router }
