@@ -2,18 +2,24 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import './App.css'
 import { useQuery } from '@tanstack/react-query'
+import { NETLIFY_FUNcTIONS_PATH } from './constants'
 
 function App() {
   const [count, setCount] = useState(0)
 
   const fetchRbnb = async () => {
-    const response = await fetch("/.netlify/functions/get_rbnb")
+    const response = await fetch(NETLIFY_FUNcTIONS_PATH + "get_rbnb")
+    return response.json()
+  }
+
+  const fetchPictures = async () => {
+    const response = await fetch(NETLIFY_FUNcTIONS_PATH + "get_pictures")
     return response.json()
   }
 
   const { data, isLoading, isError } = useQuery({ queryKey: ["rbnb"], queryFn: fetchRbnb })
-  console.log(isLoading)
-  console.log(data)
+  const { data: pictures, isLoading: isPictureLoading } = useQuery<string[]>({ queryKey: ["pic"], queryFn: fetchPictures })
+
   return (
     <div className="App">
       <div>
@@ -24,7 +30,7 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Paula</h1>
+      <h1>Test</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
@@ -36,8 +42,11 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
-      {isLoading && <p>Loading...</p>}
-      {!isLoading && data && data.map((rbnb: any) => <p>{rbnb.name}</p>)}
+      {isPictureLoading && <p>Loading pic...</p>}
+      {!isPictureLoading && pictures && pictures.length && pictures.map((pic, index) => <img key={index} src={pic} width={"10%"} />)}
+
+      {isLoading && <p>Loading rbnb...</p>}
+      {!isLoading && data && data.map((rbnb: any) => <p key={rbnb.name}>{rbnb.name}</p>)}
 
     </div>
   )

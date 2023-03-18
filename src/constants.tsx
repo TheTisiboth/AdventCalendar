@@ -1,0 +1,1 @@
+export const NETLIFY_FUNcTIONS_PATH = "/.netlify/functions/"
