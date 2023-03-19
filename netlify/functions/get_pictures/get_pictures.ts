@@ -1,5 +1,6 @@
 import { Handler } from '@netlify/functions'
-import { GetObjectCommand, ListObjectsCommand, ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3"
+import { GetObjectCommand, ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3"
+import { orderBy } from "lodash"
 
 const encode = (data: any) => {
   var str = data.reduce(function (a: string, b: number) { return a + String.fromCharCode(b) }, '');
@@ -16,9 +17,12 @@ export const handler: Handler = async (event, context) => {
       region: process.env.DEFAULT_REGION!,
     })
 
+    // Fetch the Bucket content
     const listBucket = await aws.send(new ListObjectsV2Command({ Bucket: "adventcalenderbucket" }))
-    const promises = listBucket.Contents?.map((pic) => aws.send(new GetObjectCommand({ Bucket: "adventcalenderbucket", Key: pic.Key })))
+    // Fetch every pictures that were listed in the Bucket
+    const promises = orderBy(listBucket.Contents, "Key", "asc").map((pic) => aws.send(new GetObjectCommand({ Bucket: "adventcalenderbucket", Key: pic.Key })))
     const pics = await Promise.all(promises!)
+    // Encode the pictures
     const encodedPics = await Promise.all(pics.map(async (pic) => "data:image/jpeg;base64," + encode(await pic.Body?.transformToByteArray())))
     return {
       statusCode: 200,
