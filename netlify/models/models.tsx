@@ -1,12 +1,12 @@
 import { Schema, model } from "mongoose"
-import { Comment } from "../../src/types/types"
+import { Picture } from "../../src/types/types"
 
-const commentSchema = new Schema<Comment>({
-    name: String,
-    email: String,
-    movie_id: Number,
-    text: String,
-    date: Date
+const pictureSchema = new Schema<Picture>({
+    day: Number,
+    key: String,
+    isOpenable: Boolean,
+    isOpen: Boolean
 })
 
-export const commentModel = model<Comment>(process.env.MONGODB_COLLECTION!, commentSchema)
+export const dummyPictureModel = model<Picture>("Picture", pictureSchema, process.env.MONGODB_DUMMY_PICTURES_COLLECTION)
+export const pictureModel = model<Picture>("Picture", pictureSchema, process.env.MONGODB_PICTURES_COLLECTION)

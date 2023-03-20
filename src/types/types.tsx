@@ -1,7 +1,10 @@
-export interface Comment {
-    name: String,
-    email: String,
-    movie_id: Number,
-    text: String,
-    date: Date
+import { Types } from "mongoose"
+
+export interface Picture {
+    _id: Types.ObjectId,
+    day: number,
+    key: string,
+    isOpenable: boolean,
+    isOpen: boolean,
+    content: string
 }
