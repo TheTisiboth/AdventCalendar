@@ -1,4 +1,4 @@
-import { Button } from "@mui/material"
+import { Button, Box } from "@mui/material"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { FC } from "react"
 import { NETLIFY_FUNCTIONS_PATH } from "../constants"
@@ -12,7 +12,6 @@ export const Day: FC<DayProps> = ({ picture }) => {
     const queryClient = useQueryClient();
 
     const openPicture = async (day: number) => {
-        console.log("openPicture", day)
         const response = await fetch(NETLIFY_FUNCTIONS_PATH + "open_picture?" + new URLSearchParams({
             day: day.toString()
         }))
@@ -21,14 +20,10 @@ export const Day: FC<DayProps> = ({ picture }) => {
 
     const { status, error, mutate, data } = useMutation(openPicture, {
         onSuccess: () => {
-            console.log("OK")
+            console.log("mutate OK")
             queryClient.invalidateQueries({ queryKey: ["pictures"] });
         }
     });
-
-    console.log("data", data)
-    console.log("picture", picture)
-
 
     const handleClick = () => {
         if (!picture.isOpen) {
@@ -38,10 +33,10 @@ export const Day: FC<DayProps> = ({ picture }) => {
     }
 
     return (
-        <Button onClick={handleClick}>
+        <Button fullWidth style={{ height: "100%" }} onClick={handleClick}>
             {picture.isOpen &&
-                <img src={picture.content} width={"100%"} />}
-            {!picture.isOpen && <p>{picture.day}</p>}
+                <img src={"/" + picture.key} width={"100%"} />}
+            {!picture.isOpen && <Box><p >{picture.day}</p></Box>}
         </Button>
     )
 }
