@@ -1,6 +1,9 @@
 import './App.css'
 import { RouterProvider } from '@tanstack/react-router'
 import { router } from "./router"
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { MyProvider } from './context';
 
 // Register your router for maximum type safety
 declare module '@tanstack/router' {
@@ -11,6 +14,10 @@ declare module '@tanstack/router' {
 export const App = () =>
 (
   <>
-    <RouterProvider router={router} />
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <MyProvider>
+        <RouterProvider router={router} />
+      </MyProvider>
+    </LocalizationProvider>
   </>
 )

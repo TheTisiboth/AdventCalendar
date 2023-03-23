@@ -5,7 +5,8 @@ const pictureSchema = new Schema<Picture>({
     day: Number,
     key: String,
     isOpenable: Boolean,
-    isOpen: Boolean
+    isOpen: Boolean,
+    date: Date
 })
 
 export const dummyPictureModel = model<Picture>("Picture", pictureSchema, process.env.MONGODB_DUMMY_PICTURES_COLLECTION)

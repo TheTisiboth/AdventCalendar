@@ -1,7 +1,9 @@
 import { Button, Box } from "@mui/material"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { FC } from "react"
-import { NETLIFY_FUNCTIONS_PATH } from "../constants"
+import dayjs from "dayjs"
+import { FC, useContext } from "react"
+import { CDN_URL, NETLIFY_FUNCTIONS_PATH } from "../constants"
+import { GlobalContext } from "../context"
 import { Picture } from "../types/types"
 
 type DayProps = {
@@ -10,6 +12,8 @@ type DayProps = {
 export const Day: FC<DayProps> = ({ picture }) => {
 
     const queryClient = useQueryClient();
+    const { date } = useContext(GlobalContext)
+    const isBefore = dayjs(date).isBefore(dayjs(picture.date))
 
     const openPicture = async (day: number) => {
         const response = await fetch(NETLIFY_FUNCTIONS_PATH + "open_picture?" + new URLSearchParams({
@@ -33,10 +37,10 @@ export const Day: FC<DayProps> = ({ picture }) => {
     }
 
     return (
-        <Button fullWidth style={{ height: "100%" }} onClick={handleClick}>
-            {picture.isOpen &&
-                <img src={"/" + picture.key} width={"100%"} />}
-            {!picture.isOpen && <Box><p >{picture.day}</p></Box>}
+        <Button disabled={isBefore} fullWidth style={{ height: "100%" }} onClick={handleClick}>
+            {!isBefore && picture.isOpen &&
+                <img src={CDN_URL + picture.key} width={"100%"} />}
+            {(!picture.isOpen || isBefore) && <Box><p >{picture.day}</p></Box>}
         </Button>
     )
 }

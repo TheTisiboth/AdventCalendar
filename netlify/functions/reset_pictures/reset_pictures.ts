@@ -12,13 +12,22 @@ const encode = (data: any) => {
 export const handler: Handler = async (event, context) => {
   try {
     await connect(process.env.MONGODB_URI!, { dbName: process.env.MONGODB_DATABASE })
-    await dummyPictureModel.deleteMany({})?.exec()
-    const dummyPictures = [...Array(24)].map((_, i) => ({
-      day: i + 1,
-      isOpen: false,
-      isOpenable: false,
-      key: "biere.jpg",
-    }) as Picture)
+    await dummyPictureModel.collection.drop()
+    // await dummyPictureModel.deleteMany({})?.exec()
+
+    const dummyPictures = [...Array(24)].map((_, i) => {
+      const date = new Date()
+      date.setUTCHours(0, 0, 0, 0)
+      date.setUTCMonth(11)
+      date.setUTCDate(i + 1)
+      return {
+        day: i + 1,
+        isOpen: false,
+        isOpenable: false,
+        key: "biere.jpg",
+        date: date,
+      } as Picture
+    })
 
     await dummyPictureModel.insertMany(
       dummyPictures

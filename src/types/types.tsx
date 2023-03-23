@@ -6,4 +6,5 @@ export interface Picture {
     key: string,
     isOpenable: boolean,
     isOpen: boolean,
+    date: Date
 }

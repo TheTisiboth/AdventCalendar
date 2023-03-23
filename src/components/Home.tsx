@@ -1,13 +1,27 @@
-import { Button } from "@mui/material"
+import { Button, Grid } from "@mui/material"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { FC, useState } from "react"
+import { FC, useState, useContext, useEffect } from "react"
 import { NETLIFY_FUNCTIONS_PATH } from "../constants"
 import { Picture } from "../types/types"
 import { DayGrid } from "./Grid"
-import reactSVG from "../assets/react.svg"
+import { DateCalendar } from "@mui/x-date-pickers"
+import dayjs from "dayjs"
+import { GlobalContext } from "../context"
 
 export const Home: FC = () => {
     const queryClient = useQueryClient();
+    const context = useContext(GlobalContext)
+    useEffect(() => {
+        console.log("ctx", context.date)
+
+    }, [context])
+    console.log("ctx date live", context.date)
+
+    useEffect(() => {
+        context.setDate(new Date("2023-12-01"))
+        context.setIsFake(true)
+    }, [])
+
 
     const resetPictures = async () => {
         console.log("res")
@@ -23,11 +37,28 @@ export const Home: FC = () => {
     }
 
     const { data: pictures, isLoading: isPictureLoading, } = useQuery<Picture[]>({ queryKey: ["pictures"], queryFn: fetchPictures })
+
+
+    const handleCalendarChange = (date: dayjs.Dayjs | null) => {
+        console.log("date", date?.toDate())
+        if (date) {
+            context.setDate(date.toDate())
+        }
+    }
+
     return (
         <div className="App">
             <Button onClick={resetPictures}>Reset pictures</Button>
             {isPictureLoading && <p>Loading pic...</p>}
-            {!isPictureLoading && pictures && <DayGrid pictures={pictures} />}
+            {!isPictureLoading && pictures &&
+                <Grid container >
+                    <Grid item xs={10}>
+                        <DayGrid pictures={pictures} />
+                    </Grid>
+                    <Grid item xs={2}>
+                        <DateCalendar value={dayjs(context.date)} onChange={handleCalendarChange} defaultValue={dayjs("2023-12-01")} maxDate={dayjs("2023-12-24")} minDate={dayjs('2023-12-01')} views={["day"]} />
+                    </Grid>
+                </Grid>}
         </div>
     )
 }
