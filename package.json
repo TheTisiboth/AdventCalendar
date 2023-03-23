@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.290.0",
+    "@aws-sdk/client-secrets-manager": "^3.297.0",
+    "@aws-sdk/cloudfront-signer": "^3.296.0",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@mui/icons-material": "^5.11.11",
@@ -21,6 +23,7 @@
     "@tanstack/react-router-devtools": "^0.0.1-beta.83",
     "@types/mongoose": "^5.11.97",
     "@types/node": "^14.18.38",
+    "aws-sdk": "^2.1341.0",
     "dayjs": "^1.11.7",
     "lodash": "^4.17.21",
     "mongodb": "^5.1.0",

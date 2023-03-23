@@ -1,6 +1,5 @@
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { Handler } from "@netlify/functions";
-import { connect, Schema, model } from "mongoose"
+import { connect } from "mongoose"
 import { Picture } from "../../../src/types/types";
 import { dummyPictureModel } from "../../models/models";
 

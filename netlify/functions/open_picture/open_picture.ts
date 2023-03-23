@@ -1,5 +1,5 @@
 import { Handler } from "@netlify/functions";
-import { connect, Schema, model } from "mongoose"
+import { connect } from "mongoose"
 import { dummyPictureModel } from "../../models/models";
 
 

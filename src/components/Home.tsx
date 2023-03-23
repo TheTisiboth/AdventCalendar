@@ -8,6 +8,7 @@ import { DateCalendar } from "@mui/x-date-pickers"
 import dayjs from "dayjs"
 import { GlobalContext } from "../context"
 
+
 export const Home: FC = () => {
     const queryClient = useQueryClient();
     const context = useContext(GlobalContext)
@@ -31,6 +32,13 @@ export const Home: FC = () => {
 
     }
 
+    const fetchCredentials = async () => {
+        const response = await fetch(NETLIFY_FUNCTIONS_PATH + "get_presigned_cookie")
+        queryClient.invalidateQueries({ queryKey: ["cookies"] });
+        console.log("cookie ", response)
+
+    }
+
     const fetchPictures = async () => {
         const response = await fetch(NETLIFY_FUNCTIONS_PATH + "get_pictures")
         return response.json()
@@ -49,6 +57,7 @@ export const Home: FC = () => {
     return (
         <div className="App">
             <Button onClick={resetPictures}>Reset pictures</Button>
+            <Button onClick={fetchCredentials}>Fetch credentials</Button>
             {isPictureLoading && <p>Loading pic...</p>}
             {!isPictureLoading && pictures &&
                 <Grid container >
