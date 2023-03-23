@@ -52,10 +52,10 @@ export const Home: FC = () => {
             {isPictureLoading && <p>Loading pic...</p>}
             {!isPictureLoading && pictures &&
                 <Grid container >
-                    <Grid item xs={10}>
+                    <Grid item xs={9}>
                         <DayGrid pictures={pictures} />
                     </Grid>
-                    <Grid item xs={2}>
+                    <Grid item xs={3}>
                         <DateCalendar value={dayjs(context.date)} onChange={handleCalendarChange} defaultValue={dayjs("2023-12-01")} maxDate={dayjs("2023-12-24")} minDate={dayjs('2023-12-01')} views={["day"]} />
                     </Grid>
                 </Grid>}

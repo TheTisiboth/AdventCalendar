@@ -1,18 +1,16 @@
 import {
     Router,
     RootRoute,
-    Route, Link, Outlet
+    Route, Outlet
 } from "@tanstack/react-router"
 import { Home } from "./components/Home"
 import { Error } from "./components/error"
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 
 
 const Root = () => {
     return (
         <>
             <Outlet />
-            <TanStackRouterDevtools />
         </>
     )
 }

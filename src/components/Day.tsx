@@ -1,4 +1,4 @@
-import { Button, Box } from "@mui/material"
+import { Button, Box, Paper } from "@mui/material"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import dayjs from "dayjs"
 import { FC, useContext } from "react"
@@ -37,10 +37,10 @@ export const Day: FC<DayProps> = ({ picture }) => {
     }
 
     return (
-        <Button disabled={isBefore} fullWidth style={{ height: "100%" }} onClick={handleClick}>
+        <Button disabled={isBefore} fullWidth style={{ height: "200px", width: "100%" }} onClick={handleClick}>
             {!isBefore && picture.isOpen &&
-                <img src={CDN_URL + picture.key} width={"100%"} />}
-            {(!picture.isOpen || isBefore) && <Box><p >{picture.day}</p></Box>}
-        </Button>
+                <img src={CDN_URL + picture.key} width={"100%"} height={"100%"} />}
+            {(!picture.isOpen || isBefore) && <Paper elevation={10} style={{ width: "100%", height: "100%", backgroundColor: `${isBefore ? "white" : "blue"}` }} >{picture.day}</Paper>}
+        </Button >
     )
 }
