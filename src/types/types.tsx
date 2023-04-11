@@ -8,3 +8,16 @@ export interface Picture {
     isOpen: boolean,
     date: Date
 }
+
+export type Credentials = {
+    userName: string,
+    password: string,
+}
+
+export type User = {
+    name: string,
+}
+
+export type Token = {
+    token: string,
+}
