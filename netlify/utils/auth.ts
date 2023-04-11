@@ -1,6 +1,6 @@
 import { Event } from '@netlify/functions/dist/function/event'
 import jwt from 'jsonwebtoken'
-import { User } from '../../src/types/types'
+import { DBUser, User } from '../../src/types/types'
 
 /* Check authorization JWT */
 export const checkAuth = (event: Event) => {

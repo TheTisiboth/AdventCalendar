@@ -10,12 +10,21 @@ export interface Picture {
 }
 
 export type Credentials = {
-    userName: string,
+    name: string,
     password: string,
 }
 
-export type User = {
+export type DBUser = {
+    id: string,
     name: string,
+    role: string,
+    password: string
+}
+
+export type User = {
+    id: string,
+    name: string,
+    role: string,
 }
 
 export type Token = {

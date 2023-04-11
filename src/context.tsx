@@ -1,4 +1,5 @@
 import { createContext, Dispatch, FC, SetStateAction, useState } from "react"
+import { DBUser, User } from "./types/types"
 
 enum Role {
     ADMIN = 'admin',
@@ -6,11 +7,6 @@ enum Role {
     USER = 'user'
 }
 
-type User = {
-    id: string,
-    name: string,
-    role: string
-}
 
 const dummyUser: User = {
     id: '1',

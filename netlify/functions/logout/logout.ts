@@ -5,6 +5,7 @@ import { refreshTokenModel } from "../../models/models";
 export const handler: Handler = async (event, context) => {
   try {
     const body = JSON.parse(event.body!)
+    console.log(body)
     const { refreshToken } = body
     if (refreshToken == null) return {
       statusCode: 401,
