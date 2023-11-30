@@ -58,8 +58,8 @@ export const MyProvider: FC<Props> = ({ children }) => {
     const [authorized, setAuthorized] = useState(false);
     const [date, setDate] = useState(new Date());
     const [isFake, setIsFake] = useState(false);
-    // const startingDate = new Date('December 01, 2023 00:00:00');
-    const startingDate = new Date('November 30, 2023 17:34:00');
+    const startingDate = new Date('December 01, 2023 00:00:00');
+    // const startingDate = new Date('November 30, 2023 17:34:00');
 
     const [isStarted, setIsStarted] = useState(dayjs(new Date()).isAfter(startingDate))
 
