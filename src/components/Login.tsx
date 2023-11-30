@@ -108,7 +108,12 @@ const Login = () => {
 
     console.log(errors);
     return (
-        <Box sx={{ maxWidth: '30rem' }}>
+        <Box sx={{
+            maxWidth: '30rem',
+            margin: "auto",
+            width: "50 %",
+            padding: "100px"
+        }}>
             <Typography variant='h4' component='h1' sx={{ mb: '2rem' }}>
                 Sign In
             </Typography>

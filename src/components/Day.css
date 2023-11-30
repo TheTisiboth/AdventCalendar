@@ -1,0 +1,29 @@
+/* styles.css ou fichier .scss */
+
+.image-container {
+  position: relative;
+  /* display: inline-block; */
+}
+
+.image {
+  width: 100%;
+  height: "600px";
+}
+
+.text-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  background-color: rgba(255, 255, 255, 0); /* Couleur de fond avec une opacité (0.5) */
+  color: black; /* Couleur du texte */
+  text-align: center;
+  /* padding: 10px; */
+  padding-top:5px;
+  padding-left:15px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  /* justify-content: center; */
+}

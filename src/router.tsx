@@ -3,17 +3,23 @@ import {
     RootRoute,
     Route, Outlet
 } from "@tanstack/react-router"
-import { Home } from "./components/Home"
+import { CalendarTest } from "./components/CalendarTest"
 import { Error } from "./components/error"
 import Login from "./components/Login"
 import Calendar from "./components/Calendar"
 import { Auth } from "./components/Auth"
+import { NavBar } from "./components/NavBar"
+import { Box } from "@mui/material"
+import { Home } from "./components/Home"
 
 
 const Root = () => {
     return (
         <>
-            <Outlet />
+            <NavBar />
+            <Box sx={{ p: 8 }}>
+                <Outlet />
+            </Box>
         </>
     )
 }
@@ -23,7 +29,7 @@ const rootRoute = new RootRoute({
 
 const homeRoute = new Route({
     getParentRoute: () => rootRoute,
-    path: '/a',
+    path: '/',
     component: Home,
 })
 
@@ -38,14 +44,20 @@ const authCalendarRoute = new Route({
     getParentRoute: () => rootRoute,
     path: '/calendar',
     component: Auth,
-
 })
+
 const calendarRoute = new Route({
     getParentRoute: () => authCalendarRoute,
     path: '/',
     component: Calendar,
 })
 authCalendarRoute.addChildren([calendarRoute])
+
+const calendarTest = new Route({
+    getParentRoute: () => rootRoute,
+    path: '/test',
+    component: CalendarTest,
+})
 
 const errorRoute = new Route({
     getParentRoute: () => rootRoute,
@@ -55,7 +67,7 @@ const errorRoute = new Route({
 
 
 // Create the route tree using your routes
-const routeTree = rootRoute.addChildren([homeRoute, authCalendarRoute, loginRoute, errorRoute])
+const routeTree = rootRoute.addChildren([homeRoute, authCalendarRoute, loginRoute, calendarTest, errorRoute])
 
 // Create the router using your route tree
 const router = new Router({ routeTree })

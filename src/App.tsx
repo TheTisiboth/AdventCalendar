@@ -13,11 +13,9 @@ declare module '@tanstack/router' {
 }
 export const App = () =>
 (
-  <>
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <MyProvider>
-        <RouterProvider router={router} />
-      </MyProvider>
-    </LocalizationProvider>
-  </>
+  <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <MyProvider>
+      <RouterProvider router={router} />
+    </MyProvider>
+  </LocalizationProvider>
 )

@@ -5,7 +5,7 @@ import { GlobalContext } from "../context";
 export const Auth: FC = () => {
     const context = useContext(GlobalContext)
     if (!context.authorized) {
-        return <Navigate to="/" />;
+        return <Navigate to="/login" />;
     }
     return <Outlet />;
 }
