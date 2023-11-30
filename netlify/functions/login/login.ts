@@ -12,9 +12,10 @@ export const handler: Handler = async (event, context) => {
     console.log(JSON.parse(event.body!))
     const body: Credentials = JSON.parse(event.body!)
     const { name, password } = body
-    console.log("start hash")
-    // const hashedPassword = bcrypt.hashSync(password, 12)
-    console.log("done hash")
+    // console.log("start hash")
+    // const hashedPassword = bcrypt.hashSync("paul@2k23", 12)
+    // console.log(hashedPassword)
+    // console.log("done hash")
     // console.log(hashedPassword)
     console.log("start find")
     await connect(process.env.MONGODB_URI!, { dbName: process.env.MONGODB_DATABASE })
