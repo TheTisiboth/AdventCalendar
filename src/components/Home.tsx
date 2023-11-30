@@ -1,10 +1,10 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { CountdownTimer } from "./CountdownTimer/CountdownTimer";
 import { Box } from "@mui/material";
+import { GlobalContext } from "../context";
 
 export const Home: FC = () => {
-    const date = new Date('December 01, 2023 00:00:00');
-    const dateTest = new Date('November 30, 2023 14:47:00');
+    const { startingDate } = useContext(GlobalContext)
 
 
     return <Box
@@ -14,6 +14,6 @@ export const Home: FC = () => {
             justifyContent: "center",
             padding: 10
         }}>
-        <CountdownTimer targetDate={date} />
+        <CountdownTimer targetDate={startingDate} />
     </Box >
 }

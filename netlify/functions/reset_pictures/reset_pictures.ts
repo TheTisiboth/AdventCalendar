@@ -22,7 +22,7 @@ export const handler: Handler = async (event, context) => {
         day: i + 1,
         isOpen: false,
         isOpenable: false,
-        key: "Capture.PNG",
+        key: i + 1 + ".jpg",
         date: date,
       } as Picture
     })
@@ -33,25 +33,25 @@ export const handler: Handler = async (event, context) => {
 
 
 
-    await pictureModel.collection.drop()
+    // await pictureModel.collection.drop()
 
-    const pictures = [...Array(24)].map((_, i) => {
-      const date = new Date()
-      date.setUTCHours(0, 0, 0, 0)
-      date.setUTCMonth(11)
-      date.setUTCDate(i + 1)
-      return {
-        day: i + 1,
-        isOpen: false,
-        isOpenable: false,
-        key: "biere.jpg",
-        date: date,
-      } as Picture
-    })
+    // const pictures = [...Array(24)].map((_, i) => {
+    //   const date = new Date()
+    //   date.setUTCHours(0, 0, 0, 0)
+    //   date.setUTCMonth(11)
+    //   date.setUTCDate(i + 1)
+    //   return {
+    //     day: i + 1,
+    //     isOpen: false,
+    //     isOpenable: false,
+    //     key: i + 1 + ".jpg",
+    //     date: date,
+    //   } as Picture
+    // })
 
-    await pictureModel.insertMany(
-      pictures
-    )
+    // await pictureModel.insertMany(
+    //   pictures
+    // )
     return {
       statusCode: 200,
       body: JSON.stringify(dummyPictures),

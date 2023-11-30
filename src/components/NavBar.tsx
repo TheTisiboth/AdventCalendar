@@ -1,12 +1,12 @@
 import { Box, Typography, Divider, List, ListItem, ListItemButton, ListItemText, CssBaseline, AppBar, Toolbar, IconButton, Button, Drawer } from "@mui/material";
-import React, { useState } from "react";
-import MenuIcon from '@mui/icons-material/Menu';
+import React, { useContext, useState } from "react";
 import { Link } from '@tanstack/react-router'
+import { GlobalContext } from "../context";
 
 const drawerWidth = 240;
 
 export const NavBar = () => {
-    // const window = () => Window;
+    const { isStarted } = useContext(GlobalContext)
     const [mobileOpen, setMobileOpen] = useState(false);
 
     const handleDrawerToggle = () => {
@@ -22,21 +22,25 @@ export const NavBar = () => {
                         <ListItemText sx={{ color: '#000' }} primary={<Link to="/">Home</Link>} />
                     </ListItemButton>
                 </ListItem>
-                <ListItem key={"Calendar"} disablePadding>
-                    <ListItemButton sx={{ textAlign: 'center' }}>
-                        <ListItemText sx={{ color: '#fff' }} primary={<Link to="/calendar">Calendar</Link>} />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem key={"Test"} disablePadding>
+                {isStarted &&
+                    <ListItem key={"Calendar"} disablePadding>
+                        <ListItemButton sx={{ textAlign: 'center' }}>
+                            <ListItemText sx={{ color: '#fff' }} primary={<Link to="/calendar">Calendar</Link>} />
+                        </ListItemButton>
+                    </ListItem>
+                }
+                {/* <ListItem key={"Test"} disablePadding>
                     <ListItemButton sx={{ textAlign: 'center' }}>
                         <ListItemText primary={<Link to="/test">Test</Link>} />
                     </ListItemButton>
-                </ListItem>
-                <ListItem key={"Login"} disablePadding>
-                    <ListItemButton sx={{ textAlign: 'center' }}>
-                        <ListItemText primary={<Link to="/login">Login</Link>} />
-                    </ListItemButton>
-                </ListItem>
+                </ListItem> */}
+                {isStarted &&
+                    <ListItem key={"Login"} disablePadding>
+                        <ListItemButton sx={{ textAlign: 'center' }}>
+                            <ListItemText primary={<Link to="/login">Login</Link>} />
+                        </ListItemButton>
+                    </ListItem>
+                }
 
             </List>
         </Box>
@@ -63,15 +67,19 @@ export const NavBar = () => {
                         <Button key={"Home"} sx={{ color: '#fff' }}>
                             <Link to="/">Home</Link>
                         </Button>
-                        <Button key={"Calendar"} sx={{ color: '#fff' }}>
-                            <Link to="/calendar">Calendar</Link>
-                        </Button>
-                        <Button key={"Test"} sx={{ color: '#fff' }}>
+                        {isStarted &&
+                            <Button key={"Calendar"} sx={{ color: '#fff' }}>
+                                <Link to="/calendar">Calendar</Link>
+                            </Button>
+                        }
+                        {/* <Button key={"Test"} sx={{ color: '#fff' }}>
                             <Link to="/test">Test</Link>
-                        </Button>
-                        <Button key={"Login"} sx={{ color: '#fff' }}>
-                            <Link to="/login">Login</Link>
-                        </Button>
+                        </Button> */}
+                        {isStarted &&
+                            <Button key={"Login"} sx={{ color: '#fff' }}>
+                                <Link to="/login">Login</Link>
+                            </Button>
+                        }
 
                     </Box>
                 </Toolbar>

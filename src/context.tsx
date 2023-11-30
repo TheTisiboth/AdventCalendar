@@ -1,5 +1,6 @@
 import { createContext, Dispatch, FC, SetStateAction, useState } from "react"
 import { DBUser, User } from "./types/types"
+import dayjs from "dayjs"
 
 enum Role {
     ADMIN = 'admin',
@@ -24,7 +25,10 @@ type Context = {
     date: Date,
     setDate: Dispatch<SetStateAction<Date>>,
     isFake: boolean
-    setIsFake: Dispatch<SetStateAction<boolean>>
+    setIsFake: Dispatch<SetStateAction<boolean>>,
+    startingDate: Date,
+    isStarted: boolean,
+    setIsStarted: Dispatch<SetStateAction<boolean>>
 }
 
 const defaultContext: Context = {
@@ -37,7 +41,10 @@ const defaultContext: Context = {
     date: new Date(),
     setDate: () => { },
     isFake: false,
-    setIsFake: () => { }
+    setIsFake: () => { },
+    startingDate: new Date('December 01, 2023 00:00:00'),
+    isStarted: false,
+    setIsStarted: () => { },
 }
 
 export const GlobalContext = createContext(defaultContext);
@@ -51,6 +58,10 @@ export const MyProvider: FC<Props> = ({ children }) => {
     const [authorized, setAuthorized] = useState(false);
     const [date, setDate] = useState(new Date());
     const [isFake, setIsFake] = useState(false);
+    const startingDate = new Date('December 01, 2023 00:00:00');
+    // const startingDate = new Date('November 30, 2023 16:37:00');
+
+    const [isStarted, setIsStarted] = useState(dayjs(new Date()).isAfter(startingDate))
 
     return (
         <GlobalContext.Provider
@@ -64,7 +75,10 @@ export const MyProvider: FC<Props> = ({ children }) => {
                 date,
                 setDate,
                 isFake,
-                setIsFake
+                setIsFake,
+                startingDate,
+                isStarted,
+                setIsStarted
             }}
         >
             {children}

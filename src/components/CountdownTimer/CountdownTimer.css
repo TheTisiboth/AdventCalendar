@@ -7,18 +7,21 @@
 }
 
 .expired-notice > span {
-  font-size: 2.5rem;
+  font-size: 3.5rem;
   font-weight: bold;
   color: red;
 }
 
 .expired-notice > p {
-  font-size: 1.5rem;
+  font-size: 3rem;
 }
 
 .show-counter {
   padding: 0.5rem;
   display:flex;
+}
+.show-counter *,.expired-notice *{
+    font-size: 3rem;
 }
 
 .show-counter .countdown-link {
@@ -37,7 +40,7 @@
 }
 
 .show-counter .countdown {
-  line-height: 1.25rem;
+  /* line-height: 1.25rem; */
   padding: 0 0.75rem 0 0.75rem;
   align-items: center;
   display: flex;
@@ -50,10 +53,11 @@
 
 .show-counter .countdown > p {
   margin: 0;
+    font-size: 3rem;
 }
 
 .show-counter .countdown > span {
   text-transform: uppercase;
-  font-size: 0.75rem;
-  line-height: 1rem;
+  font-size: 3rem;
+  line-height: 2rem;
 }
