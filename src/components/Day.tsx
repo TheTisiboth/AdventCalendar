@@ -1,4 +1,4 @@
-import { Button, Box, Paper } from "@mui/material"
+import { Button, Box, Paper, Skeleton } from "@mui/material"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import dayjs from "dayjs"
 import { FC, useContext, useRef } from "react"
@@ -15,7 +15,7 @@ export const Day: FC<DayProps> = ({ picture, test }) => {
 
     const queryClient = useQueryClient();
     const { date } = useContext(GlobalContext)
-    const isBefore = dayjs(date).isBefore(dayjs(picture.date))
+    const isBefore = dayjs(picture.date).isBefore(dayjs(date))
     const imageRef = useRef<HTMLImageElement>(null)
     const isToday = dayjs(date).isSame(dayjs(picture.date), "day")
     if (picture.day === 1) {
@@ -48,19 +48,32 @@ export const Day: FC<DayProps> = ({ picture, test }) => {
     const onClick = async () => {
         await imageRef.current?.requestFullscreen();
     }
-    const t = picture.key.split(".jpeg")
-    console.log(t)
+
     const imageSRC = (picture.key.split(".jpg").length == 2) ? CDN_URL + picture.key : picture.key
-    console.log(imageSRC)
     return (
-        <Button disabled={isBefore} fullWidth style={{ height: "200px", width: "100%" }} onClick={handleClick} >
-            {!isBefore && picture.isOpen &&
-                <div className="image-container">
-                    <img ref={imageRef} onClick={onClick} src={imageSRC} width={"100%"} height={"100%"} className="image" />
-                    <div className="text-overlay">{picture.day}</div>
-                </div>
-            }
-            {(!picture.isOpen || isBefore) && <Paper elevation={10} style={{ width: "100%", height: "100%", backgroundColor: `${isBefore ? "white" : "blue"}`, color: `${isBefore ? "blue" : "white"}` }} >{picture.day}</Paper>}
+        <Button disabled={!isBefore} fullWidth style={{ height: "200px", width: "100%" }} className={`${isBefore && !isToday ? `isBefore` : ``} ${picture.isOpen ? `isOpen` : ``}`} onClick={handleClick} >
+            <Paper elevation={10} style={{ width: "100%", height: "100%" }}><div className={`image-container`} >
+                {isBefore && picture.isOpen &&
+                    < img ref={imageRef} onClick={onClick} src={imageSRC} width={"100%"} height={"100%"} className="image" />
+                }
+
+
+                <div className="text-overlay" style={{ color: `${isToday ? 'white' : ''}` }}>
+                    {picture.day}</div>
+
+                {isToday && !picture.isOpen &&
+                    <Skeleton variant="rectangular" width={"100%"} height={"100%"} style={{ backgroundColor: "blue" }} >
+                        {/* <div id={"todayPicture"}>{picture.day}</div> */}
+                    </Skeleton>
+                }
+                {/* {!isToday &&
+                        <div className="text-overlay">{picture.day}</div>
+                    } */}
+
+            </div>
+
+
+            </Paper>
         </Button >
     )
 }

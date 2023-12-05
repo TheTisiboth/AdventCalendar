@@ -1,24 +1,27 @@
 /* styles.css ou fichier .scss */
 
 .image-container {
-  position: relative;
+  /* position: relative; */
   max-height: 100%;
+  height:100%
 }
 
 .image {
+  z-index:11;
   width: 100%;
   max-height: 200px;
   height:auto
 }
 
 .text-overlay {
+  z-index: 40;
+  color:blue;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: auto;
   background-color: rgba(255, 255, 255, 0); /* Couleur de fond avec une opacité (0.5) */
-  color: black; /* Couleur du texte */
   text-align: center;
   /* padding: 10px; */
   padding-top:5px;
@@ -28,3 +31,32 @@
   align-items: center;
   /* justify-content: center; */
 }
+
+.isBefore *{
+background-color:blue;
+color:white
+}
+
+.isOpen *{
+background-color:transparent;
+color:blue
+}
+
+#todayPicture{
+ z-index: 30;
+  color:white;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  text-align: center;
+  /* padding: 10px; */
+  padding-top:5px;
+  padding-left:15px;
+  /* font-size: 24px; */
+  display: flex;
+  align-items: center;
+
+}
+
