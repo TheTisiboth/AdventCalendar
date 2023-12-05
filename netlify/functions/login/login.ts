@@ -1,26 +1,21 @@
 import { Handler } from "@netlify/functions";
 import * as jwt from "jsonwebtoken"
-import { Credentials, DBUser, User } from "../../../src/types/types";
+import { Credentials, User } from "../../../src/types/types";
 import { userModel } from "../../models/models";
 import { generateAccessToken } from "../../utils/auth";
 import bcrypt from "bcrypt"
 import { connect } from "mongoose";
 
 export const handler: Handler = async (event, context) => {
-  console.log("ok")
+  console.log("okk")
   try {
     console.log(JSON.parse(event.body!))
     const body: Credentials = JSON.parse(event.body!)
     const { name, password } = body
-    // console.log("start hash")
-    // const hashedPassword = bcrypt.hashSync("paul@2k23", 12)
-    // console.log(hashedPassword)
-    // console.log("done hash")
-    // console.log(hashedPassword)
+
     console.log("start find")
     await connect(process.env.MONGODB_URI!, { dbName: process.env.MONGODB_DATABASE })
     const DBUser = await userModel.findOne({ name }).exec()
-    console.log("found")
     console.log("user", DBUser)
     if (DBUser) {
       const isPasswordCorrect = bcrypt.compareSync(password, DBUser.password)
