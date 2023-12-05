@@ -17,7 +17,11 @@ const Root = () => {
     return (
         <>
             <NavBar />
-            <Box sx={{ p: 8 }}>
+            <Box sx={{
+                paddingTop: 8,
+                paddingLeft: 1,
+                paddingRight: 1
+            }}>
                 <Outlet />
             </Box>
         </>

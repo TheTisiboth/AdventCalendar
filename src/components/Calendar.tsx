@@ -39,7 +39,7 @@ export const Calendar: FC = () => {
             {!isPictureLoading && pictures &&
                 <Grid container >
                     <Grid item xs={1} />
-                    <Grid item xs={10}>
+                    <Grid item xs={12}>
                         <DayGrid pictures={pictures} test />
                     </Grid>
                 </Grid>}
