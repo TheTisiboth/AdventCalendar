@@ -4,6 +4,7 @@ import {
     FormControlLabel,
     FormGroup,
     FormHelperText,
+    Grid,
     Snackbar,
     Typography,
 } from '@mui/material';
@@ -108,58 +109,63 @@ const Login = () => {
 
     console.log(errors);
     return (
-        <Box sx={{
-            maxWidth: '30rem',
-            margin: "auto",
-            width: "50 %",
-            padding: "100px"
-        }}>
-            <Typography variant='h4' component='h1' sx={{ mb: '2rem' }}>
-                Sign In
-            </Typography>
-            <FormProvider {...methods}>
-                <Box
-                    component='form'
-                    noValidate
-                    autoComplete='off'
-                    onSubmit={handleSubmit(onSubmitHandler)}
-                >
-                    <FormInput
-                        name='name'
-                        required
-                        fullWidth
-                        label='Name'
-                        sx={{ mb: 2 }}
-                    />
+        <Grid container direction="column"
+            alignItems="center"
+            justifyContent="center"
+            sx={{ minHeight: '100vh', marginTop: -20 }}
 
-                    <FormInput
-                        name='password'
-                        required
-                        fullWidth
-                        label='Password'
-                        type='password'
-                        sx={{ mb: 2 }}
-                    />
-
-
-                    <LoadingButton
-                        variant='contained'
-                        fullWidth
-                        type='submit'
-                        loading={loading}
-                        sx={{ py: '0.8rem', mt: '1rem' }}
-                    >
+        >
+            <Grid item xs={0} sm={4} />
+            <Grid item xs={12} sm={4}   >
+                <Box>
+                    <Typography variant='h4' component='h1' sx={{ mb: '2rem' }}>
                         Sign In
-                    </LoadingButton>
+                    </Typography>
+                    <FormProvider {...methods}>
+                        <Box
+                            component='form'
+                            noValidate
+                            autoComplete='off'
+                            onSubmit={handleSubmit(onSubmitHandler)}
+                        >
+                            <FormInput
+                                name='name'
+                                required
+                                fullWidth
+                                label='Name'
+                                sx={{ mb: 2 }}
+                            />
+
+                            <FormInput
+                                name='password'
+                                required
+                                fullWidth
+                                label='Password'
+                                type='password'
+                                sx={{ mb: 2 }}
+                            />
+
+
+                            <LoadingButton
+                                variant='contained'
+                                fullWidth
+                                type='submit'
+                                loading={loading}
+                                sx={{ py: '0.8rem', mt: '1rem' }}
+                            >
+                                Sign In
+                            </LoadingButton>
+                        </Box>
+                    </FormProvider>
+                    <Snackbar open={snackBar.open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: "top", horizontal: "center" }} >
+                        <Alert onClose={handleClose} severity={(isEmpty(errors) || errors.root) ? "error" : "success"} sx={{ width: '100%' }}>
+                            {errors.root && errors.root.message}
+                            {isSubmitSuccessful && "User authentified"}
+                        </Alert>
+                    </Snackbar>
                 </Box>
-            </FormProvider>
-            <Snackbar open={snackBar.open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: "top", horizontal: "center" }} >
-                <Alert onClose={handleClose} severity={(isEmpty(errors) || errors.root) ? "error" : "success"} sx={{ width: '100%' }}>
-                    {errors.root && errors.root.message}
-                    {isSubmitSuccessful && "User authentified"}
-                </Alert>
-            </Snackbar>
-        </Box>
+            </Grid>
+        </Grid>
     );
 };
 
