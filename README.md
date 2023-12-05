@@ -5,7 +5,7 @@ Site deployed with Netlify
 
 ## Stack
 
-The website is built with [React](https://react.dev/), and is bootstrapped with [Vite](https://vitejs.dev/). The database is stored in [MongoDB](https://www.mongodb.com/). The UI is built with the [MUI](https://mui.com/) Framework. The authentication is done using the [JWT](https://jwt.io/) methodology, and implemented thanks to [middy](https://middy.js.org/) for the middleware. The Frontend is making calls to [Netlify serverless functions](https://www.netlify.com/products/functions/). The pictures are stored in a [AWS S3 bucket](https://aws.amazon.com/s3/), and accessible through [AWS Cloudfront](https://aws.amazon.com/cloudfront/).
+The website is built with [React](https://react.dev/), and is bootstrapped with [Vite](https://vitejs.dev/). The database is stored in [MongoDB](https://www.mongodb.com/). The UI is built with the [MUI](https://mui.com/) Framework. The authentication is done using the [JWT](https://jwt.io/) methodology, and implemented thanks to [middy](https://middy.js.org/) for the middleware. The Frontend is making calls to [Netlify serverless functions](https://www.netlify.com/products/functions/). The pictures are stored in an [AWS S3 bucket](https://aws.amazon.com/s3/), and accessible through [AWS Cloudfront](https://aws.amazon.com/cloudfront/).
 ## Documentation
 
 ### Developing a Web Application with Netlify Serverless Functions and MongoDB
