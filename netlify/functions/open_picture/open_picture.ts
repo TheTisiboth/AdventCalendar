@@ -10,10 +10,10 @@ export const handler: Handler = async (event, context) => {
   try {
     await connect(process.env.MONGODB_URI!, { dbName: process.env.MONGODB_DATABASE })
     const body: Body = JSON.parse(event.body!)
-    const test = false
+    const { test } = body
     let picture: Picture
     const day = event.queryStringParameters?.day
-
+    console.log("TEST:", test)
     let pic: Picture | null
     if (test)
       pic = await dummyPictureModel.findOneAndUpdate({ day }, { isOpen: true }).exec()

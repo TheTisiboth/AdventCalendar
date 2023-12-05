@@ -22,7 +22,7 @@ export const handler: Handler = async (event, context) => {
         day: i + 1,
         isOpen: false,
         isOpenable: false,
-        key: i + 1 + ".jpg",
+        key: "https://picsum.photos/200/300?sig=" + i + 1,
         date: date,
       } as Picture
     })

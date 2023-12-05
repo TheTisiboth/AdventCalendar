@@ -45,15 +45,18 @@ export const Day: FC<DayProps> = ({ picture, test }) => {
         }
     }
 
-    const onClick = () => {
-        imageRef.current?.requestFullscreen();
+    const onClick = async () => {
+        await imageRef.current?.requestFullscreen();
     }
-
+    const t = picture.key.split(".jpeg")
+    console.log(t)
+    const imageSRC = (picture.key.split(".jpg").length == 2) ? CDN_URL + picture.key : picture.key
+    console.log(imageSRC)
     return (
         <Button disabled={isBefore} fullWidth style={{ height: "200px", width: "100%" }} onClick={handleClick} >
             {!isBefore && picture.isOpen &&
                 <div className="image-container">
-                    <img ref={imageRef} onClick={onClick} src={CDN_URL + picture.key} width={"100%"} height={"100%"} className="image" />
+                    <img ref={imageRef} onClick={onClick} src={imageSRC} width={"100%"} height={"100%"} className="image" />
                     <div className="text-overlay">{picture.day}</div>
                 </div>
             }

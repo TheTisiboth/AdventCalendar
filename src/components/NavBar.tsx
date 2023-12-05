@@ -6,6 +6,8 @@ import { GlobalContext } from "../context";
 const drawerWidth = 240;
 
 export const NavBar = () => {
+    const context = useContext(GlobalContext)
+    const { authorized } = context
     const { isStarted } = useContext(GlobalContext)
     const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -29,12 +31,12 @@ export const NavBar = () => {
                         </ListItemButton>
                     </ListItem>
                 }
-                {/* <ListItem key={"Test"} disablePadding>
+                <ListItem key={"Test"} disablePadding>
                     <ListItemButton sx={{ textAlign: 'center' }}>
                         <ListItemText primary={<Link to="/test">Test</Link>} />
                     </ListItemButton>
-                </ListItem> */}
-                {isStarted &&
+                </ListItem>
+                {isStarted && !authorized &&
                     <ListItem key={"Login"} disablePadding>
                         <ListItemButton sx={{ textAlign: 'center' }}>
                             <ListItemText primary={<Link to="/login">Login</Link>} />
@@ -72,10 +74,10 @@ export const NavBar = () => {
                                 <Link to="/calendar">Calendar</Link>
                             </Button>
                         }
-                        {/* <Button key={"Test"} sx={{ color: '#fff' }}>
+                        <Button key={"Test"} sx={{ color: '#fff' }}>
                             <Link to="/test">Test</Link>
-                        </Button> */}
-                        {isStarted &&
+                        </Button>
+                        {isStarted && !authorized &&
                             <Button key={"Login"} sx={{ color: '#fff' }}>
                                 <Link to="/login">Login</Link>
                             </Button>
