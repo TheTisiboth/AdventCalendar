@@ -58,17 +58,12 @@ export const Day: FC<DayProps> = ({ picture, test }) => {
                 }
 
 
-                <div className="text-overlay" style={{ color: `${isToday ? 'white' : ''}` }}>
+                <div className="text-overlay" style={{ color: `${isToday && !picture.isOpen ? 'white' : ''}` }}>
                     {picture.day}</div>
 
                 {isToday && !picture.isOpen &&
-                    <Skeleton variant="rectangular" width={"100%"} height={"100%"} style={{ backgroundColor: "blue" }} >
-                        {/* <div id={"todayPicture"}>{picture.day}</div> */}
-                    </Skeleton>
+                    <Skeleton variant="rectangular" width={"100%"} height={"100%"} style={{ backgroundColor: "blue" }} />
                 }
-                {/* {!isToday &&
-                        <div className="text-overlay">{picture.day}</div>
-                    } */}
 
             </div>
 
