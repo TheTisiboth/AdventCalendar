@@ -6,6 +6,7 @@ import { CDN_URL, NETLIFY_FUNCTIONS_PATH } from "../constants"
 import { GlobalContext } from "../context"
 import { Picture } from "../types/types"
 import './Day.css'
+import FullScreenDialog from "./FullscreenDialog"
 
 type DayProps = {
     picture: Picture
@@ -20,6 +21,9 @@ export const Day: FC<DayProps> = ({ picture }) => {
     const [screenWidth, setWidth] = useState(window.innerWidth)
     const isMobile = screenWidth <= 500
     const imageSize = isMobile ? "5em" : "13em"
+
+    const [open, setOpen] = useState(false);
+
     if (picture.day === 1) {
         console.log(picture)
         console.log(isBefore)
@@ -52,6 +56,7 @@ export const Day: FC<DayProps> = ({ picture }) => {
     });
 
     const handleClick = () => {
+        console.log("handle click")
         if (!picture.isOpen) {
             console.log("mutate", picture)
             mutate(picture.day)
@@ -60,12 +65,22 @@ export const Day: FC<DayProps> = ({ picture }) => {
         }
     }
 
+    useEffect(() => {
+        console.log("OPEN:", open)
+    }, [open])
+
     const onClick = async () => {
         console.log("click pic")
-        try {
-            await imageRef.current?.requestFullscreen();
-        } catch (error) {
-            console.log(error)
+        console.log("ONCLICK. ISOPEN:", open)
+        if (isMobile) {
+            if (!open)
+                setOpen((prev) => !prev)
+        } else {
+            try {
+                await imageRef.current?.requestFullscreen();
+            } catch (error) {
+                console.log(error)
+            }
         }
     }
 
@@ -95,7 +110,7 @@ export const Day: FC<DayProps> = ({ picture }) => {
             <Paper elevation={10} style={{ width: "100%", height: "100%", }} className={`${divColor()} paperPicture`}>
                 {/* <div className={`image-container`} > */}
                 {isBefore && picture.isOpen &&
-                    < img ref={imageRef} onClick={onClick} src={imageSRC} max-width={"100%"} max-height={"100%"} className="image" />
+                    < img ref={imageRef} src={imageSRC} max-width={"100%"} max-height={"100%"} className="image" />
                 }
 
 
@@ -108,6 +123,8 @@ export const Day: FC<DayProps> = ({ picture }) => {
                 }
 
                 {/* </div> */}
+                <FullScreenDialog picture={picture} setOpen={setOpen} open={open} />
+
 
 
             </Paper>

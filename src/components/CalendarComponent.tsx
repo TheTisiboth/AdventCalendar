@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import { NETLIFY_FUNCTIONS_PATH } from "../constants";
 import { Picture } from "../types/types";
 import { DayGrid } from "./Grid";
+import FullScreenDialog from "./FullscreenDialog";
 
 type CalendarComponentProps = {
     test: boolean,
