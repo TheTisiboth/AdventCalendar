@@ -13,7 +13,7 @@
 }
 
 .text-overlay {
-  z-index: 40;
+  z-index: 90;
   color:blue;
   position: absolute;
   top: 0;
@@ -67,3 +67,8 @@ color:blue
 
 }
 
+.paperPicture {
+  display: flex;
+   justify-content: center;
+   align-items: center;
+}

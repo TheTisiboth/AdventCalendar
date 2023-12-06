@@ -71,13 +71,24 @@ export const Day: FC<DayProps> = ({ picture, test }) => {
         return "textIsAfter"
     }
 
+    const divColor = () => {
+        if (isBefore) {
+            if (picture.isOpen)
+                return "isOpen"
+            if (!isToday)
+                return "isBefore"
+        }
+
+        return ""
+    }
+
     const imageSRC = (picture.key.split(".jpg").length == 2) ? CDN_URL + picture.key : picture.key
     return (
         <Button disabled={!isBefore} fullWidth style={{ height: imageSize, width: imageSize }} onClick={handleClick} >
-            <Paper elevation={10} style={{ width: "100%", height: "100%" }} className={`${isBefore && !isToday ? `isBefore` : ``} ${picture.isOpen ? `isOpen` : ``}`}>
+            <Paper elevation={10} style={{ width: "100%", height: "100%", }} className={`${divColor()} paperPicture`}>
                 {/* <div className={`image-container`} > */}
                 {isBefore && picture.isOpen &&
-                    < img ref={imageRef} onClick={onClick} src={imageSRC} width={"100%"} height={"100%"} className="image" />
+                    < img ref={imageRef} onClick={onClick} src={imageSRC} max-width={"100%"} max-height={"100%"} className="image" />
                 }
 
 
@@ -86,7 +97,7 @@ export const Day: FC<DayProps> = ({ picture, test }) => {
                 {/* </div> */}
 
                 {isToday && !picture.isOpen &&
-                    <Skeleton variant="rectangular" width={"100%"} height={"100%"} style={{ backgroundColor: "blue", borderRadius: 4 }} />
+                    <Skeleton variant="rectangular" width={"100%"} height={"100%"} style={{ backgroundColor: "blue", borderRadius: 4, zIndex: 50 }} />
                 }
 
                 {/* </div> */}
