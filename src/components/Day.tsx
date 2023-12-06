@@ -62,23 +62,34 @@ export const Day: FC<DayProps> = ({ picture, test }) => {
         await imageRef.current?.requestFullscreen();
     }
 
+    const textColor = () => {
+        if (isBefore) {
+            if (picture.isOpen)
+                return "textIsAfter"
+            return "textIsBefore"
+        }
+        return "textIsAfter"
+    }
+
     const imageSRC = (picture.key.split(".jpg").length == 2) ? CDN_URL + picture.key : picture.key
     return (
-        <Button disabled={!isBefore} fullWidth style={{ height: imageSize, width: imageSize }} className={`${isBefore && !isToday ? `isBefore` : ``} ${picture.isOpen ? `isOpen` : ``}`} onClick={handleClick} >
-            <Paper elevation={10} style={{ width: "100%", height: "100%" }}><div className={`image-container`} >
+        <Button disabled={!isBefore} fullWidth style={{ height: imageSize, width: imageSize }} onClick={handleClick} >
+            <Paper elevation={10} style={{ width: "100%", height: "100%" }} className={`${isBefore && !isToday ? `isBefore` : ``} ${picture.isOpen ? `isOpen` : ``}`}>
+                {/* <div className={`image-container`} > */}
                 {isBefore && picture.isOpen &&
                     < img ref={imageRef} onClick={onClick} src={imageSRC} width={"100%"} height={"100%"} className="image" />
                 }
 
 
-                <div className="text-overlay" style={{ color: `${isToday && !picture.isOpen ? 'white' : ''}` }}>
-                    {picture.day}</div>
+                {/* <div className="text-overlay" style={{ color: `${isToday && !picture.isOpen ? 'white' : ''}` }}> */}
+                <span className={`text-overlay ${textColor()}`}>{picture.day} </span>
+                {/* </div> */}
 
                 {isToday && !picture.isOpen &&
-                    <Skeleton variant="rectangular" width={"100%"} height={"100%"} style={{ backgroundColor: "blue" }} />
+                    <Skeleton variant="rectangular" width={"100%"} height={"100%"} style={{ backgroundColor: "blue", borderRadius: 4 }} />
                 }
 
-            </div>
+                {/* </div> */}
 
 
             </Paper>

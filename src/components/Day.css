@@ -31,14 +31,22 @@
   /* justify-content: center; */
 }
 
-.isBefore *{
-background-color:blue;
+.isBefore {
+background-color:blue !important;
 color:white
 }
 
-.isOpen *{
+.isOpen {
 background-color:transparent;
 color:blue
+}
+
+.textIsBefore{
+  color:white;
+}
+
+.textIsAfter{
+  color:blue;
 }
 
 #todayPicture{
