@@ -7,16 +7,15 @@ import { shuffle } from "../utils/utils";
 
 type DayGridProps = {
     pictures: Picture[],
-    test: boolean
 }
-export const DayGrid: FC<DayGridProps> = ({ pictures, test }) => {
+export const DayGrid: FC<DayGridProps> = ({ pictures }) => {
     const { date } = useContext(GlobalContext)
     const year = date.getFullYear() // Seed the shuffle with the current year
     return (
         <Grid container spacing={2}>
             {shuffle(pictures, year).map(pic => (
                 <Grid item xs={3} sm={2} key={pic._id.toString()}>
-                    <Day picture={pic} test />
+                    <Day picture={pic} />
                 </Grid>
             ))}
         </Grid>

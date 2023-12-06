@@ -30,7 +30,7 @@ export const CalendarComponent: FC<CalendarComponentProps> = ({ test, resetPictu
 
     useEffect(() => {
         context.setDate(new Date())
-        context.setIsFake(false)
+        context.setIsFake(test)
     }, [])
     console.log("ctx date live", context.date)
 
@@ -61,7 +61,7 @@ export const CalendarComponent: FC<CalendarComponentProps> = ({ test, resetPictu
                     {/* <Grid item xs={1} /> */}
                     {!test &&
                         <Grid xs={12}>
-                            <DayGrid pictures={pictures} test />
+                            <DayGrid pictures={pictures} />
                         </Grid>
                     }
                     {test &&
@@ -74,7 +74,7 @@ export const CalendarComponent: FC<CalendarComponentProps> = ({ test, resetPictu
                             </Grid>
                             {/* <Grid  xs={1} sm={0} /> */}
                             <Grid xs={10} sm={9} xsOffset={1}>
-                                <DayGrid pictures={pictures} test={true} />
+                                <DayGrid pictures={pictures} />
                             </Grid>
                         </>
                     }

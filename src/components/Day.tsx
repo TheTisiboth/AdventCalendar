@@ -8,13 +8,12 @@ import { Picture } from "../types/types"
 import './Day.css'
 
 type DayProps = {
-    picture: Picture,
-    test: boolean
+    picture: Picture
 }
-export const Day: FC<DayProps> = ({ picture, test }) => {
+export const Day: FC<DayProps> = ({ picture }) => {
 
     const queryClient = useQueryClient();
-    const { date } = useContext(GlobalContext)
+    const { date, isFake } = useContext(GlobalContext)
     const isBefore = dayjs(picture.date).isBefore(dayjs(date))
     const imageRef = useRef<HTMLImageElement>(null)
     const isToday = dayjs(date).isSame(dayjs(picture.date), "day")
@@ -36,10 +35,11 @@ export const Day: FC<DayProps> = ({ picture, test }) => {
     }, [])
 
     const openPicture = async (day: number) => {
+        console.log("isFake:", isFake)
         const response = await fetch(NETLIFY_FUNCTIONS_PATH + "open_picture?" + new URLSearchParams({
             day: day.toString()
         }), {
-            method: "POST", body: JSON.stringify({ test })
+            method: "POST", body: JSON.stringify({ isFake })
         })
         return response.json()
     }

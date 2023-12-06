@@ -8,6 +8,7 @@ export const Calendar: FC = () => {
         console.log("Calendar update")
         console.log(calendarTest)
     })
+
     return <CalendarComponent test={calendarTest} />
 }
 
