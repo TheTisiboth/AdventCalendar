@@ -1,7 +1,7 @@
 import { Button, Box, Paper, Skeleton } from "@mui/material"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import dayjs from "dayjs"
-import { FC, useContext, useRef } from "react"
+import { FC, useContext, useEffect, useRef, useState } from "react"
 import { CDN_URL, NETLIFY_FUNCTIONS_PATH } from "../constants"
 import { GlobalContext } from "../context"
 import { Picture } from "../types/types"
@@ -18,10 +18,23 @@ export const Day: FC<DayProps> = ({ picture, test }) => {
     const isBefore = dayjs(picture.date).isBefore(dayjs(date))
     const imageRef = useRef<HTMLImageElement>(null)
     const isToday = dayjs(date).isSame(dayjs(picture.date), "day")
+    const [screenWidth, setWidth] = useState(window.innerWidth)
+    const isMobile = screenWidth <= 500
+    const imageSize = isMobile ? "5em" : "15em"
     if (picture.day === 1) {
         console.log(picture)
         console.log(isBefore)
     }
+
+    useEffect(() => {
+        const handleResize = () => {
+            console.log("resize", window.innerWidth)
+            setWidth(window.innerWidth)
+        }
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
+
     const openPicture = async (day: number) => {
         const response = await fetch(NETLIFY_FUNCTIONS_PATH + "open_picture?" + new URLSearchParams({
             day: day.toString()
@@ -51,7 +64,7 @@ export const Day: FC<DayProps> = ({ picture, test }) => {
 
     const imageSRC = (picture.key.split(".jpg").length == 2) ? CDN_URL + picture.key : picture.key
     return (
-        <Button disabled={!isBefore} fullWidth style={{ height: "200px", width: "100%" }} className={`${isBefore && !isToday ? `isBefore` : ``} ${picture.isOpen ? `isOpen` : ``}`} onClick={handleClick} >
+        <Button disabled={!isBefore} fullWidth style={{ height: imageSize, width: imageSize }} className={`${isBefore && !isToday ? `isBefore` : ``} ${picture.isOpen ? `isOpen` : ``}`} onClick={handleClick} >
             <Paper elevation={10} style={{ width: "100%", height: "100%" }}><div className={`image-container`} >
                 {isBefore && picture.isOpen &&
                     < img ref={imageRef} onClick={onClick} src={imageSRC} width={"100%"} height={"100%"} className="image" />
