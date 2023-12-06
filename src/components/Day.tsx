@@ -39,7 +39,7 @@ export const Day: FC<DayProps> = ({ picture }) => {
         const response = await fetch(NETLIFY_FUNCTIONS_PATH + "open_picture?" + new URLSearchParams({
             day: day.toString()
         }), {
-            method: "POST", body: JSON.stringify({ isFake })
+            method: "POST", body: JSON.stringify({ test: isFake })
         })
         return response.json()
     }
