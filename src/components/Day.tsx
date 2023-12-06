@@ -19,7 +19,7 @@ export const Day: FC<DayProps> = ({ picture }) => {
     const imageRef = useRef<HTMLImageElement>(null)
     const isToday = dayjs(date).isSame(dayjs(picture.date), "day")
     const [screenWidth, setWidth] = useState(window.innerWidth)
-    const isMobile = screenWidth <= 500
+    const isMobile = screenWidth <= 992
     const imageSize = isMobile ? "5em" : "13em"
 
     const [open, setOpen] = useState(false);
