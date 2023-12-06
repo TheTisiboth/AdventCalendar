@@ -20,7 +20,7 @@ export const Day: FC<DayProps> = ({ picture, test }) => {
     const isToday = dayjs(date).isSame(dayjs(picture.date), "day")
     const [screenWidth, setWidth] = useState(window.innerWidth)
     const isMobile = screenWidth <= 500
-    const imageSize = isMobile ? "5em" : "15em"
+    const imageSize = isMobile ? "5em" : "13em"
     if (picture.day === 1) {
         console.log(picture)
         console.log(isBefore)
