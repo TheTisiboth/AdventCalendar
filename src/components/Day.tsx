@@ -55,11 +55,18 @@ export const Day: FC<DayProps> = ({ picture, test }) => {
         if (!picture.isOpen) {
             console.log("mutate", picture)
             mutate(picture.day)
+        } else {
+            onClick()
         }
     }
 
     const onClick = async () => {
-        await imageRef.current?.requestFullscreen();
+        console.log("click pic")
+        try {
+            await imageRef.current?.requestFullscreen();
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const textColor = () => {
