@@ -1,9 +1,9 @@
 import { FC, useContext } from "react"
-import { Picture } from "../types/types"
+import { Picture } from "../../types/types"
 import Grid from '@mui/material/Grid';
 import { Day } from "./Day";
-import { GlobalContext } from "../context";
-import { shuffle } from "../utils/utils";
+import { GlobalContext } from "../../context";
+import { shuffle } from "../../utils/utils";
 
 type DayGridProps = {
     pictures: Picture[],

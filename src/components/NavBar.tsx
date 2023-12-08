@@ -1,6 +1,6 @@
 import { Box, List, ListItem, ListItemButton, ListItemText, CssBaseline, AppBar, Toolbar, IconButton, Button, Drawer } from "@mui/material";
-import React, { useContext, useState } from "react";
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useContext, useState } from "react";
+import { useNavigate } from '@tanstack/react-router'
 import { GlobalContext } from "../context";
 import MenuIcon from '@mui/icons-material/Menu';
 
@@ -8,21 +8,17 @@ const drawerWidth = 240;
 
 
 export const NavBar = () => {
+
     const navigate = useNavigate()
-    const context = useContext(GlobalContext)
-    const { authorized } = context
-    const { isStarted } = useContext(GlobalContext)
+    const { isStarted, authorized } = useContext(GlobalContext)
     const [mobileOpen, setMobileOpen] = useState(false);
 
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
     };
 
-
-
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-
             <List>
                 <ListItem key={"Home"} disablePadding>
                     <ListItemButton sx={{ textAlign: 'center' }} onClick={() => navigate({ to: "/" })}>
@@ -48,7 +44,6 @@ export const NavBar = () => {
                         </ListItemButton>
                     </ListItem>
                 }
-
             </List>
         </Box>
     );

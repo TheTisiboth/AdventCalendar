@@ -1,6 +1,5 @@
 import { Types } from "mongoose"
-
-export interface Picture {
+export type Picture = {
     _id: Types.ObjectId,
     day: number,
     key: string,

@@ -3,15 +3,11 @@ import {
     SecretsManagerClient,
     GetSecretValueCommand,
 } from "@aws-sdk/client-secrets-manager";
-import { getSignedCookies } from "@aws-sdk/cloudfront-signer";
 import { Handler } from "@netlify/functions";
 
-
-
-
-
+//TODO: Work in progress
 export const handler: Handler = async (event, context) => {
-    const PRIVATE_KEY_SECRET_COMPLETE_ARN = "arn:aws:secretsmanager:eu-central-1:691132225608:secret:signed-cookie-CAmugq"
+    const PRIVATE_KEY_SECRET_COMPLETE_ARN = process.env.PRIVATE_KEY_SECRET_COMPLETE_ARN
     const DOMAIN_NAME = "paula.leojan.fr"
     const KEY_PAIR_ID = process.env.KEY_PAIR_ID!
 

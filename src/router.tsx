@@ -3,17 +3,17 @@ import {
     RootRoute,
     Route, Outlet
 } from "@tanstack/react-router"
-import { CalendarTest } from "./components/CalendarTest"
+import { CalendarTest } from "./components/Calendar/CalendarTest"
 import { Error } from "./components/error"
-import Login from "./components/Login"
-import Calendar from "./components/Calendar"
+import Login from "./components/Login/Login"
+import Calendar from "./components/Calendar/Calendar"
 import { Auth } from "./components/Auth"
 import { NavBar } from "./components/NavBar"
 import { Box } from "@mui/material"
 import { Home } from "./components/Home"
 
 
-const Root = () => {
+const RootComponent = () => {
     return (
         <>
             <NavBar />
@@ -28,7 +28,7 @@ const Root = () => {
     )
 }
 const rootRoute = new RootRoute({
-    component: Root,
+    component: RootComponent,
 })
 
 const homeRoute = new Route({
@@ -42,7 +42,6 @@ const loginRoute = new Route({
     path: '/login',
     component: Login,
 })
-
 
 const authCalendarRoute = new Route({
     getParentRoute: () => rootRoute,

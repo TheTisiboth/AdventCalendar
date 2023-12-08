@@ -1,13 +1,13 @@
 import { createContext, Dispatch, FC, SetStateAction, useState } from "react"
-import { DBUser, User } from "./types/types"
+import { User } from "./types/types"
 import dayjs from "dayjs"
+import { useScreenSize } from "./hooks/useScreenSize"
 
 enum Role {
     ADMIN = 'admin',
     GUEST = 'guest',
     USER = 'user'
 }
-
 
 const dummyUser: User = {
     id: '1',
@@ -28,7 +28,9 @@ type Context = {
     setIsFake: Dispatch<SetStateAction<boolean>>,
     startingDate: Date,
     isStarted: boolean,
-    setIsStarted: Dispatch<SetStateAction<boolean>>
+    setIsStarted: Dispatch<SetStateAction<boolean>>,
+    isMobile: boolean,
+    imageSize: string
 }
 
 const defaultContext: Context = {
@@ -45,6 +47,8 @@ const defaultContext: Context = {
     startingDate: new Date('December 01, 2023 00:00:00'),
     isStarted: false,
     setIsStarted: () => { },
+    imageSize: "",
+    isMobile: false
 }
 
 export const GlobalContext = createContext(defaultContext);
@@ -62,6 +66,7 @@ export const MyProvider: FC<Props> = ({ children }) => {
     // const startingDate = new Date('November 30, 2023 17:34:00');
 
     const [isStarted, setIsStarted] = useState(dayjs(new Date()).isAfter(startingDate))
+    const { imageSize, isMobile } = useScreenSize()
 
     return (
         <GlobalContext.Provider
@@ -78,7 +83,9 @@ export const MyProvider: FC<Props> = ({ children }) => {
                 setIsFake,
                 startingDate,
                 isStarted,
-                setIsStarted
+                setIsStarted,
+                isMobile,
+                imageSize
             }}
         >
             {children}

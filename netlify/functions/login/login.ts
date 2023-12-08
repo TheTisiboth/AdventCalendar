@@ -7,22 +7,16 @@ import bcrypt from "bcrypt"
 import { connect } from "mongoose";
 
 export const handler: Handler = async (event, context) => {
-  console.log("okk")
   try {
-    console.log(JSON.parse(event.body!))
     const body: Credentials = JSON.parse(event.body!)
     const { name, password } = body
 
-    console.log("start find")
     await connect(process.env.MONGODB_URI!, { dbName: process.env.MONGODB_DATABASE })
     const DBUser = await userModel.findOne({ name }).exec()
-    console.log("user", DBUser)
     if (DBUser) {
       const isPasswordCorrect = bcrypt.compareSync(password, DBUser.password)
-      console.log("test", isPasswordCorrect)
       if (isPasswordCorrect) {
         const user: User = { name: DBUser.name, id: DBUser._id.toString(), role: DBUser.role }
-        console.log(user)
         const accessToken = generateAccessToken(user)
         const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET!)
         return {

@@ -15,11 +15,10 @@ const useCountdown = (targetDate: Date) => {
         return () => clearInterval(interval);
     }, [countDownDate]);
 
-    return getReturnValues(countDown);
+    return getTimeLeft(countDown);
 };
 
-const getReturnValues = (countDown: number) => {
-    // calculate time left
+const getTimeLeft = (countDown: number) => {
     const days = Math.floor(countDown / (1000 * 60 * 60 * 24));
     const hours = Math.floor(
         (countDown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)

@@ -1,7 +1,7 @@
 import { Handler } from "@netlify/functions";
 import * as jwt from "jsonwebtoken"
 import { connect } from "mongoose";
-import { Credentials, Token, User } from "../../../src/types/types";
+import { Token, User } from "../../../src/types/types";
 import { refreshTokenModel } from "../../models/models";
 import { generateAccessToken } from "../../utils/auth";
 
@@ -30,6 +30,7 @@ export const handler: Handler = async (event, context) => {
         body: JSON.stringify({ accessToken: accessToken }),
       }
     })
+    return { statusCode: 500, body: "dead code" }
   } catch (error) {
     return { statusCode: 500, body: error.toString() }
   }
