@@ -35,7 +35,7 @@ export const useLogin = () => {
     const {
         handleSubmit: submit,
         setError,
-        formState: { isSubmitSuccessful, errors },
+        formState: { isSubmitSuccessful },
     } = methods;
 
     const handleClick = (severity: string) => {

@@ -23,7 +23,6 @@ type UsePictureReturn = {
 }
 export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureReturn => {
     const { date, isMobile } = useContext(GlobalContext)
-    const queryClient = useQueryClient();
     const { openPicture } = useAPI()
 
     const [open, setOpen] = useState(false);

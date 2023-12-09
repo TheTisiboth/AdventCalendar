@@ -42,7 +42,7 @@ const defaultContext: Context = {
     setAuthorized: () => { },
     date: new Date(),
     setDate: () => { },
-    isFake: false,
+    isFake: true,
     setIsFake: () => { },
     startingDate: new Date('December 01, 2023 00:00:00'),
     isStarted: false,
@@ -61,7 +61,7 @@ export const MyProvider: FC<Props> = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [authorized, setAuthorized] = useState(false);
     const [date, setDate] = useState(new Date());
-    const [isFake, setIsFake] = useState(false);
+    const [isFake, setIsFake] = useState(true);
     const startingDate = new Date('December 01, 2023 00:00:00');
     // const startingDate = new Date('November 30, 2023 17:34:00');
 

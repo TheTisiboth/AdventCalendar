@@ -20,7 +20,6 @@ export const CalendarComponent: FC<CalendarComponentProps> = ({ test }) => {
     }, [])
 
     const handleCalendarChange = (date: dayjs.Dayjs | null) => {
-        console.log("date", date?.toDate())
         if (date) {
             setDate(date.toDate())
         }
@@ -29,7 +28,7 @@ export const CalendarComponent: FC<CalendarComponentProps> = ({ test }) => {
     return (
         <div className="App">
             {test &&
-                <Button onClick={resetPictures}>Reset pictures</Button>
+                <Button variant="contained" color="error" onClick={resetPictures}>Reset pictures</Button>
             }
             {isPictureLoading && <p>Loading pic...</p>}
             {!isPictureLoading && pictures &&

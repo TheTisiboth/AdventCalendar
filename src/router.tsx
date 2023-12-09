@@ -18,7 +18,7 @@ const RootComponent = () => {
         <>
             <NavBar />
             <Box sx={{
-                paddingTop: 8,
+                paddingTop: 9,
                 paddingLeft: 1,
                 paddingRight: 1
             }}>
