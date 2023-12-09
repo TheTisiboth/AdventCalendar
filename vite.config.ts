@@ -18,9 +18,9 @@ export default defineConfig({
     },
     includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'safari-pinned-tab.svg'],
     manifest: {
-      name: 'My Advent Calendar app',
-      short_name: 'MyApp',
-      description: 'My Advent Calendar App description',
+      name: 'Advent calendar app',
+      short_name: 'Advent calendar',
+      description: 'This is an Advent calendar web app',
       theme_color: '#ffffff',
       icons: [
         {
