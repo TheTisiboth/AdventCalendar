@@ -18,7 +18,7 @@ export const Day: FC<DayProps> = ({ picture }) => {
         <Button disabled={!isBefore} fullWidth style={{ height: imageSize, width: imageSize }} onClick={handleClick} >
             <Paper elevation={10} style={{ width: "100%", height: "100%", }} className={`${divColor} paperPicture`}>
                 {isBefore && picture.isOpen &&
-                    < img ref={imageRef} src={imageSRC} max-width={"100%"} max-height={"100%"} className="image" />
+                    < img ref={imageRef} src={imageSRC} max-width={"100%"} max-height={"100%"} className="image" alt={"Image " + picture.day} />
                 }
 
                 <span className={`text-overlay ${textColor}`}>{picture.day} </span>

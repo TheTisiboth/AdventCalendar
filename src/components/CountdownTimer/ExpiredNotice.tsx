@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { GlobalContext } from "../../context";
 import dayjs from "dayjs";
 

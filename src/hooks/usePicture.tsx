@@ -1,7 +1,6 @@
 import { Dispatch, RefObject, SetStateAction, useContext, useState } from "react";
-import { CDN_URL, NETLIFY_FUNCTIONS_PATH } from "../constants";
+import { CDN_URL } from "../constants";
 import { GlobalContext } from "../context";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Picture } from "../types/types";
 import dayjs from "dayjs";
 import { useAPI } from "./useAPI";
@@ -28,7 +27,7 @@ export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureRe
     const [open, setOpen] = useState(false);
     const isBefore = dayjs(picture.date).isBefore(dayjs(date))
     const isToday = dayjs(date).isSame(dayjs(picture.date), "day")
-    const imageSRC = (picture.key.split(".jpg").length == 2) ? CDN_URL + picture.key : picture.key
+    const imageSRC = (picture.key.split(".jpg").length === 2) ? CDN_URL + picture.key : picture.key
 
     const computeTextColor = (): string => {
         if (isBefore) {

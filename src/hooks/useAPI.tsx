@@ -10,7 +10,8 @@ export const useAPI = () => {
 
     const resetPictures = async () => {
         const response = await fetch(NETLIFY_FUNCTIONS_PATH + "reset_pictures")
-        queryClient.invalidateQueries({ queryKey: ["pictures"] });
+        if (response.ok)
+            queryClient.invalidateQueries({ queryKey: ["pictures"] });
     }
 
     const refreshToken = async () => {

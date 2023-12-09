@@ -9,7 +9,6 @@ import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
 import { Dispatch, FC, Ref, SetStateAction, forwardRef } from 'react';
 import { Picture } from '../../types/types';
-import { CDN_URL } from '../../constants';
 import { usePicture } from '../../hooks/usePicture';
 
 const Transition = forwardRef(function Transition(
@@ -58,7 +57,7 @@ export const FullScreenDialog: FC<DialogProps> = ({ picture, open, setOpen }) =>
                     </Toolbar>
                 </AppBar>
                 <List className="fullscreen_container">
-                    <img src={imageSRC} width={"100%"} />
+                    <img src={imageSRC} width={"100%"} alt={"Fullscreen image " + picture.day} />
                 </List>
             </Dialog>
         </>
