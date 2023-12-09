@@ -20,7 +20,7 @@ export const handler: Handler = async (event, context) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ pic }),
+      body: JSON.stringify(pic),
     }
   } catch (error) {
     return { statusCode: 500, body: error.toString() }

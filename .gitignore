@@ -120,3 +120,8 @@ dist-ssr
 
 # Local Netlify folder
 .netlify
+
+# PWA files
+**/workbox-*.js
+**/sw.js
+**/worker-*.js

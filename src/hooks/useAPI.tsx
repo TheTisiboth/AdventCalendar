@@ -31,14 +31,14 @@ export const useAPI = () => {
     }
 
     const { mutate } = useMutation(openPicture, {
-        onSuccess: () => {
+        onSuccess: (data, variables) => {
             queryClient.invalidateQueries({ queryKey: ["pictures"] });
+            queryClient.setQueryData(['pictures', { id: variables }], data)
         }
     });
 
     const login = async (name: string, password: string) => {
         const response = await fetch(NETLIFY_FUNCTIONS_PATH + "login", { method: "POST", body: JSON.stringify({ name, password }) })
-        //TODO: refactor to return response.json()
         return response
     }
 
