@@ -10,8 +10,6 @@ export default defineConfig({
     injectRegister: 'auto',
     workbox: {
       globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-      cleanupOutdatedCaches: false,
-      sourcemap: true
     },
     devOptions: {
       enabled: true

@@ -122,6 +122,7 @@ dist-ssr
 .netlify
 
 # PWA files
+dev-dist/
 **/workbox-*.js
 **/sw.js
 **/worker-*.js
