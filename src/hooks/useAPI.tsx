@@ -4,6 +4,8 @@ import { useContext } from "react";
 import { GlobalContext } from "../context";
 import { Picture } from "../types/types";
 
+const QUERY_KEY = "pictures"
+
 export const useAPI = () => {
     const queryClient = useQueryClient();
     const { isFake } = useContext(GlobalContext)
@@ -11,7 +13,7 @@ export const useAPI = () => {
     const resetPictures = async () => {
         const response = await fetch(NETLIFY_FUNCTIONS_PATH + "reset_pictures")
         if (response.ok)
-            queryClient.invalidateQueries({ queryKey: ["pictures"] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     }
 
     const refreshToken = async () => {
@@ -31,10 +33,27 @@ export const useAPI = () => {
     }
 
     const { mutate } = useMutation(openPicture, {
-        onSuccess: (data, variables) => {
-            queryClient.invalidateQueries({ queryKey: ["pictures"] });
-            queryClient.setQueryData(['pictures', { id: variables }], data)
-        }
+        onMutate: async (newPic) => {
+            // Cancel any outgoing refetches
+            // (so they don't overwrite our optimistic update)
+            await queryClient.cancelQueries({ queryKey: [QUERY_KEY] })
+
+            // Snapshot the previous value
+            const oldPics = queryClient.getQueryData<Picture[]>([QUERY_KEY]);
+            queryClient.setQueryData<Picture[]>([QUERY_KEY], (oldPics) =>
+                oldPics?.map((oldPic) => (oldPic.day === newPic ? { ...oldPic, isOpen: true } : oldPic))
+            );
+
+            // Return a context object with the snapshotted value
+            return { oldPics }
+        },
+        onError: (err, newPic, context) => {
+            // Restore old state
+            queryClient.setQueryData<Picture[]>([QUERY_KEY], context?.oldPics)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+        },
     });
 
     const login = async (name: string, password: string) => {
@@ -49,7 +68,7 @@ export const useAPI = () => {
         return response.json()
     }
 
-    const { data: pictures, isLoading: isPictureLoading, } = useQuery<Picture[]>({ queryKey: ["pictures"], queryFn: fetchPictures })
+    const { data: pictures, isLoading: isPictureLoading, } = useQuery<Picture[]>({ queryKey: [QUERY_KEY], queryFn: fetchPictures })
 
     return {
         resetPictures,
