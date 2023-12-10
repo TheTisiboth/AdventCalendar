@@ -10,9 +10,12 @@ export default defineConfig({
     injectRegister: 'auto',
     workbox: {
       globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+      disableDevLogs: true,
     },
     devOptions: {
-      enabled: true
+      enabled: true,
+      suppressWarnings: true,
+      type: "module"
     },
     includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'safari-pinned-tab.svg'],
     manifest: {

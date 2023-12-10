@@ -13,7 +13,7 @@ export const useAPI = () => {
     const resetPictures = async () => {
         const response = await fetch(NETLIFY_FUNCTIONS_PATH + "reset_pictures")
         if (response.ok)
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY, isFake] });
     }
 
     const refreshToken = async () => {
@@ -36,11 +36,11 @@ export const useAPI = () => {
         onMutate: async (newPic) => {
             // Cancel any outgoing refetches
             // (so they don't overwrite our optimistic update)
-            await queryClient.cancelQueries({ queryKey: [QUERY_KEY] })
+            await queryClient.cancelQueries({ queryKey: [QUERY_KEY, isFake] })
 
             // Snapshot the previous value
-            const oldPics = queryClient.getQueryData<Picture[]>([QUERY_KEY]);
-            queryClient.setQueryData<Picture[]>([QUERY_KEY], (oldPics) =>
+            const oldPics = queryClient.getQueryData<Picture[]>([QUERY_KEY, isFake]);
+            queryClient.setQueryData<Picture[]>([QUERY_KEY, isFake], (oldPics) =>
                 oldPics?.map((oldPic) => (oldPic.day === newPic ? { ...oldPic, isOpen: true } : oldPic))
             );
 
@@ -49,10 +49,10 @@ export const useAPI = () => {
         },
         onError: (err, newPic, context) => {
             // Restore old state
-            queryClient.setQueryData<Picture[]>([QUERY_KEY], context?.oldPics)
+            queryClient.setQueryData<Picture[]>([QUERY_KEY, isFake], context?.oldPics)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY, isFake] })
         },
     });
 
@@ -68,7 +68,7 @@ export const useAPI = () => {
         return response.json()
     }
 
-    const { data: pictures, isLoading: isPictureLoading, } = useQuery<Picture[]>({ queryKey: [QUERY_KEY], queryFn: fetchPictures })
+    const { data: pictures, isLoading: isPictureLoading } = useQuery<Picture[]>({ queryKey: [QUERY_KEY, isFake], queryFn: fetchPictures })
 
     return {
         resetPictures,
