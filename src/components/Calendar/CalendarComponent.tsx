@@ -16,9 +16,8 @@ export const CalendarComponent: FC = () => {
     }, [])
 
     const handleCalendarChange = (date: dayjs.Dayjs | null) => {
-        if (date) {
+        if (date)
             setDate(date.toDate())
-        }
     }
 
     return (

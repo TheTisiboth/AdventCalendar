@@ -15,6 +15,7 @@ export const ExpiredNotice = () => {
         <div className="expired-notice">
             <span>Time has come!!!</span>
             <p>You can now open your <Link to="/calendar">advent calendar</Link></p>
+            <p>If you don't have access, you can still try the <Link to="/test">test version.</Link></p>
         </div>
     );
 };

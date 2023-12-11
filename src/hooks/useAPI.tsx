@@ -33,25 +33,28 @@ export const useAPI = () => {
     }
 
     const { mutate } = useMutation(openPicture, {
-        onMutate: async (newPic) => {
+        onMutate: async (newPicDay) => {
             // Cancel any outgoing refetches
             // (so they don't overwrite our optimistic update)
             await queryClient.cancelQueries({ queryKey: [QUERY_KEY, isFake] })
 
             // Snapshot the previous value
             const oldPics = queryClient.getQueryData<Picture[]>([QUERY_KEY, isFake]);
+
+            // Perform optimistic update on the relevant picture
             queryClient.setQueryData<Picture[]>([QUERY_KEY, isFake], (oldPics) =>
-                oldPics?.map((oldPic) => (oldPic.day === newPic ? { ...oldPic, isOpen: true } : oldPic))
+                oldPics?.map((oldPic) => (oldPic.day === newPicDay ? { ...oldPic, isOpen: true } : oldPic))
             );
 
             // Return a context object with the snapshotted value
             return { oldPics }
         },
-        onError: (err, newPic, context) => {
+        onError: (_err, _newPicDay, context) => {
             // Restore old state
             queryClient.setQueryData<Picture[]>([QUERY_KEY, isFake], context?.oldPics)
         },
         onSettled: () => {
+            // Invalidate the queries, so all the Pictures will be refetched
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY, isFake] })
         },
     });
