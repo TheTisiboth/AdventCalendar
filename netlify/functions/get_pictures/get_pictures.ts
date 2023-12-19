@@ -15,6 +15,7 @@ export const func: Handler = async (event, context) => {
       body: JSON.stringify(pictures),
     }
   } catch (error) {
+    console.log(error)
     return { statusCode: 500, body: error.toString() }
   }
 }
