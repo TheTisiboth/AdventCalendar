@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import { useNavigate } from '@tanstack/react-router'
 import { GlobalContext } from "../context";
 import MenuIcon from '@mui/icons-material/Menu';
+import { useLogout } from "../hooks/useLogout";
 
 const drawerWidth = 240;
 
@@ -10,6 +11,7 @@ const drawerWidth = 240;
 export const NavBar = () => {
 
     const navigate = useNavigate()
+    const { logout } = useLogout()
     const { isStarted, authorized } = useContext(GlobalContext)
     const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -41,6 +43,13 @@ export const NavBar = () => {
                     <ListItem key={"Login"} disablePadding>
                         <ListItemButton sx={{ textAlign: 'center' }} onClick={() => navigate({ to: "/login" })}>
                             <ListItemText primary={"Login"} />
+                        </ListItemButton>
+                    </ListItem>
+                }
+                {isStarted && authorized &&
+                    <ListItem key={"Logout"} disablePadding>
+                        <ListItemButton sx={{ textAlign: 'center' }} onClick={logout}>
+                            <ListItemText primary={"Logout"} />
                         </ListItemButton>
                     </ListItem>
                 }
@@ -80,6 +89,11 @@ export const NavBar = () => {
                         {isStarted && !authorized &&
                             <Button key={"Login"} onClick={() => navigate({ to: "/login" })}>
                                 <ListItemText primary="Login" />
+                            </Button>
+                        }
+                        {isStarted && authorized &&
+                            <Button key={"Logout"} onClick={logout}>
+                                <ListItemText primary="Logout" />
                             </Button>
                         }
                     </Box>

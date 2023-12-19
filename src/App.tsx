@@ -5,6 +5,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { MyProvider } from './context';
 import { useRegisterSW } from 'virtual:pwa-register/react';
+import { BrowserRouter } from 'react-router-dom';
 
 // Register your router for maximum type safety
 declare module '@tanstack/router' {
@@ -19,7 +20,10 @@ export const App = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <MyProvider>
-        <RouterProvider router={router} />
+        {/* TODO: remove BrowserRouter. It is only necessary for using useLocation in some hooks */}
+        <BrowserRouter>
+          <RouterProvider router={router} />
+        </BrowserRouter>
       </MyProvider>
     </LocalizationProvider>
   )

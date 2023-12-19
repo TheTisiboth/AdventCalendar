@@ -13,14 +13,13 @@ export const checkAuth = (event: Event) => {
         }
         // remove "bearer " word from token
         const authToken = authHeader.substring(7)
-
         jwt.verify(authToken, process.env.ACCESS_TOKEN_SECRET!, (err, user) => {
             if (err) return reject(err)
-            else return resolve(user)
+            else return resolve(authToken)
         })
     })
 }
 
 export const generateAccessToken = (user: User) => {
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '15s' })
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '24d' })
 }

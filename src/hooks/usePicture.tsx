@@ -61,11 +61,7 @@ export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureRe
             if (!open)
                 setOpen((prev) => !prev)
         } else {
-            try {
-                await imageRef?.current?.requestFullscreen();
-            } catch (error) {
-                console.log(error)
-            }
+            void imageRef?.current?.requestFullscreen();
         }
     }
 

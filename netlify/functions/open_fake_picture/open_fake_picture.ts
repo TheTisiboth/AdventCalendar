@@ -1,14 +1,12 @@
 import { Handler } from "@netlify/functions";
 import { connect } from "mongoose"
-import { pictureModel } from "../../models/models";
-import middy from "middy";
-import { authMiddleware } from "../../utils/middleware";
+import { dummyPictureModel } from "../../models/models";
 
-export const func: Handler = async (event, context) => {
+export const handler: Handler = async (event, context) => {
   try {
     await connect(process.env.MONGODB_URI!, { dbName: process.env.MONGODB_DATABASE })
     const day = event.queryStringParameters?.day
-    const pic = await pictureModel.findOneAndUpdate({ day }, { isOpen: true }).exec()
+    const pic = await dummyPictureModel.findOneAndUpdate({ day }, { isOpen: true }).exec()
 
     return {
       statusCode: 200,
@@ -19,5 +17,3 @@ export const func: Handler = async (event, context) => {
   }
 }
 
-// Use authMiddleware to protect the route
-export const handler = middy(func).use(authMiddleware())

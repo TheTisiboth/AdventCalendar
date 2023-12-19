@@ -3,23 +3,26 @@ import { useNavigate } from "@tanstack/react-router";
 import { useState, SyntheticEvent, useEffect, useContext } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { User } from "../types/types";
-import { TypeOf, object, string } from "zod";
+import { TypeOf, boolean, object, string } from "zod";
 import { GlobalContext } from "../context";
 import { useAPI } from "./useAPI";
+import { useLocation } from "react-router-dom";
 
 const loginSchema = object({
     name: string()
         .nonempty('Name is required'),
     password: string()
-        .nonempty('Password is requiredd')
+        .nonempty('Password is requiredd'),
+    rememberMe: boolean().optional()
 })
 
 type LoginInput = TypeOf<typeof loginSchema>;
 
 export const useLogin = () => {
-    const { setUser, setAuthorized } = useContext(GlobalContext)
+    const { setUser, setAuthorized, setJWT, authorized } = useContext(GlobalContext)
     const navigate = useNavigate()
     const { login } = useAPI()
+    const location = useLocation()
 
     const [loading, setLoading] = useState(false);
 
@@ -59,10 +62,11 @@ export const useLogin = () => {
 
 
     useEffect(() => {
-        if (isSubmitSuccessful) {
-            navigate({ to: "/calendar" })
+        if (isSubmitSuccessful || authorized) {
+            const origin = location.state?.from?.pathname || '/calendar';
+            navigate({ to: origin })
         }
-    }, [isSubmitSuccessful]);
+    }, [isSubmitSuccessful, authorized]);
 
 
     const onSubmitHandler: SubmitHandler<LoginInput> = async (values) => {
@@ -78,6 +82,9 @@ export const useLogin = () => {
         setUser(data.user as User)
         setAuthorized(true)
         handleClick("success")
+        setJWT(data.accessToken as string)
+        if (values.rememberMe)
+            localStorage.setItem("jwt", data.accessToken)
     };
 
     const handleSubmit = () => submit(onSubmitHandler)

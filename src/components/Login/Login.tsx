@@ -10,6 +10,7 @@ import { LoadingButton } from '@mui/lab';
 import FormInput from './FormInput';
 import { isEmpty } from "lodash";
 import { useLogin } from '../../hooks/useLogin';
+import FormCheckbox from './FormCheckbox';
 
 const Login = () => {
     const { methods, snackBar, loading, handleSubmit, handleClose } = useLogin()
@@ -22,7 +23,6 @@ const Login = () => {
             alignItems="center"
             justifyContent="center"
             sx={{ minHeight: '100vh', marginTop: -20 }}
-
         >
             <Grid item xs={0} sm={4} />
             <Grid item xs={12} sm={4}>
@@ -53,8 +53,11 @@ const Login = () => {
                                 type='password'
                                 sx={{ mb: 2 }}
                             />
-
-
+                            <FormCheckbox
+                                name='rememberMe'
+                                label='Remember me'
+                                sx={{ mb: 2 }}
+                            />
                             <LoadingButton
                                 variant='contained'
                                 fullWidth

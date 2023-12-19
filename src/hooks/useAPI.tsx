@@ -8,7 +8,10 @@ const QUERY_KEY = "pictures"
 
 export const useAPI = () => {
     const queryClient = useQueryClient();
-    const { isFake } = useContext(GlobalContext)
+    const { isFake, jwt: stateJWT } = useContext(GlobalContext)
+    const localJWT = localStorage.getItem("jwt")
+    const jwt = localJWT ?? stateJWT
+    const headers: HeadersInit = jwt ? { 'Authorization': `Bearer ${jwt}` } : {};
 
     const resetPictures = async () => {
         const response = await fetch(NETLIFY_FUNCTIONS_PATH + "reset_pictures")
@@ -24,11 +27,11 @@ export const useAPI = () => {
     }
 
     const openPicture = async (day: number) => {
-        const response = await fetch(NETLIFY_FUNCTIONS_PATH + "open_picture?" + new URLSearchParams({
+        const openPicturePath = isFake ? "open_fake_picture" : "open_picture"
+
+        const response = await fetch(NETLIFY_FUNCTIONS_PATH + `${openPicturePath}?` + new URLSearchParams({
             day: day.toString()
-        }), {
-            method: "POST", body: JSON.stringify({ test: isFake })
-        })
+        }))
         return response.json()
     }
 
@@ -65,10 +68,15 @@ export const useAPI = () => {
     }
 
     const fetchPictures = async () => {
-        const response = await fetch(NETLIFY_FUNCTIONS_PATH + "get_pictures", {
-            method: "POST", body: JSON.stringify({ test: isFake })
-        })
-        return response.json()
+        const getPicturePath = isFake ? "get_fake_pictures" : "get_pictures"
+        const response = await fetch(NETLIFY_FUNCTIONS_PATH + getPicturePath, { headers })
+        if (response.ok)
+            return response.json()
+    }
+
+    const authenticate = async () => {
+        const response = await fetch(NETLIFY_FUNCTIONS_PATH + "authenticate", { headers })
+        return response
     }
 
     const { data: pictures, isLoading: isPictureLoading } = useQuery<Picture[]>({ queryKey: [QUERY_KEY, isFake], queryFn: fetchPictures })
@@ -80,6 +88,7 @@ export const useAPI = () => {
         login,
         fetchPictures: {
             pictures, isPictureLoading
-        }
+        },
+        authenticate
     }
 }
