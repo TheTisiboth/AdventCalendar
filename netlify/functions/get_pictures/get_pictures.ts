@@ -1,5 +1,5 @@
 import { Handler } from '@netlify/functions'
-import { connect } from "mongoose"
+import { connect, disconnect } from "mongoose"
 import { pictureModel } from '../../models/models'
 import { Picture } from '../../../src/types/types'
 import middy from 'middy'
@@ -17,6 +17,8 @@ export const func: Handler = async (event, context) => {
   } catch (error) {
     console.log(error)
     return { statusCode: 500, body: error.toString() }
+  } finally {
+    void disconnect()
   }
 }
 

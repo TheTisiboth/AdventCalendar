@@ -4,7 +4,7 @@ import { Credentials, User } from "../../../src/types/types";
 import { userModel } from "../../models/models";
 import { generateAccessToken } from "../../utils/auth";
 import bcrypt from "bcrypt"
-import { connect } from "mongoose";
+import { connect, disconnect } from "mongoose";
 
 export const handler: Handler = async (event, context) => {
   try {
@@ -32,5 +32,7 @@ export const handler: Handler = async (event, context) => {
 
   } catch (error) {
     return { statusCode: 500, body: error.toString() }
+  } finally {
+    void disconnect()
   }
 }
