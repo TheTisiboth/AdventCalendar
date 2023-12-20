@@ -4,7 +4,8 @@ import middy from "middy"
 
 const func: Handler = async (_event, _context) => {
     return {
-        statusCode: 200
+        statusCode: 200,
+        body: JSON.stringify({ ok: true })
     }
 }
 
