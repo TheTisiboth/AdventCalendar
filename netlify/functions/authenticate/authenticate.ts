@@ -1,11 +1,11 @@
-import { Handler } from "@netlify/functions";
-import { authMiddleware } from "../../utils/middleware";
-import middy from "middy";
+import { Handler } from "@netlify/functions"
+import { authMiddleware } from "../../utils/middleware"
+import middy from "middy"
 
-const func: Handler = async (event, context) => {
-  return {
-    statusCode: 200
-  }
+const func: Handler = async (_event, _context) => {
+    return {
+        statusCode: 200
+    }
 }
 
 // Use authMiddleware to protect the route

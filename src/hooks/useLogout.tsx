@@ -4,10 +4,9 @@ import { useNavigate } from "@tanstack/react-router"
 
 export const useLogout = () => {
     const navigate = useNavigate()
-    const { setAuthorized, setUser, setIsLoggedIn, setJWT } = useContext(GlobalContext)
+    const { setUser, setIsLoggedIn, setJWT } = useContext(GlobalContext)
 
     const logout = () => {
-        setAuthorized(false)
         setUser(dummyUser)
         setIsLoggedIn(false)
         setJWT("")

@@ -1,39 +1,52 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { NETLIFY_FUNCTIONS_PATH } from "../constants";
-import { useContext } from "react";
-import { GlobalContext } from "../context";
-import { Picture } from "../types/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { NETLIFY_FUNCTIONS_PATH } from "../constants"
+import { useContext } from "react"
+import { GlobalContext } from "../context"
+import { LoginResponse, Picture } from "../types/types"
 
 const QUERY_KEY = "pictures"
 
 export const useAPI = () => {
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient()
     const { isFake, jwt: stateJWT } = useContext(GlobalContext)
     const localJWT = localStorage.getItem("jwt")
     const jwt = localJWT ?? stateJWT
-    const headers: HeadersInit = jwt ? { 'Authorization': `Bearer ${jwt}` } : {};
+    const headers: HeadersInit = jwt ? { Authorization: `Bearer ${jwt}` } : {}
     const queryKey = [QUERY_KEY, isFake]
 
-    const resetPictures = async () => {
-        const response = await fetch(NETLIFY_FUNCTIONS_PATH + "reset_pictures")
-        if (response.ok)
-            queryClient.invalidateQueries({ queryKey });
+    // Wrapper function that performs api calls
+    const api = async <T,>(url: string, init?: RequestInit | undefined): Promise<T> => {
+        return fetch(url, init).then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.json() as Promise<T>
+        })
     }
 
-    const refreshToken = async () => {
-        const response = await fetch(NETLIFY_FUNCTIONS_PATH + "refresh_token", {
-            credentials: "include"
-        })
-        return response.json()
+    const resetPictures = async () => {
+        try {
+            await api(NETLIFY_FUNCTIONS_PATH + "reset_pictures")
+            queryClient.invalidateQueries({ queryKey })
+        } catch (e) {
+            console.log(e)
+        }
     }
 
     const openPicture = async (day: number) => {
         const openPicturePath = isFake ? "open_fake_picture" : "open_picture"
 
-        const response = await fetch(NETLIFY_FUNCTIONS_PATH + `${openPicturePath}?` + new URLSearchParams({
-            day: day.toString()
-        }))
-        return response.json()
+        try {
+            return await api<Picture>(
+                NETLIFY_FUNCTIONS_PATH +
+                    `${openPicturePath}?` +
+                    new URLSearchParams({
+                        day: day.toString()
+                    })
+            )
+        } catch (e) {
+            console.log(e)
+        }
     }
 
     const { mutate } = useMutation(openPicture, {
@@ -43,12 +56,13 @@ export const useAPI = () => {
             await queryClient.cancelQueries({ queryKey })
 
             // Snapshot the previous value
-            const oldPics = queryClient.getQueryData<Picture[]>(queryKey);
+            const oldPics = queryClient.getQueryData<Picture[]>(queryKey)
 
             // Perform optimistic update on the relevant picture
-            queryClient.setQueryData<Picture[]>(queryKey, (oldPics) =>
-                oldPics?.map((oldPic) => (oldPic.day === newPicDay ? { ...oldPic, isOpen: true } : oldPic))
-            );
+            queryClient.setQueryData<Picture[]>(
+                queryKey,
+                (oldPics) => oldPics?.map((oldPic) => (oldPic.day === newPicDay ? { ...oldPic, isOpen: true } : oldPic))
+            )
 
             // Return a context object with the snapshotted value
             return { oldPics }
@@ -60,35 +74,41 @@ export const useAPI = () => {
         onSettled: () => {
             // Invalidate the queries, so all the Pictures will be refetched
             queryClient.invalidateQueries({ queryKey })
-        },
-    });
+        }
+    })
 
     const login = async (name: string, password: string) => {
-        const response = await fetch(NETLIFY_FUNCTIONS_PATH + "login", { method: "POST", body: JSON.stringify({ name, password }) })
-        return response
+        return await api<LoginResponse>(NETLIFY_FUNCTIONS_PATH + "login", {
+            method: "POST",
+            body: JSON.stringify({ name, password })
+        })
     }
 
     const fetchPictures = async () => {
         const getPicturePath = isFake ? "get_fake_pictures" : "get_pictures"
-        const response = await fetch(NETLIFY_FUNCTIONS_PATH + getPicturePath, { headers })
-        if (response.ok)
-            return response.json()
+        try {
+            return await api<Picture[]>(NETLIFY_FUNCTIONS_PATH + getPicturePath, { headers })
+        } catch (e) {
+            return []
+        }
     }
 
     const authenticate = async () => {
-        const response = await fetch(NETLIFY_FUNCTIONS_PATH + "authenticate", { headers })
-        return response
+        return await api(NETLIFY_FUNCTIONS_PATH + "authenticate", { headers })
     }
 
-    const { data: pictures, isLoading: isPictureLoading } = useQuery<Picture[]>({ queryKey, queryFn: fetchPictures })
+    const { data: pictures, isLoading: isPictureLoading } = useQuery<Picture[]>({
+        queryFn: fetchPictures,
+        queryKey
+    })
 
     return {
         resetPictures,
-        refreshToken,
         openPicture: mutate,
         login,
         fetchPictures: {
-            pictures, isPictureLoading
+            pictures,
+            isPictureLoading
         },
         authenticate
     }

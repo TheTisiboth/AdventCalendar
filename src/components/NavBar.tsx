@@ -1,65 +1,76 @@
-import { Box, List, ListItem, ListItemButton, ListItemText, CssBaseline, AppBar, Toolbar, IconButton, Button, Drawer } from "@mui/material";
-import { useContext, useState } from "react";
-import { useNavigate } from '@tanstack/react-router'
-import { GlobalContext } from "../context";
-import MenuIcon from '@mui/icons-material/Menu';
-import { useLogout } from "../hooks/useLogout";
+import {
+    Box,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    CssBaseline,
+    AppBar,
+    Toolbar,
+    IconButton,
+    Button,
+    Drawer
+} from "@mui/material"
+import { useContext, useState } from "react"
+import { useNavigate } from "@tanstack/react-router"
+import { GlobalContext } from "../context"
+import MenuIcon from "@mui/icons-material/Menu"
+import { useLogout } from "../hooks/useLogout"
 
-const drawerWidth = 240;
+const drawerWidth = 240
 
 export const NavBar = () => {
-
     const navigate = useNavigate()
     const { logout } = useLogout()
-    const { isStarted, authorized } = useContext(GlobalContext)
-    const [mobileOpen, setMobileOpen] = useState(false);
+    const { isStarted, isLoggedIn } = useContext(GlobalContext)
+    const [mobileOpen, setMobileOpen] = useState(false)
 
     const handleDrawerToggle = () => {
-        setMobileOpen((prevState) => !prevState);
-    };
+        setMobileOpen((prevState) => !prevState)
+    }
 
     const drawer = (
-        <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
+        <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
             <List>
                 <ListItem key={"Home"} disablePadding>
-                    <ListItemButton sx={{ textAlign: 'center' }} onClick={() => navigate({ to: "/" })}>
+                    <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/" })}>
                         <ListItemText primary={"Home"} />
                     </ListItemButton>
                 </ListItem>
-                {isStarted &&
+                {isStarted && (
                     <ListItem key={"Calendar"} disablePadding>
-                        <ListItemButton sx={{ textAlign: 'center' }} onClick={() => navigate({ to: "/calendar" })}>
+                        <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/calendar" })}>
                             <ListItemText primary={"Calender"} />
                         </ListItemButton>
                     </ListItem>
-                }
+                )}
                 <ListItem key={"Test"} disablePadding>
-                    <ListItemButton sx={{ textAlign: 'center' }} onClick={() => navigate({ to: "/test" })}>
+                    <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/test" })}>
                         <ListItemText primary={"Test"} />
                     </ListItemButton>
                 </ListItem>
-                {isStarted && !authorized &&
+                {isStarted && !isLoggedIn && (
                     <ListItem key={"Login"} disablePadding>
-                        <ListItemButton sx={{ textAlign: 'center' }} onClick={() => navigate({ to: "/login" })}>
+                        <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/login" })}>
                             <ListItemText primary={"Login"} />
                         </ListItemButton>
                     </ListItem>
-                }
-                {isStarted && authorized &&
+                )}
+                {isStarted && isLoggedIn && (
                     <ListItem key={"Logout"} disablePadding>
-                        <ListItemButton sx={{ textAlign: 'center' }} onClick={logout}>
+                        <ListItemButton sx={{ textAlign: "center" }} onClick={logout}>
                             <ListItemText primary={"Logout"} />
                         </ListItemButton>
                     </ListItem>
-                }
+                )}
             </List>
         </Box>
-    );
+    )
 
-    const container = window !== undefined ? () => window.document.body : undefined;
+    const container = window !== undefined ? () => window.document.body : undefined
 
     return (
-        <Box sx={{ display: 'flex', className: "NavBar" }}>
+        <Box sx={{ display: "flex", className: "NavBar" }}>
             <CssBaseline />
             <AppBar component="nav">
                 <Toolbar>
@@ -68,33 +79,33 @@ export const NavBar = () => {
                         aria-label="open drawer"
                         edge="start"
                         onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: 'none' } }}
+                        sx={{ mr: 2, display: { sm: "none" } }}
                     >
                         <MenuIcon />
                     </IconButton>
 
-                    <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                    <Box sx={{ display: { xs: "none", sm: "block" } }}>
                         <Button onClick={() => navigate({ to: "/" })}>
                             <ListItemText primary="Home" />
                         </Button>
-                        {isStarted &&
-                            <Button key={"Calendar"} onClick={() => navigate({ to: "/calendar" })} >
+                        {isStarted && (
+                            <Button key={"Calendar"} onClick={() => navigate({ to: "/calendar" })}>
                                 <ListItemText primary="Calendar" />
                             </Button>
-                        }
+                        )}
                         <Button key={"Test"} onClick={() => navigate({ to: "/test" })}>
                             <ListItemText primary="Test" />
                         </Button>
-                        {isStarted && !authorized &&
+                        {isStarted && !isLoggedIn && (
                             <Button key={"Login"} onClick={() => navigate({ to: "/login" })}>
                                 <ListItemText primary="Login" />
                             </Button>
-                        }
-                        {isStarted && authorized &&
+                        )}
+                        {isStarted && isLoggedIn && (
                             <Button key={"Logout"} onClick={logout}>
                                 <ListItemText primary="Logout" />
                             </Button>
-                        }
+                        )}
                     </Box>
                 </Toolbar>
             </AppBar>
@@ -105,16 +116,16 @@ export const NavBar = () => {
                     open={mobileOpen}
                     onClose={handleDrawerToggle}
                     ModalProps={{
-                        keepMounted: true, // Better open performance on mobile.
+                        keepMounted: true // Better open performance on mobile.
                     }}
                     sx={{
-                        display: { xs: 'block', sm: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                        display: { xs: "block", sm: "none" },
+                        "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth }
                     }}
                 >
                     {drawer}
                 </Drawer>
             </nav>
         </Box>
-    );
+    )
 }

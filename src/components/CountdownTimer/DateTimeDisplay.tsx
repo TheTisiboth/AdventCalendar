@@ -1,17 +1,17 @@
-import React, { FC } from 'react';
+import { FC } from "react"
 
 type DateTimeDisplayProps = {
-    value: number,
-    type: string,
+    value: number
+    type: string
     isDanger: boolean
 }
 const DateTimeDisplay: FC<DateTimeDisplayProps> = ({ value, type, isDanger }) => {
     return (
-        <div className={isDanger ? 'countdown danger' : 'countdown'}>
+        <div className={isDanger ? "countdown danger" : "countdown"}>
             <p>{value}</p>
             <span>{type}</span>
         </div>
-    );
-};
+    )
+}
 
-export default DateTimeDisplay;
+export default DateTimeDisplay

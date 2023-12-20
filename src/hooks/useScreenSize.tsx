@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 
 type ScreeSize = {
-    isMobile: boolean,
+    isMobile: boolean
     imageSize: string
 }
 export const useScreenSize = (): ScreeSize => {
@@ -14,8 +14,8 @@ export const useScreenSize = (): ScreeSize => {
             setWidth(window.innerWidth)
         }
 
-        window.addEventListener('resize', handleResize)
-        return () => window.removeEventListener('resize', handleResize)
+        window.addEventListener("resize", handleResize)
+        return () => window.removeEventListener("resize", handleResize)
     }, [])
 
     return {
