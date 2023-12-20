@@ -7,7 +7,6 @@ import { useLogout } from "../hooks/useLogout";
 
 const drawerWidth = 240;
 
-
 export const NavBar = () => {
 
     const navigate = useNavigate()

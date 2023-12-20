@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ONE_DAY_MS, ONE_HOUR_MS, ONE_MINUTE_MS, ONE_SECOND_MS } from '../constants';
 
 const useCountdown = (targetDate: Date) => {
     const countDownDate = targetDate.getTime();
@@ -19,12 +20,12 @@ const useCountdown = (targetDate: Date) => {
 };
 
 const getTimeLeft = (countDown: number) => {
-    const days = Math.floor(countDown / (1000 * 60 * 60 * 24));
+    const days = Math.floor(countDown / (ONE_DAY_MS));
     const hours = Math.floor(
-        (countDown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        (countDown % (ONE_DAY_MS)) / (ONE_HOUR_MS)
     );
-    const minutes = Math.floor((countDown % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((countDown % (1000 * 60)) / 1000);
+    const minutes = Math.floor((countDown % (ONE_HOUR_MS)) / (ONE_MINUTE_MS));
+    const seconds = Math.floor((countDown % (ONE_MINUTE_MS)) / ONE_SECOND_MS);
 
     return [days, hours, minutes, seconds];
 };

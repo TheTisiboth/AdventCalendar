@@ -12,11 +12,12 @@ export const useAPI = () => {
     const localJWT = localStorage.getItem("jwt")
     const jwt = localJWT ?? stateJWT
     const headers: HeadersInit = jwt ? { 'Authorization': `Bearer ${jwt}` } : {};
+    const queryKey = [QUERY_KEY, isFake]
 
     const resetPictures = async () => {
         const response = await fetch(NETLIFY_FUNCTIONS_PATH + "reset_pictures")
         if (response.ok)
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEY, isFake] });
+            queryClient.invalidateQueries({ queryKey });
     }
 
     const refreshToken = async () => {
@@ -39,13 +40,13 @@ export const useAPI = () => {
         onMutate: async (newPicDay) => {
             // Cancel any outgoing refetches
             // (so they don't overwrite our optimistic update)
-            await queryClient.cancelQueries({ queryKey: [QUERY_KEY, isFake] })
+            await queryClient.cancelQueries({ queryKey })
 
             // Snapshot the previous value
-            const oldPics = queryClient.getQueryData<Picture[]>([QUERY_KEY, isFake]);
+            const oldPics = queryClient.getQueryData<Picture[]>(queryKey);
 
             // Perform optimistic update on the relevant picture
-            queryClient.setQueryData<Picture[]>([QUERY_KEY, isFake], (oldPics) =>
+            queryClient.setQueryData<Picture[]>(queryKey, (oldPics) =>
                 oldPics?.map((oldPic) => (oldPic.day === newPicDay ? { ...oldPic, isOpen: true } : oldPic))
             );
 
@@ -54,11 +55,11 @@ export const useAPI = () => {
         },
         onError: (_err, _newPicDay, context) => {
             // Restore old state
-            queryClient.setQueryData<Picture[]>([QUERY_KEY, isFake], context?.oldPics)
+            queryClient.setQueryData<Picture[]>(queryKey, context?.oldPics)
         },
         onSettled: () => {
             // Invalidate the queries, so all the Pictures will be refetched
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEY, isFake] })
+            queryClient.invalidateQueries({ queryKey })
         },
     });
 
@@ -79,7 +80,7 @@ export const useAPI = () => {
         return response
     }
 
-    const { data: pictures, isLoading: isPictureLoading } = useQuery<Picture[]>({ queryKey: [QUERY_KEY, isFake], queryFn: fetchPictures })
+    const { data: pictures, isLoading: isPictureLoading } = useQuery<Picture[]>({ queryKey, queryFn: fetchPictures })
 
     return {
         resetPictures,
