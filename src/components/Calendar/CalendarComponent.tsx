@@ -6,12 +6,13 @@ import { DateCalendar } from "@mui/x-date-pickers"
 import dayjs from "dayjs"
 import { DayGrid } from "./Grid"
 import { useAPI } from "../../hooks/useAPI"
+import { BackdropSpinner } from "./Backdrop"
 
 export const CalendarComponent: FC = () => {
     const { setDate, date, isFake } = useContext(GlobalContext)
     const {
         resetPictures,
-        fetchPictures: { isPictureLoading, pictures },
+        fetchPictures: { isPictureLoading, pictures }
     } = useAPI()
 
     useEffect(() => {
@@ -21,6 +22,7 @@ export const CalendarComponent: FC = () => {
     const handleCalendarChange = (date: dayjs.Dayjs | null) => {
         if (date) setDate(date.toDate())
     }
+    console.log("isFake:", isFake)
 
     return (
         <div className="App">
@@ -29,7 +31,7 @@ export const CalendarComponent: FC = () => {
                     Reset pictures
                 </Button>
             )}
-            {isPictureLoading && <p>Loading pic...</p>}
+            {isPictureLoading && <BackdropSpinner />}
             {!isPictureLoading && pictures && (
                 <Grid container>
                     {!isFake && (
@@ -63,6 +65,7 @@ export const CalendarComponent: FC = () => {
                             <Grid xs={10} lg={9} xsOffset={1}>
                                 <DayGrid pictures={pictures} />
                             </Grid>
+                            <BackdropSpinner />
                         </>
                     )}
                 </Grid>

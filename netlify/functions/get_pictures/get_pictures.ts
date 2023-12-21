@@ -17,7 +17,7 @@ export const func: Handler = async (_event, _context) => {
     } catch (error) {
         return { statusCode: 500, body: error.toString() }
     } finally {
-        void disconnect()
+        await disconnect()
     }
 }
 
