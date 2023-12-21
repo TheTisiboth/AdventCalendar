@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useNavigate } from "@tanstack/react-router"
-import { useState, SyntheticEvent, useEffect, useContext } from "react"
+import { useState, useEffect, useContext } from "react"
 import { useForm, SubmitHandler } from "react-hook-form"
 import { TypeOf, boolean, object, string } from "zod"
 import { GlobalContext } from "../context"
@@ -16,17 +16,12 @@ const loginSchema = object({
 type LoginInput = TypeOf<typeof loginSchema>
 
 export const useLogin = () => {
-    const { setUser, isLoggedIn, setIsLoggedIn, setJWT } = useContext(GlobalContext)
+    const { setUser, isLoggedIn, setIsLoggedIn, setJWT, handleSnackBarClick } = useContext(GlobalContext)
     const navigate = useNavigate()
     const { login } = useAPI()
     const location = useLocation()
 
     const [loading, setLoading] = useState(false)
-
-    const [snackBar, setSnackBar] = useState({
-        open: false,
-        severity: "error"
-    })
 
     const methods = useForm<LoginInput>({
         resolver: zodResolver(loginSchema)
@@ -37,25 +32,6 @@ export const useLogin = () => {
         setError,
         formState: { isSubmitSuccessful }
     } = methods
-
-    const handleClick = (severity: string) => {
-        setSnackBar((prevState) => ({
-            ...prevState,
-            open: true,
-            severity
-        }))
-    }
-
-    const handleClose = (event: SyntheticEvent | Event, reason?: string) => {
-        if (reason === "clickaway") {
-            return
-        }
-
-        setSnackBar((prevState) => ({
-            ...prevState,
-            open: false
-        }))
-    }
 
     useEffect(() => {
         if (isSubmitSuccessful || isLoggedIn) {
@@ -72,17 +48,18 @@ export const useLogin = () => {
             const response = await login(values.name, values.password)
             setUser(response.user)
             setIsLoggedIn(true)
-            handleClick("success")
+            handleSnackBarClick("User authentified successfuly", "success")
             setJWT(response.accessToken)
             if (values.rememberMe) localStorage.setItem("jwt", response.accessToken)
         } catch (e) {
             setLoading(false)
             if (e instanceof Error) {
                 setError("root", { message: e.message }, { shouldFocus: true })
-                handleClick("error")
+                handleSnackBarClick(e.message)
                 return
             } else {
                 console.log(e)
+                handleSnackBarClick(e as string)
             }
         }
     }
@@ -91,9 +68,7 @@ export const useLogin = () => {
 
     return {
         methods,
-        snackBar,
         loading,
-        handleSubmit,
-        handleClose
+        handleSubmit
     }
 }

@@ -3,6 +3,9 @@ import { User } from "./types/types"
 import dayjs from "dayjs"
 import { useScreenSize } from "./hooks/useScreenSize"
 import { useAPI } from "./hooks/useAPI"
+import { useSnackbar } from "./hooks/useSnackbar"
+// eslint-disable-next-line import/named
+import { AlertColor } from "@mui/material"
 
 enum Role {
     ADMIN = "admin",
@@ -32,6 +35,11 @@ type Context = {
     imageSize: string
     jwt: string
     setJWT: Dispatch<SetStateAction<string>>
+    open: boolean
+    message: string
+    handleSnackBarClick: (message: string, severity?: AlertColor) => void
+    handleSnackBarClose: (_event: Event | React.SyntheticEvent<Element, Event>, reason?: string | undefined) => void
+    severity: AlertColor
 }
 
 const defaultContext: Context = {
@@ -49,7 +57,12 @@ const defaultContext: Context = {
     imageSize: "",
     isMobile: false,
     jwt: "",
-    setJWT: () => {}
+    setJWT: () => {},
+    open: false,
+    message: "",
+    handleSnackBarClick: () => {},
+    handleSnackBarClose: () => {},
+    severity: "error"
 }
 
 export const GlobalContext = createContext(defaultContext)
@@ -65,6 +78,7 @@ export const MyProvider: FC<Props> = ({ children }) => {
     const [date, setDate] = useState(new Date())
     const [isFake, setIsFake] = useState(true)
     const startingDate = new Date("December 01, 2023 00:00:00")
+    const { handleClick, handleClose, message, open, severity } = useSnackbar()
 
     useEffect(() => {
         const authentication = async () => {
@@ -103,7 +117,12 @@ export const MyProvider: FC<Props> = ({ children }) => {
                 isMobile,
                 imageSize,
                 jwt,
-                setJWT
+                setJWT,
+                open,
+                handleSnackBarClick: handleClick,
+                handleSnackBarClose: handleClose,
+                message,
+                severity
             }}
         >
             {children}

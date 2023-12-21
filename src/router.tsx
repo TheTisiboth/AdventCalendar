@@ -5,10 +5,14 @@ import Login from "./components/Login/Login"
 import Calendar from "./components/Calendar/Calendar"
 import { Auth } from "./components/Auth"
 import { NavBar } from "./components/NavBar"
-import { Box } from "@mui/material"
+import { Alert, Box, Snackbar } from "@mui/material"
 import { Home } from "./components/Home"
+import { useContext } from "react"
+import { GlobalContext } from "./context"
 
 const RootComponent = () => {
+    const { open, handleSnackBarClose, message, severity } = useContext(GlobalContext)
+    console.log(open)
     return (
         <>
             <NavBar />
@@ -21,6 +25,16 @@ const RootComponent = () => {
             >
                 <Outlet />
             </Box>
+            <Snackbar
+                open={open}
+                autoHideDuration={2000}
+                onClose={handleSnackBarClose}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert onClose={handleSnackBarClose} severity={severity} sx={{ width: "100%" }}>
+                    {message}
+                </Alert>
+            </Snackbar>
         </>
     )
 }

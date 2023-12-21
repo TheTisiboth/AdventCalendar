@@ -1,16 +1,12 @@
-import { Alert, Box, Grid, Snackbar, Typography } from "@mui/material"
+import { Box, Grid, Typography } from "@mui/material"
 import { FormProvider } from "react-hook-form"
 import { LoadingButton } from "@mui/lab"
 import FormInput from "./FormInput"
-import { isEmpty } from "lodash"
 import { useLogin } from "../../hooks/useLogin"
 import FormCheckbox from "./FormCheckbox"
 
 const Login = () => {
-    const { methods, snackBar, loading, handleSubmit, handleClose } = useLogin()
-    const {
-        formState: { isSubmitSuccessful, errors }
-    } = methods
+    const { methods, loading, handleSubmit } = useLogin()
 
     return (
         <Grid
@@ -50,21 +46,6 @@ const Login = () => {
                             </LoadingButton>
                         </Box>
                     </FormProvider>
-                    <Snackbar
-                        open={snackBar.open}
-                        autoHideDuration={6000}
-                        onClose={handleClose}
-                        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                    >
-                        <Alert
-                            onClose={handleClose}
-                            severity={isEmpty(errors) || errors.root ? "error" : "success"}
-                            sx={{ width: "100%" }}
-                        >
-                            {errors.root?.message}
-                            {isSubmitSuccessful && "User authentified"}
-                        </Alert>
-                    </Snackbar>
                 </Box>
             </Grid>
         </Grid>
