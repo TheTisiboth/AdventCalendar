@@ -35,14 +35,14 @@ export const useAPI = () => {
 
     const openPicture = async (day: number) => {
         const openPicturePath = isFake ? "open_fake_picture" : "open_picture"
-
         try {
             return await api<Picture>(
                 NETLIFY_FUNCTIONS_PATH +
                     `${openPicturePath}?` +
                     new URLSearchParams({
                         day: day.toString()
-                    })
+                    }),
+                { headers }
             )
         } catch (e) {
             console.log(e)

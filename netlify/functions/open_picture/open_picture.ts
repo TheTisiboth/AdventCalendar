@@ -9,7 +9,6 @@ export const func: Handler = async (event, _context) => {
         await connect(process.env.MONGODB_URI!, { dbName: process.env.MONGODB_DATABASE })
         const day = event.queryStringParameters?.day
         const pic = await pictureModel.findOneAndUpdate({ day }, { isOpen: true }).exec()
-
         return {
             statusCode: 200,
             body: JSON.stringify(pic)
