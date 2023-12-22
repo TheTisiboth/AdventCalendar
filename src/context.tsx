@@ -6,7 +6,8 @@ import { useAPI } from "./hooks/useAPI"
 import { useSnackbar } from "./hooks/useSnackbar"
 // eslint-disable-next-line import/named
 import { AlertColor } from "@mui/material"
-import { computeStartingDate } from "./utils/utils"
+import { computeStartingANdEndingDate } from "./utils/utils"
+import { STARTING_DATE } from "./constants"
 
 enum Role {
     ADMIN = "admin",
@@ -30,6 +31,7 @@ type Context = {
     isFake: boolean
     setIsFake: Dispatch<SetStateAction<boolean>>
     startingDate: Date
+    endingDate: Date
     isStarted: boolean
     setIsStarted: Dispatch<SetStateAction<boolean>>
     isMobile: boolean
@@ -52,7 +54,8 @@ const defaultContext: Context = {
     setDate: () => {},
     isFake: true,
     setIsFake: () => {},
-    startingDate: new Date("December 01, 2023 00:00:00"),
+    startingDate: new Date(),
+    endingDate: new Date(),
     isStarted: false,
     setIsStarted: () => {},
     imageSize: "",
@@ -78,7 +81,7 @@ export const MyProvider: FC<Props> = ({ children }) => {
     const [jwt, setJWT] = useState<string>(localStorage.getItem("jwt") || "")
     const [date, setDate] = useState(new Date())
     const [isFake, setIsFake] = useState(true)
-    const startingDate = computeStartingDate()
+    const { startingDate, endingDate } = computeStartingANdEndingDate()
     const { handleClick, handleClose, message, open, severity } = useSnackbar()
 
     useEffect(() => {
@@ -113,6 +116,7 @@ export const MyProvider: FC<Props> = ({ children }) => {
                 isFake,
                 setIsFake,
                 startingDate,
+                endingDate,
                 isStarted,
                 setIsStarted,
                 isMobile,

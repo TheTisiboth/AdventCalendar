@@ -9,7 +9,7 @@ import { useAPI } from "../../hooks/useAPI"
 import { BackdropSpinner } from "./Backdrop"
 
 export const CalendarComponent: FC = () => {
-    const { setDate, date, isFake } = useContext(GlobalContext)
+    const { setDate, date, isFake, startingDate, endingDate } = useContext(GlobalContext)
     const {
         resetPictures,
         fetchPictures: { isPictureLoading, pictures }
@@ -22,7 +22,6 @@ export const CalendarComponent: FC = () => {
     const handleCalendarChange = (date: dayjs.Dayjs | null) => {
         if (date) setDate(date.toDate())
     }
-    console.log("isFake:", isFake)
 
     return (
         <div className="App">
@@ -55,9 +54,9 @@ export const CalendarComponent: FC = () => {
                                     <DateCalendar
                                         value={dayjs(date)}
                                         onChange={handleCalendarChange}
-                                        defaultValue={dayjs("2023-12-01")}
-                                        maxDate={dayjs("2023-12-24")}
-                                        minDate={dayjs("2023-12-01")}
+                                        defaultValue={dayjs(startingDate)}
+                                        maxDate={dayjs(endingDate)}
+                                        minDate={dayjs(startingDate)}
                                         views={["day"]}
                                     />
                                 </Grid>
