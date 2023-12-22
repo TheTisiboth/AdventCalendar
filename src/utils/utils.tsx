@@ -1,4 +1,6 @@
+import dayjs from "dayjs"
 import { cloneDeep } from "lodash"
+import { STARTING_DATE, ENDING_DATE } from "../constants"
 
 export const shuffle = <T,>(array: T[], seed: number) => {
     const copy = cloneDeep(array)
@@ -22,4 +24,20 @@ export const shuffle = <T,>(array: T[], seed: number) => {
 function random(seed: number) {
     const x = Math.sin(seed++) * 10000
     return x - Math.floor(x)
+}
+
+export const computeStartingDate = () => {
+    const now = new Date()
+    const currentYear = now.getUTCFullYear()
+    const startingDate = new Date(STARTING_DATE)
+    startingDate.setUTCFullYear(currentYear) // Actualise with the current year
+    const endingDate = new Date(ENDING_DATE)
+    endingDate.setUTCFullYear(currentYear) // Actualise with the current year
+
+    // If the advent calendar is over
+    if (dayjs(now).isAfter(endingDate)) {
+        // The starting date is the set to the next year
+        startingDate.setUTCFullYear(currentYear + 1)
+    }
+    return startingDate
 }

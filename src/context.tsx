@@ -6,6 +6,7 @@ import { useAPI } from "./hooks/useAPI"
 import { useSnackbar } from "./hooks/useSnackbar"
 // eslint-disable-next-line import/named
 import { AlertColor } from "@mui/material"
+import { computeStartingDate } from "./utils/utils"
 
 enum Role {
     ADMIN = "admin",
@@ -77,7 +78,7 @@ export const MyProvider: FC<Props> = ({ children }) => {
     const [jwt, setJWT] = useState<string>(localStorage.getItem("jwt") || "")
     const [date, setDate] = useState(new Date())
     const [isFake, setIsFake] = useState(true)
-    const startingDate = new Date("December 01, 2023 00:00:00")
+    const startingDate = computeStartingDate()
     const { handleClick, handleClose, message, open, severity } = useSnackbar()
 
     useEffect(() => {

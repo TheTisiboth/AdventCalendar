@@ -65,7 +65,6 @@ export const CalendarComponent: FC = () => {
                             <Grid xs={10} lg={9} xsOffset={1}>
                                 <DayGrid pictures={pictures} />
                             </Grid>
-                            <BackdropSpinner />
                         </>
                     )}
                 </Grid>
