@@ -28,7 +28,7 @@ function random(seed: number) {
 
 export const computeStartingANdEndingDate = () => {
     const now = new Date()
-    const currentYear = now.getUTCFullYear() + 1
+    const currentYear = now.getUTCFullYear()
     const startingDate = new Date(STARTING_DATE)
     startingDate.setUTCFullYear(currentYear) // Actualise with the current year
     const endingDate = new Date(ENDING_DATE)
@@ -37,8 +37,8 @@ export const computeStartingANdEndingDate = () => {
     // If the advent calendar is over
     if (dayjs(now).isAfter(endingDate)) {
         // The starting date is the set to the next year
-        startingDate.setUTCFullYear(currentYear + 2)
-        endingDate.setUTCFullYear(currentYear + 2)
+        startingDate.setUTCFullYear(currentYear)
+        endingDate.setUTCFullYear(currentYear)
     }
     return { startingDate, endingDate }
 }
