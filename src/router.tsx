@@ -12,7 +12,6 @@ import { GlobalContext } from "./context"
 
 const RootComponent = () => {
     const { open, handleSnackBarClose, message, severity } = useContext(GlobalContext)
-    console.log(open)
     return (
         <>
             <NavBar />

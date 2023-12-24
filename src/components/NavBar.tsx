@@ -22,7 +22,7 @@ const drawerWidth = 240
 export const NavBar = () => {
     const navigate = useNavigate()
     const { logout } = useLogout()
-    const { isStarted, isLoggedIn } = useContext(GlobalContext)
+    const { isLoggedIn } = useContext(GlobalContext)
     const [mobileOpen, setMobileOpen] = useState(false)
 
     const handleDrawerToggle = () => {
@@ -37,26 +37,26 @@ export const NavBar = () => {
                         <ListItemText primary={"Home"} />
                     </ListItemButton>
                 </ListItem>
-                {isStarted && (
-                    <ListItem key={"Calendar"} disablePadding>
-                        <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/calendar" })}>
-                            <ListItemText primary={"Calender"} />
-                        </ListItemButton>
-                    </ListItem>
-                )}
+
+                <ListItem key={"Calendar"} disablePadding>
+                    <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/calendar" })}>
+                        <ListItemText primary={"Calender"} />
+                    </ListItemButton>
+                </ListItem>
+
                 <ListItem key={"Test"} disablePadding>
                     <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/test" })}>
                         <ListItemText primary={"Test"} />
                     </ListItemButton>
                 </ListItem>
-                {isStarted && !isLoggedIn && (
+                {!isLoggedIn && (
                     <ListItem key={"Login"} disablePadding>
                         <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/login" })}>
                             <ListItemText primary={"Login"} />
                         </ListItemButton>
                     </ListItem>
                 )}
-                {isStarted && isLoggedIn && (
+                {isLoggedIn && (
                     <ListItem key={"Logout"} disablePadding>
                         <ListItemButton sx={{ textAlign: "center" }} onClick={logout}>
                             <ListItemText primary={"Logout"} />
@@ -88,20 +88,20 @@ export const NavBar = () => {
                         <Button onClick={() => navigate({ to: "/" })}>
                             <ListItemText primary="Home" />
                         </Button>
-                        {isStarted && (
-                            <Button key={"Calendar"} onClick={() => navigate({ to: "/calendar" })}>
-                                <ListItemText primary="Calendar" />
-                            </Button>
-                        )}
+
+                        <Button key={"Calendar"} onClick={() => navigate({ to: "/calendar" })}>
+                            <ListItemText primary="Calendar" />
+                        </Button>
+
                         <Button key={"Test"} onClick={() => navigate({ to: "/test" })}>
                             <ListItemText primary="Test" />
                         </Button>
-                        {isStarted && !isLoggedIn && (
+                        {!isLoggedIn && (
                             <Button key={"Login"} onClick={() => navigate({ to: "/login" })}>
                                 <ListItemText primary="Login" />
                             </Button>
                         )}
-                        {isStarted && isLoggedIn && (
+                        {isLoggedIn && (
                             <Button key={"Logout"} onClick={logout}>
                                 <ListItemText primary="Logout" />
                             </Button>

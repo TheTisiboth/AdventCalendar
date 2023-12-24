@@ -27,7 +27,7 @@ export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureRe
     const [open, setOpen] = useState(false)
     const isBefore = dayjs(picture.date).isBefore(dayjs(date))
     const isToday = dayjs(date).isSame(dayjs(picture.date), "day")
-    const imageSRC = picture.key.split(".jpg").length === 2 ? CDN_URL + picture.key : picture.key
+    const imageSRC = picture.key.includes(".jpg") || picture.key.includes(".png") ? CDN_URL + picture.key : picture.key
 
     const computeTextColor = (): string => {
         if (isBefore) {
