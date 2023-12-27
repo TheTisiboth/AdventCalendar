@@ -13,16 +13,16 @@ import {
 } from "@mui/material"
 import { useContext, useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
-import { GlobalContext } from "../context"
 import MenuIcon from "@mui/icons-material/Menu"
 import { useLogout } from "../hooks/useLogout"
+import { useAuthStore } from "../store"
 
 const drawerWidth = 240
 
 export const NavBar = () => {
     const navigate = useNavigate()
     const { logout } = useLogout()
-    const { isLoggedIn } = useContext(GlobalContext)
+    const [isLoggedIn] = useAuthStore((state) => [state.isLoggedIn])
     const [mobileOpen, setMobileOpen] = useState(false)
 
     const handleDrawerToggle = () => {

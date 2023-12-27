@@ -3,9 +3,9 @@ import { useNavigate } from "@tanstack/react-router"
 import { useState, useEffect, useContext } from "react"
 import { useForm, SubmitHandler } from "react-hook-form"
 import { TypeOf, boolean, object, string } from "zod"
-import { GlobalContext } from "../context"
 import { useAPI } from "./useAPI"
 import { useLocation } from "react-router-dom"
+import { useAuthStore, useSnackbarStore } from "../store"
 
 const loginSchema = object({
     name: string().nonempty("Name is required"),
@@ -16,7 +16,13 @@ const loginSchema = object({
 type LoginInput = TypeOf<typeof loginSchema>
 
 export const useLogin = () => {
-    const { setUser, isLoggedIn, setIsLoggedIn, setJWT, handleSnackBarClick } = useContext(GlobalContext)
+    const [setUser, isLoggedIn, setIsLoggedIn, setJWT] = useAuthStore((state) => [
+        state.setUser,
+        state.isLoggedIn,
+        state.setIsLoggedIn,
+        state.setJWT
+    ])
+    const [handleClick] = useSnackbarStore((state) => [state.handleClick])
     const navigate = useNavigate()
     const { login } = useAPI()
     const location = useLocation()
@@ -48,18 +54,18 @@ export const useLogin = () => {
             const response = await login(values.name, values.password)
             setUser(response.user)
             setIsLoggedIn(true)
-            handleSnackBarClick("User authentified successfuly", "success")
+            handleClick("User authentified successfuly", "success")
             setJWT(response.accessToken)
             if (values.rememberMe) localStorage.setItem("jwt", response.accessToken)
         } catch (e) {
             setLoading(false)
             if (e instanceof Error) {
                 setError("root", { message: e.message }, { shouldFocus: true })
-                handleSnackBarClick(e.message)
+                handleClick(e.message)
                 return
             } else {
                 console.log(e)
-                handleSnackBarClick(e as string)
+                handleClick(e as string)
             }
         }
     }

@@ -1,20 +1,20 @@
 import { Button, Paper, Skeleton } from "@mui/material"
-import { FC, useContext, useRef } from "react"
+import { FC, useRef } from "react"
 import { Picture } from "../../types/types"
 import FullScreenDialog from "./FullscreenDialog"
 import { usePicture } from "../../hooks/usePicture"
 import "./Day.css"
-import { GlobalContext } from "../../context"
+import { useResponsiveStore } from "../../store"
 
 type DayProps = {
     picture: Picture
 }
 export const Day: FC<DayProps> = ({ picture }) => {
     const imageRef = useRef<HTMLImageElement>(null)
-    const { imageSize } = useContext(GlobalContext)
+    const [imageSize] = useResponsiveStore((state) => [state.imageSize])
     const { open, setOpen, isToday, isBefore, handleClick, textColor, divColor, imageSRC } = usePicture({
         picture,
-        imageRef,
+        imageRef
     })
 
     return (

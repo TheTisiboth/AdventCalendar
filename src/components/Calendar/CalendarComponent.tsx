@@ -1,5 +1,4 @@
-import { FC, useContext, useEffect } from "react"
-import { GlobalContext } from "../../context"
+import { FC, useEffect } from "react"
 import { Button } from "@mui/material"
 import Grid from "@mui/system/Unstable_Grid"
 import { DateCalendar } from "@mui/x-date-pickers"
@@ -7,9 +6,16 @@ import dayjs from "dayjs"
 import { DayGrid } from "./Grid"
 import { useAPI } from "../../hooks/useAPI"
 import { BackdropSpinner } from "./Backdrop"
+import { useCalendarStore } from "../../store"
 
 export const CalendarComponent: FC = () => {
-    const { setDate, date, isFake, startingDate, endingDate } = useContext(GlobalContext)
+    const [setDate, date, isFake, startingDate, endingDate] = useCalendarStore((state) => [
+        state.setDate,
+        state.date,
+        state.isFake,
+        state.startingDate,
+        state.endingDate
+    ])
     const {
         resetPictures,
         fetchPictures: { isPictureLoading, pictures }

@@ -1,11 +1,13 @@
 import { Link } from "@tanstack/react-router"
-import { useContext } from "react"
-import { GlobalContext } from "../../context"
 import dayjs from "dayjs"
+import { useCalendarStore } from "../../store"
 
 export const ExpiredNotice = () => {
-    const { startingDate, isStarted, setIsStarted } = useContext(GlobalContext)
-
+    const [startingDate, isStarted, setIsStarted] = useCalendarStore((state) => [
+        state.startingDate,
+        state.isStarted,
+        state.setIsStarted
+    ])
     if (dayjs(new Date()).isAfter(startingDate)) {
         if (!isStarted) setIsStarted(true)
     }
