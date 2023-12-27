@@ -6,7 +6,7 @@ import { useAPI } from "./hooks/useAPI"
 import { useSnackbar } from "./hooks/useSnackbar"
 // eslint-disable-next-line import/named
 import { AlertColor } from "@mui/material"
-import { computeStartingANdEndingDate } from "./utils/utils"
+import { computeStartingAndEndingDate } from "./utils/utils"
 import { STARTING_DATE } from "./constants"
 
 enum Role {
@@ -81,7 +81,7 @@ export const MyProvider: FC<Props> = ({ children }) => {
     const [jwt, setJWT] = useState<string>(localStorage.getItem("jwt") || "")
     const [date, setDate] = useState(new Date())
     const [isFake, setIsFake] = useState(true)
-    const { startingDate, endingDate } = computeStartingANdEndingDate()
+    const { startingDate, endingDate } = computeStartingAndEndingDate()
     const { handleClick, handleClose, message, open, severity } = useSnackbar()
 
     useEffect(() => {
