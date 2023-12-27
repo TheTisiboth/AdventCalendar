@@ -8,6 +8,7 @@ import { useRegisterSW } from "virtual:pwa-register/react"
 import { BrowserRouter } from "react-router-dom"
 import { useAuth } from "./hooks/useAuth"
 import { useScreenSize } from "./hooks/useScreenSize"
+import { useMainHook } from "./hooks/useMainHook"
 
 // Register your router for maximum type safety
 declare module "@tanstack/router" {
@@ -18,8 +19,7 @@ declare module "@tanstack/router" {
 export const App = () => {
     // Reload the PWA when a new version is available
     useRegisterSW({ immediate: true })
-    useAuth()
-    useScreenSize()
+    useMainHook()
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>

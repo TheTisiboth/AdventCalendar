@@ -55,7 +55,7 @@ export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureRe
     }
 
     const togglePictureFullscreen = async () => {
-        if (isMobile()) {
+        if (isMobile) {
             if (!open) setOpen((prev) => !prev)
         } else {
             void imageRef?.current?.requestFullscreen()

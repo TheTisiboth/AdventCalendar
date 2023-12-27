@@ -1,14 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { NETLIFY_FUNCTIONS_PATH } from "../constants"
 import { LoginResponse, Picture } from "../types/types"
-import { useAuthStore, useCalendarStore } from "../store"
+import { useAuthStore, useCalendarStore, useSnackbarStore } from "../store"
+import { useShallow } from "zustand/react/shallow"
 
 const QUERY_KEY = "pictures"
 
 export const useAPI = () => {
     const queryClient = useQueryClient()
-    const [stateJWT] = useAuthStore((state) => [state.jwt])
-    const [isFake] = useCalendarStore((state) => [state.isFake])
+    const stateJWT = useAuthStore(useShallow((state) => state.jwt))
+    const isFake = useCalendarStore(useShallow((state) => state.isFake))
+    const handleClick = useSnackbarStore(useShallow((state) => state.handleClick))
     const localJWT = localStorage.getItem("jwt")
     const jwt = localJWT ?? stateJWT
     const headers: HeadersInit = jwt ? { Authorization: `Bearer ${jwt}` } : {}
@@ -29,7 +31,7 @@ export const useAPI = () => {
             await api(NETLIFY_FUNCTIONS_PATH + "reset_pictures")
             queryClient.invalidateQueries({ queryKey })
         } catch (e) {
-            console.log(e)
+            handleClick("Server error")
         }
     }
 
@@ -45,7 +47,7 @@ export const useAPI = () => {
                 { headers }
             )
         } catch (e) {
-            console.log(e)
+            handleClick("Server error")
         }
     }
 

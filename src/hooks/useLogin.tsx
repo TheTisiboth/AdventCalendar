@@ -64,7 +64,6 @@ export const useLogin = () => {
                 handleClick(e.message)
                 return
             } else {
-                console.log(e)
                 handleClick(e as string)
             }
         }

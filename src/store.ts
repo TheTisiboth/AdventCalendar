@@ -16,7 +16,7 @@ type CalendarStore = {
 }
 
 type ResponsiveStore = {
-    isMobile: () => boolean
+    isMobile: boolean
     imageSize: string
     setIsMobile: (b: boolean) => void
     setImageSize: (s: string) => void
@@ -70,16 +70,19 @@ export const useCalendarStore = create<CalendarStore>()((set, get) => ({
     }
 }))
 
-export const useResponsiveStore = create<ResponsiveStore>()((set, get) => ({
-    imageSize: get().isMobile() ? "5em" : "13em",
-    isMobile: () => window.innerWidth <= 992,
-    setIsMobile: (isMobile) => {
-        set({ isMobile: () => isMobile })
-    },
-    setImageSize: (imageSize) => {
-        set({ imageSize })
+export const useResponsiveStore = create<ResponsiveStore>()((set) => {
+    const isMobile = window.innerWidth <= 992
+    return {
+        imageSize: isMobile ? "5em" : "13em",
+        isMobile,
+        setIsMobile: (isMobile) => {
+            set({ isMobile })
+        },
+        setImageSize: (imageSize) => {
+            set({ imageSize })
+        }
     }
-}))
+})
 
 export const useAuthStore = create<AuthStore>()((set) => ({
     isLoggedIn: false,
