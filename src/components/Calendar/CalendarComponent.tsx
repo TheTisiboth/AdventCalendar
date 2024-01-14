@@ -6,16 +6,16 @@ import dayjs from "dayjs"
 import { DayGrid } from "./Grid"
 import { useAPI } from "../../hooks/useAPI"
 import { BackdropSpinner } from "./Backdrop"
-import { useCalendarStore } from "../../store"
+import { useCalendarStoreMulti } from "../../store"
 
 export const CalendarComponent: FC = () => {
-    const [setDate, date, isFake, startingDate, endingDate] = useCalendarStore((state) => [
-        state.setDate,
-        state.date,
-        state.isFake,
-        state.startingDate,
-        state.endingDate
-    ])
+    const { setDate, date, isFake, startingDate, endingDate } = useCalendarStoreMulti(
+        "date",
+        "setDate",
+        "isFake",
+        "startingDate",
+        "endingDate"
+    )
     const {
         resetPictures,
         fetchPictures: { isPictureLoading, pictures }

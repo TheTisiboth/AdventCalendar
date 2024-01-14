@@ -1,12 +1,9 @@
 import { useEffect } from "react"
-import { useAuthStore } from "../store"
+import { useAuthStoreMulti } from "../store"
 import { useAPI } from "./useAPI"
-import { useShallow } from "zustand/react/shallow"
 
 export const useAuth = () => {
-    const [jwt, setIsLoggedIn, setJWT, isLoggedIn] = useAuthStore(
-        useShallow((state) => [state.jwt, state.setIsLoggedIn, state.setJWT, state.isLoggedIn])
-    )
+    const { jwt, setIsLoggedIn, setJWT, isLoggedIn } = useAuthStoreMulti("jwt", "setJWT", "setIsLoggedIn", "isLoggedIn")
     const { authenticate } = useAPI()
     useEffect(() => {
         const authentication = async () => {

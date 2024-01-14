@@ -1,13 +1,9 @@
 import { Link } from "@tanstack/react-router"
 import dayjs from "dayjs"
-import { useCalendarStore } from "../../store"
+import { useCalendarStoreMulti } from "../../store"
 
 export const ExpiredNotice = () => {
-    const [startingDate, isStarted, setIsStarted] = useCalendarStore((state) => [
-        state.startingDate,
-        state.isStarted,
-        state.setIsStarted
-    ])
+    const { startingDate, isStarted, setIsStarted } = useCalendarStoreMulti("startingDate", "isStarted", "setIsStarted")
     if (dayjs(new Date()).isAfter(startingDate)) {
         if (!isStarted) setIsStarted(true)
     }

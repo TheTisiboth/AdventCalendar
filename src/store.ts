@@ -1,8 +1,9 @@
 import { User } from "./types/types"
 import { AlertColor } from "@mui/material"
-import { create } from "zustand"
+import { StoreApi, UseBoundStore, create } from "zustand"
 import { computeStartingANdEndingDate } from "./utils/utils"
 import dayjs from "dayjs"
+import { useShallow } from "zustand/react/shallow"
 
 type CalendarStore = {
     date: Date
@@ -53,7 +54,7 @@ export const dummyUser: User = {
 
 const { startingDate, endingDate } = computeStartingANdEndingDate()
 
-export const useCalendarStore = create<CalendarStore>()((set, get) => ({
+const useCalendarStore = create<CalendarStore>()((set, get) => ({
     date: new Date(),
     endingDate,
     startingDate,
@@ -70,7 +71,9 @@ export const useCalendarStore = create<CalendarStore>()((set, get) => ({
     }
 }))
 
-export const useResponsiveStore = create<ResponsiveStore>()((set) => {
+export const useCalendarStoreMulti = (...items: Array<keyof CalendarStore>) => useMulti(useCalendarStore, ...items)
+
+const useResponsiveStore = create<ResponsiveStore>()((set) => {
     const isMobile = window.innerWidth <= 992
     return {
         imageSize: isMobile ? "5em" : "13em",
@@ -84,7 +87,10 @@ export const useResponsiveStore = create<ResponsiveStore>()((set) => {
     }
 })
 
-export const useAuthStore = create<AuthStore>()((set) => ({
+export const useResponsiveStoreMulti = (...items: Array<keyof ResponsiveStore>) =>
+    useMulti(useResponsiveStore, ...items)
+
+const useAuthStore = create<AuthStore>()((set) => ({
     isLoggedIn: false,
     jwt: localStorage.getItem("jwt") || "",
     user: dummyUser,
@@ -99,7 +105,9 @@ export const useAuthStore = create<AuthStore>()((set) => ({
     }
 }))
 
-export const useSnackbarStore = create<SnackbarStore>()((set) => ({
+export const useAuthStoreMulti = (...items: Array<keyof AuthStore>) => useMulti(useAuthStore, ...items)
+
+const useSnackbarStore = create<SnackbarStore>()((set) => ({
     message: "",
     open: false,
     severity: "error",
@@ -110,3 +118,24 @@ export const useSnackbarStore = create<SnackbarStore>()((set) => ({
         set({ open: false })
     }
 }))
+
+export const useSnackBarStoreMulti = (...items: Array<keyof SnackbarStore>) => useMulti(useSnackbarStore, ...items)
+
+/**
+ * Retrieve the items from the store
+ * @param useStoreFn A store function
+ * @param items a list of items to retrieve from the store
+ * @returns A list of objects from the store, according to the provided items
+ */
+const useMulti = <T extends object, K extends keyof T>(
+    useStoreFn: UseBoundStore<StoreApi<T>>,
+    ...items: K[]
+): Pick<T, K> => {
+    return items.reduce(
+        (carry, item) => ({
+            ...carry,
+            [item]: useStoreFn(useShallow((state) => state[item]))
+        }),
+        {}
+    ) as Pick<T, K>
+}

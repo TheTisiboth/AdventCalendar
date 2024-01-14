@@ -1,11 +1,8 @@
-import { useEffect, useState } from "react"
-import { useResponsiveStore } from "../store"
-import { useShallow } from "zustand/react/shallow"
+import { useEffect } from "react"
+import { useResponsiveStoreMulti } from "../store"
 
 export const useScreenSize = () => {
-    const [setImageSize, setIsMobile] = useResponsiveStore(
-        useShallow((state) => [state.setImageSize, state.setIsMobile])
-    )
+    const { setImageSize, setIsMobile } = useResponsiveStoreMulti("setImageSize", "setIsMobile")
     useEffect(() => {
         const handleResize = () => {
             const isMobile = window.innerWidth <= 992

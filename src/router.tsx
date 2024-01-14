@@ -7,15 +7,11 @@ import { Auth } from "./components/Auth"
 import { NavBar } from "./components/NavBar"
 import { Alert, Box, Snackbar } from "@mui/material"
 import { Home } from "./components/Home"
-import { useSnackbarStore } from "./store"
+import { useSnackBarStoreMulti } from "./store"
 
 const RootComponent = () => {
-    const [open, message, severity, handleClose] = useSnackbarStore((state) => [
-        state.open,
-        state.message,
-        state.severity,
-        state.handleClose
-    ])
+    const { open, message, severity, handleClose } = useSnackBarStoreMulti("open", "message", "severity", "handleClose")
+
     return (
         <>
             <NavBar />

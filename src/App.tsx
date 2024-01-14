@@ -3,11 +3,8 @@ import { RouterProvider } from "@tanstack/react-router"
 import { router } from "./router"
 import { LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs"
-// eslint-disable-next-line import/no-unresolved
 import { useRegisterSW } from "virtual:pwa-register/react"
 import { BrowserRouter } from "react-router-dom"
-import { useAuth } from "./hooks/useAuth"
-import { useScreenSize } from "./hooks/useScreenSize"
 import { useMainHook } from "./hooks/useMainHook"
 
 // Register your router for maximum type safety

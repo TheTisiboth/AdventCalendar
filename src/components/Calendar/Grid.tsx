@@ -3,13 +3,13 @@ import { Picture } from "../../types/types"
 import Grid from "@mui/material/Grid"
 import { Day } from "./Day"
 import { shuffle } from "../../utils/utils"
-import { useCalendarStore } from "../../store"
+import { useCalendarStoreMulti } from "../../store"
 
 type DayGridProps = {
     pictures: Picture[]
 }
 export const DayGrid: FC<DayGridProps> = ({ pictures }) => {
-    const [date] = useCalendarStore((state) => [state.date])
+    const { date } = useCalendarStoreMulti("date")
     const year = date.getFullYear() // Seed the shuffle with the current year
     return (
         <Grid container spacing={2}>

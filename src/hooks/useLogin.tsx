@@ -1,11 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useNavigate } from "@tanstack/react-router"
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect } from "react"
 import { useForm, SubmitHandler } from "react-hook-form"
 import { TypeOf, boolean, object, string } from "zod"
 import { useAPI } from "./useAPI"
 import { useLocation } from "react-router-dom"
-import { useAuthStore, useSnackbarStore } from "../store"
+import { useAuthStoreMulti, useSnackBarStoreMulti } from "../store"
 
 const loginSchema = object({
     name: string().nonempty("Name is required"),
@@ -16,13 +16,13 @@ const loginSchema = object({
 type LoginInput = TypeOf<typeof loginSchema>
 
 export const useLogin = () => {
-    const [setUser, isLoggedIn, setIsLoggedIn, setJWT] = useAuthStore((state) => [
-        state.setUser,
-        state.isLoggedIn,
-        state.setIsLoggedIn,
-        state.setJWT
-    ])
-    const [handleClick] = useSnackbarStore((state) => [state.handleClick])
+    const { setUser, isLoggedIn, setIsLoggedIn, setJWT } = useAuthStoreMulti(
+        "setUser",
+        "isLoggedIn",
+        "setJWT",
+        "setIsLoggedIn"
+    )
+    const { handleClick } = useSnackBarStoreMulti("handleClick")
     const navigate = useNavigate()
     const { login } = useAPI()
     const location = useLocation()
@@ -45,8 +45,6 @@ export const useLogin = () => {
             navigate({ to: origin })
         }
     }, [isSubmitSuccessful, isLoggedIn])
-
-    // const handleSuccessfulLogin = (data: any) => {}
 
     const onSubmitHandler: SubmitHandler<LoginInput> = async (values) => {
         setLoading(true)
