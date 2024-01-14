@@ -1,15 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { NETLIFY_FUNCTIONS_PATH } from "../constants"
 import { LoginResponse, Picture } from "../types/types"
-import { useAuthStoreMulti, useCalendarStoreMulti, useSnackBarStoreMulti } from "../store"
+import { useAuthStore, useCalendarStore, useSnackBarStore } from "../store"
 
 const QUERY_KEY = "pictures"
 
 export const useAPI = () => {
     const queryClient = useQueryClient()
-    const { jwt: stateJWT } = useAuthStoreMulti("jwt")
-    const { isFake } = useCalendarStoreMulti("isFake")
-    const { handleClick } = useSnackBarStoreMulti("handleClick")
+    const { jwt: stateJWT } = useAuthStore("jwt")
+    const { isFake } = useCalendarStore("isFake")
+    const { handleClick } = useSnackBarStore("handleClick")
     const localJWT = localStorage.getItem("jwt")
     const jwt = localJWT ?? stateJWT
     const headers: HeadersInit = jwt ? { Authorization: `Bearer ${jwt}` } : {}

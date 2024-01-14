@@ -1,9 +1,9 @@
 import { useNavigate } from "@tanstack/react-router"
-import { dummyUser, useAuthStoreMulti } from "../store"
+import { dummyUser, useAuthStore } from "../store"
 
 export const useLogout = () => {
     const navigate = useNavigate()
-    const { setUser, setIsLoggedIn, setJWT } = useAuthStoreMulti("setUser", "setIsLoggedIn", "setJWT")
+    const { setUser, setIsLoggedIn, setJWT } = useAuthStore("setUser", "setIsLoggedIn", "setJWT")
     const logout = () => {
         setUser(dummyUser)
         setIsLoggedIn(false)

@@ -5,7 +5,7 @@ import { useForm, SubmitHandler } from "react-hook-form"
 import { TypeOf, boolean, object, string } from "zod"
 import { useAPI } from "./useAPI"
 import { useLocation } from "react-router-dom"
-import { useAuthStoreMulti, useSnackBarStoreMulti } from "../store"
+import { useAuthStore, useSnackBarStore } from "../store"
 
 const loginSchema = object({
     name: string().nonempty("Name is required"),
@@ -16,13 +16,13 @@ const loginSchema = object({
 type LoginInput = TypeOf<typeof loginSchema>
 
 export const useLogin = () => {
-    const { setUser, isLoggedIn, setIsLoggedIn, setJWT } = useAuthStoreMulti(
+    const { setUser, isLoggedIn, setIsLoggedIn, setJWT } = useAuthStore(
         "setUser",
         "isLoggedIn",
         "setJWT",
         "setIsLoggedIn"
     )
-    const { handleClick } = useSnackBarStoreMulti("handleClick")
+    const { handleClick } = useSnackBarStore("handleClick")
     const navigate = useNavigate()
     const { login } = useAPI()
     const location = useLocation()

@@ -1,8 +1,8 @@
 import { useEffect } from "react"
-import { useResponsiveStoreMulti } from "../store"
+import { useResponsiveStore } from "../store"
 
 export const useScreenSize = () => {
-    const { setImageSize, setIsMobile } = useResponsiveStoreMulti("setImageSize", "setIsMobile")
+    const { setImageSize, setIsMobile } = useResponsiveStore("setImageSize", "setIsMobile")
     useEffect(() => {
         const handleResize = () => {
             const isMobile = window.innerWidth <= 992

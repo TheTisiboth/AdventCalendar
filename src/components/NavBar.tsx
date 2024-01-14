@@ -15,14 +15,14 @@ import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import MenuIcon from "@mui/icons-material/Menu"
 import { useLogout } from "../hooks/useLogout"
-import { useAuthStoreMulti } from "../store"
+import { useAuthStore } from "../store"
 
 const drawerWidth = 240
 
 export const NavBar = () => {
     const navigate = useNavigate()
     const { logout } = useLogout()
-    const { isLoggedIn } = useAuthStoreMulti("isLoggedIn")
+    const { isLoggedIn } = useAuthStore("isLoggedIn")
     const [mobileOpen, setMobileOpen] = useState(false)
 
     const handleDrawerToggle = () => {

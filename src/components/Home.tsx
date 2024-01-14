@@ -1,10 +1,10 @@
 import { FC } from "react"
 import { CountdownTimer } from "./CountdownTimer/CountdownTimer"
 import { Box } from "@mui/material"
-import { useCalendarStoreMulti } from "../store"
+import { useCalendarStore } from "../store"
 
 export const Home: FC = () => {
-    const { startingDate } = useCalendarStoreMulti("startingDate")
+    const { startingDate } = useCalendarStore("startingDate")
 
     return (
         <Box

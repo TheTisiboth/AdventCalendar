@@ -4,14 +4,14 @@ import { Picture } from "../../types/types"
 import FullScreenDialog from "./FullscreenDialog"
 import { usePicture } from "../../hooks/usePicture"
 import "./Day.css"
-import {  useResponsiveStoreMulti } from "../../store"
+import {  useResponsiveStore } from "../../store"
 
 type DayProps = {
     picture: Picture
 }
 export const Day: FC<DayProps> = ({ picture }) => {
     const imageRef = useRef<HTMLImageElement>(null)
-    const { imageSize } = useResponsiveStoreMulti("imageSize")
+    const { imageSize } = useResponsiveStore("imageSize")
     const { open, setOpen, isToday, isBefore, handleClick, textColor, divColor, imageSRC } = usePicture({
         picture,
         imageRef

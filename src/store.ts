@@ -54,7 +54,7 @@ export const dummyUser: User = {
 
 const { startingDate, endingDate } = computeStartingAndEndingDate()
 
-const useCalendarStore = create<CalendarStore>()((set, get) => ({
+const calendarStore = create<CalendarStore>()((set, get) => ({
     date: new Date(),
     endingDate,
     startingDate,
@@ -71,9 +71,9 @@ const useCalendarStore = create<CalendarStore>()((set, get) => ({
     }
 }))
 
-export const useCalendarStoreMulti = (...items: Array<keyof CalendarStore>) => useMulti(useCalendarStore, ...items)
+export const useCalendarStore = (...items: Array<keyof CalendarStore>) => useMulti(calendarStore, ...items)
 
-const useResponsiveStore = create<ResponsiveStore>()((set) => {
+const responsiveStore = create<ResponsiveStore>()((set) => {
     const isMobile = window.innerWidth <= 992
     return {
         imageSize: isMobile ? "5em" : "13em",
@@ -87,10 +87,10 @@ const useResponsiveStore = create<ResponsiveStore>()((set) => {
     }
 })
 
-export const useResponsiveStoreMulti = (...items: Array<keyof ResponsiveStore>) =>
-    useMulti(useResponsiveStore, ...items)
+export const useResponsiveStore = (...items: Array<keyof ResponsiveStore>) =>
+    useMulti(responsiveStore, ...items)
 
-const useAuthStore = create<AuthStore>()((set) => ({
+const authStore = create<AuthStore>()((set) => ({
     isLoggedIn: false,
     jwt: localStorage.getItem("jwt") || "",
     user: dummyUser,
@@ -105,9 +105,9 @@ const useAuthStore = create<AuthStore>()((set) => ({
     }
 }))
 
-export const useAuthStoreMulti = (...items: Array<keyof AuthStore>) => useMulti(useAuthStore, ...items)
+export const useAuthStore = (...items: Array<keyof AuthStore>) => useMulti(authStore, ...items)
 
-const useSnackbarStore = create<SnackbarStore>()((set) => ({
+const snackbarStore = create<SnackbarStore>()((set) => ({
     message: "",
     open: false,
     severity: "error",
@@ -119,13 +119,13 @@ const useSnackbarStore = create<SnackbarStore>()((set) => ({
     }
 }))
 
-export const useSnackBarStoreMulti = (...items: Array<keyof SnackbarStore>) => useMulti(useSnackbarStore, ...items)
+export const useSnackBarStore = (...items: Array<keyof SnackbarStore>) => useMulti(snackbarStore, ...items)
 
 /**
  * Retrieve the items from the store
  * @param useStoreFn A store function
- * @param items a list of items to retrieve from the store
- * @returns A list of objects from the store, according to the provided items
+ * @param items A list of items to retrieve from the store
+ * @returns A list of objects retrieved from the store, according to the provided items
  */
 const useMulti = <T extends object, K extends keyof T>(
     useStoreFn: UseBoundStore<StoreApi<T>>,
@@ -134,7 +134,7 @@ const useMulti = <T extends object, K extends keyof T>(
     return items.reduce(
         (carry, item) => ({
             ...carry,
-             //FIXME: implement shallow:
+            //FIXME: implement shallow:
             // [item]: useStoreFn(useShallow((state) => state[item]))
             [item]: useStoreFn((state) => state[item])
         }),

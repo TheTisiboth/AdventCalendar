@@ -3,7 +3,7 @@ import { CDN_URL } from "../constants"
 import { Picture } from "../types/types"
 import dayjs from "dayjs"
 import { useAPI } from "./useAPI"
-import { useCalendarStoreMulti, useResponsiveStoreMulti } from "../store"
+import { useCalendarStore, useResponsiveStore } from "../store"
 
 type UsePictureProps = {
     picture: Picture
@@ -21,8 +21,8 @@ type UsePictureReturn = {
     imageSRC: string
 }
 export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureReturn => {
-    const { isMobile } = useResponsiveStoreMulti("isMobile")
-    const { date } = useCalendarStoreMulti("date")
+    const { isMobile } = useResponsiveStore("isMobile")
+    const { date } = useCalendarStore("date")
     const { openPicture } = useAPI()
 
     const [open, setOpen] = useState(false)

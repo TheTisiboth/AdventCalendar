@@ -6,10 +6,10 @@ import dayjs from "dayjs"
 import { DayGrid } from "./Grid"
 import { useAPI } from "../../hooks/useAPI"
 import { BackdropSpinner } from "./Backdrop"
-import { useCalendarStoreMulti } from "../../store"
+import { useCalendarStore } from "../../store"
 
 export const CalendarComponent: FC = () => {
-    const { setDate, date, isFake, startingDate, endingDate } = useCalendarStoreMulti(
+    const { setDate, date, isFake, startingDate, endingDate } = useCalendarStore(
         "date",
         "setDate",
         "isFake",
