@@ -1,9 +1,9 @@
-import { Dispatch, RefObject, SetStateAction, useContext, useState } from "react"
+import { Dispatch, RefObject, SetStateAction, useState } from "react"
 import { CDN_URL } from "../constants"
-import { GlobalContext } from "../context"
 import { Picture } from "../types/types"
 import dayjs from "dayjs"
 import { useAPI } from "./useAPI"
+import { useCalendarStoreMulti, useResponsiveStoreMulti } from "../store"
 
 type UsePictureProps = {
     picture: Picture
@@ -21,7 +21,8 @@ type UsePictureReturn = {
     imageSRC: string
 }
 export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureReturn => {
-    const { date, isMobile } = useContext(GlobalContext)
+    const { isMobile } = useResponsiveStoreMulti("isMobile")
+    const { date } = useCalendarStoreMulti("date")
     const { openPicture } = useAPI()
 
     const [open, setOpen] = useState(false)

@@ -40,7 +40,8 @@
         "react-dom": "^18.2.0",
         "react-hook-form": "^7.43.9",
         "react-router-dom": "^6.21.0",
-        "zod": "^3.21.4"
+        "zod": "^3.21.4",
+        "zustand": "^4.4.7"
     },
     "devDependencies": {
         "@types/bcrypt": "^5.0.0",

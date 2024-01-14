@@ -1,14 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { NETLIFY_FUNCTIONS_PATH } from "../constants"
-import { useContext } from "react"
-import { GlobalContext } from "../context"
 import { LoginResponse, Picture } from "../types/types"
+import { useAuthStoreMulti, useCalendarStoreMulti, useSnackBarStoreMulti } from "../store"
 
 const QUERY_KEY = "pictures"
 
 export const useAPI = () => {
     const queryClient = useQueryClient()
-    const { isFake, jwt: stateJWT } = useContext(GlobalContext)
+    const { jwt: stateJWT } = useAuthStoreMulti("jwt")
+    const { isFake } = useCalendarStoreMulti("isFake")
+    const { handleClick } = useSnackBarStoreMulti("handleClick")
     const localJWT = localStorage.getItem("jwt")
     const jwt = localJWT ?? stateJWT
     const headers: HeadersInit = jwt ? { Authorization: `Bearer ${jwt}` } : {}
@@ -29,7 +30,7 @@ export const useAPI = () => {
             await api(NETLIFY_FUNCTIONS_PATH + "reset_pictures")
             queryClient.invalidateQueries({ queryKey })
         } catch (e) {
-            console.log(e)
+            handleClick("Server error")
         }
     }
 
@@ -45,7 +46,7 @@ export const useAPI = () => {
                 { headers }
             )
         } catch (e) {
-            console.log(e)
+            handleClick("Server error")
         }
     }
 

@@ -1,10 +1,10 @@
-import { FC, useContext, useEffect } from "react"
+import { FC, useEffect } from "react"
 
 import CalendarComponent from "./CalendarComponent"
-import { GlobalContext } from "../../context"
+import { useCalendarStoreMulti } from "../../store"
 
 export const Calendar: FC = () => {
-    const { setIsFake } = useContext(GlobalContext)
+    const { setIsFake } = useCalendarStoreMulti("setIsFake")
 
     useEffect(() => {
         setIsFake(false)

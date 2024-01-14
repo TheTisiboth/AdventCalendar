@@ -1,15 +1,15 @@
-import { FC, useContext } from "react"
+import { FC } from "react"
 import { Picture } from "../../types/types"
 import Grid from "@mui/material/Grid"
 import { Day } from "./Day"
-import { GlobalContext } from "../../context"
 import { shuffle } from "../../utils/utils"
+import { useCalendarStoreMulti } from "../../store"
 
 type DayGridProps = {
     pictures: Picture[]
 }
 export const DayGrid: FC<DayGridProps> = ({ pictures }) => {
-    const { date } = useContext(GlobalContext)
+    const { date } = useCalendarStoreMulti("date")
     const year = date.getFullYear() // Seed the shuffle with the current year
     return (
         <Grid container spacing={2}>

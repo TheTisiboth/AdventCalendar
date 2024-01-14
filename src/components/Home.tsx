@@ -1,10 +1,10 @@
-import { FC, useContext } from "react"
+import { FC } from "react"
 import { CountdownTimer } from "./CountdownTimer/CountdownTimer"
 import { Box } from "@mui/material"
-import { GlobalContext } from "../context"
+import { useCalendarStoreMulti } from "../store"
 
 export const Home: FC = () => {
-    const { startingDate } = useContext(GlobalContext)
+    const { startingDate } = useCalendarStoreMulti("startingDate")
 
     return (
         <Box
@@ -12,7 +12,7 @@ export const Home: FC = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                padding: 10,
+                padding: 10
             }}
         >
             <CountdownTimer targetDate={startingDate} />

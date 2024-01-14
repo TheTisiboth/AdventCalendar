@@ -1,25 +1,16 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
+import { useResponsiveStoreMulti } from "../store"
 
-type ScreeSize = {
-    isMobile: boolean
-    imageSize: string
-}
-export const useScreenSize = (): ScreeSize => {
-    const [screenWidth, setWidth] = useState(window.innerWidth)
-    const isMobile = screenWidth <= 992
-    const imageSize = isMobile ? "5em" : "13em"
-
+export const useScreenSize = () => {
+    const { setImageSize, setIsMobile } = useResponsiveStoreMulti("setImageSize", "setIsMobile")
     useEffect(() => {
         const handleResize = () => {
-            setWidth(window.innerWidth)
+            const isMobile = window.innerWidth <= 992
+            setImageSize(isMobile ? "5em" : "13em")
+            setIsMobile(isMobile)
         }
 
         window.addEventListener("resize", handleResize)
         return () => window.removeEventListener("resize", handleResize)
     }, [])
-
-    return {
-        isMobile,
-        imageSize
-    }
 }
