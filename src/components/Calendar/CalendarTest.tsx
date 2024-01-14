@@ -4,10 +4,11 @@ import CalendarComponent from "./CalendarComponent"
 import { useCalendarStoreMulti } from "../../store"
 
 export const CalendarTest: FC = () => {
-    const { setIsFake } = useCalendarStoreMulti("setIsFake")
+    const { setIsFake,setDate,startingDate } = useCalendarStoreMulti("setIsFake","setDate","startingDate")
 
     useEffect(() => {
         setIsFake(true)
+        setDate(startingDate)
     }, [setIsFake])
 
     return <CalendarComponent />

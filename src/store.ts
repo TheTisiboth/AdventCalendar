@@ -134,7 +134,9 @@ const useMulti = <T extends object, K extends keyof T>(
     return items.reduce(
         (carry, item) => ({
             ...carry,
-            [item]: useStoreFn(useShallow((state) => state[item]))
+             //FIXME: implement shallow:
+            // [item]: useStoreFn(useShallow((state) => state[item]))
+            [item]: useStoreFn((state) => state[item])
         }),
         {}
     ) as Pick<T, K>

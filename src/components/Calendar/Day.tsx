@@ -17,10 +17,17 @@ export const Day: FC<DayProps> = ({ picture }) => {
         imageRef
     })
 
+    if(picture.day === 1){
+        console.log("isToday? ", isToday)
+        console.log("isBefore? ", isBefore)
+        console.log(picture)
+
+    }
+
     return (
-        <Button disabled={!isBefore} fullWidth style={{ height: imageSize, width: imageSize }} onClick={handleClick}>
+        <Button disabled={!isBefore && !isToday} fullWidth style={{ height: imageSize, width: imageSize }} onClick={handleClick}>
             <Paper elevation={10} style={{ width: "100%", height: "100%" }} className={`${divColor} paperPicture`}>
-                {isBefore && picture.isOpen && (
+                {(isBefore || isToday) && picture.isOpen && (
                     <img ref={imageRef} src={imageSRC} className="image" alt={"Image " + picture.day} />
                 )}
 

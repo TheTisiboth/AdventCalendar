@@ -31,7 +31,7 @@ export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureRe
     const imageSRC = picture.key.includes(".jpg") || picture.key.includes(".png") ? CDN_URL + picture.key : picture.key
 
     const computeTextColor = (): string => {
-        if (isBefore) {
+        if (isBefore || isToday) {
             if (picture.isOpen) return "textIsAfter"
             return "textIsBefore"
         }

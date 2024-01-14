@@ -21,10 +21,6 @@ export const CalendarComponent: FC = () => {
         fetchPictures: { isPictureLoading, pictures }
     } = useAPI()
 
-    useEffect(() => {
-        setDate(new Date())
-    }, [setDate])
-
     const handleCalendarChange = (date: dayjs.Dayjs | null) => {
         if (date) setDate(date.toDate())
     }
