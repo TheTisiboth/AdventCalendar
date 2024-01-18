@@ -3,7 +3,6 @@ import { AlertColor } from "@mui/material"
 import { StoreApi, UseBoundStore, create } from "zustand"
 import { computeStartingAndEndingDate } from "./utils/utils"
 import dayjs from "dayjs"
-import { useShallow } from "zustand/react/shallow"
 
 type CalendarStore = {
     date: Date
@@ -134,8 +133,8 @@ const useMulti = <T extends object, K extends keyof T>(
     return items.reduce(
         (carry, item) => ({
             ...carry,
-            //FIXME: implement shallow:
-            // [item]: useStoreFn(useShallow((state) => state[item]))
+            // No need to use useShallow here. See the following link for more explanations :
+            // https://codesandbox.io/p/sandbox/contexts-x8w2jj?file=%2FREADME.txt%3A14%2C168
             [item]: useStoreFn((state) => state[item])
         }),
         {}
