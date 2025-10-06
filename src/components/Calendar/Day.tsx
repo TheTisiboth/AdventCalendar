@@ -1,3 +1,5 @@
+"use client"
+
 import { Button, Paper, Skeleton } from "@mui/material"
 import { FC, useRef } from "react"
 import { Picture } from "../../types/types"

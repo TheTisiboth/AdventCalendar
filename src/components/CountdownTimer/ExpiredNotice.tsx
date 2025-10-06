@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router"
+import Link from "next/link"
 import dayjs from "dayjs"
 import { useCalendarStore } from "../../store"
 
@@ -12,10 +12,10 @@ export const ExpiredNotice = () => {
         <div className="expired-notice">
             <span>Time has come!!!</span>
             <p>
-                You can now open your <Link to="/calendar">advent calendar</Link>
+                You can now open your <Link href="/calendar">advent calendar</Link>
             </p>
             <p>
-                If you don&apos;t have access, you can still try the <Link to="/test">test version.</Link>
+                If you don&apos;t have access, you can still try the <Link href="/test">test version.</Link>
             </p>
         </div>
     )

@@ -1,3 +1,5 @@
+"use client"
+
 import { FC } from "react"
 import { CountdownTimer } from "./CountdownTimer/CountdownTimer"
 import { Box } from "@mui/material"

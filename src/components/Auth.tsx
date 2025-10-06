@@ -1,15 +1,22 @@
-import { Navigate, Outlet } from "@tanstack/react-router"
-import { FC } from "react"
-import { useLocation } from "react-router-dom"
+"use client"
+
+import { FC, ReactNode, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { BackdropSpinner } from "./Calendar/Backdrop"
 import { useAuthStore } from "../store"
 
-export const Auth: FC = () => {
-    const location = useLocation()
+export const Auth: FC<{ children: ReactNode }> = ({ children }) => {
+    const router = useRouter()
     const { isLoggedIn, jwt } = useAuthStore("isLoggedIn", "jwt")
+
+    useEffect(() => {
+        if (!isLoggedIn && !jwt) {
+            router.push("/login")
+        }
+    }, [isLoggedIn, jwt, router])
+
     if (!isLoggedIn && jwt !== "") return <BackdropSpinner />
+    if (!isLoggedIn && !jwt) return <BackdropSpinner />
 
-    if (!isLoggedIn && !jwt) return <Navigate to="/login" replace state={{ from: location }} />
-
-    return <Outlet />
+    return <>{children}</>
 }
