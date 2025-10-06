@@ -1,16 +1,79 @@
 # AdventCalendar
 
-Site deployed with Netlify  
-[![Netlify Status](https://api.netlify.com/api/v1/badges/6e572c14-2221-4d04-a8cf-27db1b46df7c/deploy-status)](https://app.netlify.com/sites/mellifluous-biscotti-78c41f/deploys)
-
-The production version is visible here : https://paula.leojan.fr/
+An interactive Advent Calendar web application built with Next.js.
 
 ## Stack
 
-The website is built with [React](https://react.dev/), and is bootstrapped with [Vite](https://vitejs.dev/). The database is stored in [MongoDB](https://www.mongodb.com/). The UI is built with the [MUI](https://mui.com/) Framework. The authentication is done using the [JWT](https://jwt.io/) methodology, and implemented thanks to [middy](https://middy.js.org/) for the middleware. The Frontend is making calls to [Netlify serverless functions](https://www.netlify.com/products/functions/). The pictures are stored in an [AWS S3 bucket](https://aws.amazon.com/s3/), and accessible through [AWS Cloudfront](https://aws.amazon.com/cloudfront/). This web app is compliant to Desktop and Mobile browsers (it is responsive), and is also accessible as a [PWA](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps).
+- **Frontend**: [Next.js 15.5](https://nextjs.org/) with React
+- **UI Framework**: [Material-UI (MUI)](https://mui.com/)
+- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
+- **Database**: [MongoDB](https://www.mongodb.com/) (self-hosted in Docker)
+- **Authentication**: JWT with access/refresh tokens
+- **Deployment**: Docker + Docker Compose
+- **Responsive**: Desktop and mobile compatible
 
-## Documentation
+## Development
 
-### Developing a Web Application with Netlify Serverless Functions and MongoDB
+```bash
+# Install dependencies
+npm install
 
-https://www.mongodb.com/developer/languages/javascript/developing-web-application-netlify-serverless-functions-mongodb/
+# Run development server
+npm run dev
+
+# Type check
+npm run type-check
+
+# Lint
+npm run lint
+
+# Build for production
+npm run build
+```
+
+The app will be available at `http://localhost:3000`
+
+## Deployment
+
+See [VPS_DEPLOYMENT.md](./VPS_DEPLOYMENT.md) for complete deployment instructions to a VPS with Docker.
+
+### Quick Deploy
+
+1. Backup your MongoDB Atlas data (if applicable):
+   ```bash
+   ./scripts/backup-atlas-data.sh
+   git add mongo-init/seed-data/
+   git commit -m "Add seed data"
+   ```
+
+2. On your VPS, create `.env.production`:
+   ```env
+   MONGODB_URI=mongodb://mongodb:27017
+   MONGODB_DATABASE=adventcalendar
+   MONGODB_PICTURES_COLLECTION=pictures
+   MONGODB_DUMMY_PICTURES_COLLECTION=dummy_pictures
+   MONGODB_USERS_COLLECTION=users
+   ACCESS_TOKEN_SECRET=<generate-random-secret>
+   REFRESH_TOKEN_SECRET=<generate-random-secret>
+   ```
+
+3. Deploy:
+   ```bash
+   docker-compose up -d --build
+   ```
+
+## Project Structure
+
+- `/app` - Next.js app directory (pages, API routes)
+- `/src` - React components and utilities
+- `/mongo-init` - MongoDB initialization scripts and seed data
+- `/scripts` - Deployment and maintenance scripts
+- `/public` - Static assets
+
+## Environment Variables
+
+See [.env.production.example](./.env.production.example) for required environment variables.
+
+## License
+
+Private project
