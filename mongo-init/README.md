@@ -1,12 +1,26 @@
 # MongoDB Initialization
 
-This directory contains scripts and data for initializing the MongoDB database.
+This directory contains the initialization script and seed data for MongoDB.
 
 ## Files
 
-- `init-db.js` - Creates collections and indexes
-- `restore-seed-data.sh` - Restores data from backup (if present)
+- `init-and-restore.sh` - Combined initialization script (creates collections OR restores seed data)
 - `seed-data/` - Contains MongoDB dump files (optional)
+
+## How It Works
+
+When you run `docker-compose up` for the first time:
+
+1. MongoDB container starts
+2. `init-and-restore.sh` checks for the marker file (`.seed_data_restored`)
+3. If marker exists, skip initialization (preserves existing data)
+4. If no marker:
+   - **With seed data**: Restores backup from `seed-data/` (includes collections, indexes, and data)
+   - **Without seed data**: Creates empty collections with indexes
+5. Creates marker file to prevent re-running
+6. Database is ready!
+
+**Important:** The initialization only happens ONCE. On subsequent container restarts, the script detects the marker file and skips to preserve your data.
 
 ## Workflow
 
@@ -28,26 +42,23 @@ This directory contains scripts and data for initializing the MongoDB database.
 
 ### On First Deployment
 
-When you run `docker-compose up` for the first time:
+Deploy with Docker:
+```bash
+docker-compose up -d --build
+```
 
-1. MongoDB container starts
-2. `init-db.js` creates collections and indexes
-3. `restore-seed-data.sh` checks for seed data
-4. If `seed-data/` exists, it restores the backup
-5. A marker file (`.seed_data_restored`) is created in the database volume
-6. Your database is ready with all your Atlas data!
-
-**Important:** The restore only happens ONCE. On subsequent container restarts, the script detects the marker file and skips restoration to preserve your production data.
+The init script will automatically:
+- Detect and restore your committed seed data, OR
+- Create empty collections if no seed data exists
 
 ## Directory Structure
 
 ```
 mongo-init/
-├── init-db.js                    # Collection setup
-├── restore-seed-data.sh          # Data restoration
+├── init-and-restore.sh           # Combined initialization script
 ├── README.md                     # This file
 └── seed-data/                    # MongoDB dumps (created by backup script)
-    └── adventcalendar/
+    └── advent_calendar/          # or adventcalendar/
         ├── users.bson.gz
         ├── users.metadata.json.gz
         ├── pictures.bson.gz
@@ -59,7 +70,9 @@ mongo-init/
 ## Notes
 
 - The `seed-data/` directory should be committed to git if you want to deploy with initial data
-- If `seed-data/` doesn't exist, the database starts empty
-- You can always populate an empty database by calling `/api/reset_pictures`
-- **The restore only happens once** - a marker file prevents re-seeding on container restarts
-- To force a re-seed, delete the Docker volume: `docker-compose down -v && docker-compose up -d`
+- If `seed-data/` doesn't exist, the database starts with empty collections
+- You can populate an empty database by calling `/api/reset_pictures`
+- **The initialization only happens once** - a marker file prevents re-running on container restarts
+- To force a fresh initialization, delete the Docker volume: `docker-compose down -v && docker-compose up -d`
+- The script handles both `advent_calendar` and `adventcalendar` directory naming
+- `mongorestore` with `--drop` ensures clean restoration and includes indexes from the backup

@@ -11,8 +11,8 @@ services:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://mongodb:27017
       - MONGODB_DATABASE=adventcalendar
-      - MONGODB_PICTURES_COLLECTION=pictures
-      - MONGODB_DUMMY_PICTURES_COLLECTION=dummy_pictures
+      - MONGODB_PICTURES_COLLECTION=Pictures
+      - MONGODB_DUMMY_PICTURES_COLLECTION=dummyPictures
       - MONGODB_USERS_COLLECTION=users
       - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
       - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
