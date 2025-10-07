@@ -1,10 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useNavigate } from "@tanstack/react-router"
+import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { useForm, SubmitHandler } from "react-hook-form"
 import { TypeOf, boolean, object, string } from "zod"
 import { useAPI } from "./useAPI"
-import { useLocation } from "react-router-dom"
 import { useAuthStore, useSnackBarStore } from "../store"
 
 const loginSchema = object({
@@ -23,9 +22,8 @@ export const useLogin = () => {
         "setIsLoggedIn"
     )
     const { handleClick } = useSnackBarStore("handleClick")
-    const navigate = useNavigate()
+    const router = useRouter()
     const { login } = useAPI()
-    const location = useLocation()
 
     const [loading, setLoading] = useState(false)
 
@@ -41,10 +39,9 @@ export const useLogin = () => {
 
     useEffect(() => {
         if (isSubmitSuccessful || isLoggedIn) {
-            const origin = location.state?.from?.pathname || "/calendar"
-            navigate({ to: origin })
+            router.push("/calendar")
         }
-    }, [isSubmitSuccessful, isLoggedIn])
+    }, [isSubmitSuccessful, isLoggedIn, router])
 
     const onSubmitHandler: SubmitHandler<LoginInput> = async (values) => {
         setLoading(true)
@@ -54,7 +51,9 @@ export const useLogin = () => {
             setIsLoggedIn(true)
             handleClick("User authentified successfuly", "success")
             setJWT(response.accessToken)
-            if (values.rememberMe) localStorage.setItem("jwt", response.accessToken)
+            if (values.rememberMe && typeof window !== 'undefined') {
+                localStorage.setItem("jwt", response.accessToken)
+            }
         } catch (e) {
             setLoading(false)
             if (e instanceof Error) {

@@ -1,3 +1,5 @@
+"use client"
+
 import { FC, useEffect } from "react"
 import { Button } from "@mui/material"
 import Grid from "@mui/system/Unstable_Grid"

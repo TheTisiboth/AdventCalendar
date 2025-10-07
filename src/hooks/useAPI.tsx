@@ -10,7 +10,7 @@ export const useAPI = () => {
     const { jwt: stateJWT } = useAuthStore("jwt")
     const { isFake } = useCalendarStore("isFake")
     const { handleClick } = useSnackBarStore("handleClick")
-    const localJWT = localStorage.getItem("jwt")
+    const localJWT = typeof window !== 'undefined' ? localStorage.getItem("jwt") : null
     const jwt = localJWT ?? stateJWT
     const headers: HeadersInit = jwt ? { Authorization: `Bearer ${jwt}` } : {}
     const queryKey = [QUERY_KEY, isFake]

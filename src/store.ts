@@ -73,7 +73,7 @@ const calendarStore = create<CalendarStore>()((set, get) => ({
 export const useCalendarStore = (...items: Array<keyof CalendarStore>) => useMulti(calendarStore, ...items)
 
 const responsiveStore = create<ResponsiveStore>()((set) => {
-    const isMobile = window.innerWidth <= 992
+    const isMobile = typeof window !== 'undefined' ? window.innerWidth <= 992 : false
     return {
         imageSize: isMobile ? "5em" : "13em",
         isMobile,
@@ -91,7 +91,7 @@ export const useResponsiveStore = (...items: Array<keyof ResponsiveStore>) =>
 
 const authStore = create<AuthStore>()((set) => ({
     isLoggedIn: false,
-    jwt: localStorage.getItem("jwt") || "",
+    jwt: typeof window !== 'undefined' ? localStorage.getItem("jwt") || "" : "",
     user: dummyUser,
     setIsLoggedIn: (isLoggedIn) => {
         set({ isLoggedIn })
@@ -130,13 +130,12 @@ const useMulti = <T extends object, K extends keyof T>(
     useStoreFn: UseBoundStore<StoreApi<T>>,
     ...items: K[]
 ): Pick<T, K> => {
-    return items.reduce(
-        (carry, item) => ({
-            ...carry,
-            // No need to use useShallow here. See the following link for more explanations :
-            // https://codesandbox.io/p/sandbox/contexts-x8w2jj?file=%2FREADME.txt%3A14%2C168
-            [item]: useStoreFn((state) => state[item])
-        }),
-        {}
-    ) as Pick<T, K>
+    // This is a custom hook that calls other hooks properly
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const result = {} as Pick<T, K>
+    items.forEach(item => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        result[item] = useStoreFn((state) => state[item])
+    })
+    return result
 }

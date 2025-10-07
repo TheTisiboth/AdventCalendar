@@ -1,3 +1,5 @@
+"use client"
+
 import {
     Box,
     List,
@@ -12,7 +14,7 @@ import {
     Drawer
 } from "@mui/material"
 import { useState } from "react"
-import { useNavigate } from "@tanstack/react-router"
+import { useRouter } from "next/navigation"
 import MenuIcon from "@mui/icons-material/Menu"
 import { useLogout } from "../hooks/useLogout"
 import { useAuthStore } from "../store"
@@ -20,7 +22,11 @@ import { useAuthStore } from "../store"
 const drawerWidth = 240
 
 export const NavBar = () => {
-    const navigate = useNavigate()
+    const router = useRouter()
+    const navigate = (pathOrOptions: string | { to: string }) => {
+        const path = typeof pathOrOptions === 'string' ? pathOrOptions : pathOrOptions.to
+        router.push(path)
+    }
     const { logout } = useLogout()
     const { isLoggedIn } = useAuthStore("isLoggedIn")
     const [mobileOpen, setMobileOpen] = useState(false)
@@ -67,7 +73,7 @@ export const NavBar = () => {
         </Box>
     )
 
-    const container = window !== undefined ? () => window.document.body : undefined
+    const container = typeof window !== 'undefined' ? () => window.document.body : undefined
 
     return (
         <Box sx={{ display: "flex", className: "NavBar" }}>
