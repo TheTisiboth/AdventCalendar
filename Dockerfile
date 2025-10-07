@@ -18,6 +18,12 @@ COPY . .
 # Set environment variable for build
 ENV NEXT_TELEMETRY_DISABLED 1
 
+# Build args for JWT secrets (needed during build)
+ARG ACCESS_TOKEN_SECRET
+ARG REFRESH_TOKEN_SECRET
+ENV ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
+ENV REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+
 # Build the application
 RUN npm run build
 
