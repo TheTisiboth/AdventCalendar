@@ -13,7 +13,7 @@ services:
     environment:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://mongodb:27017
-      - MONGODB_DATABASE=adventcalendar
+      - MONGODB_DATABASE=advent_calendar
       - MONGODB_PICTURES_COLLECTION=Pictures
       - MONGODB_DUMMY_PICTURES_COLLECTION=dummyPictures
       - MONGODB_USERS_COLLECTION=users
@@ -31,7 +31,7 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_DATABASE=adventcalendar
+      - MONGO_INITDB_DATABASE=advent_calendar
     volumes:
       - mongodb_data:/data/db
       - ./mongo-init:/docker-entrypoint-initdb.d:ro

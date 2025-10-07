@@ -9,7 +9,7 @@ set -e
 
 SEED_DATA_BASE_DIR="/docker-entrypoint-initdb.d/seed-data"
 RESTORE_MARKER="/data/db/.seed_data_restored"
-DB_NAME="adventcalendar"
+DB_NAME="advent_calendar"
 
 echo "🚀 MongoDB Initialization Starting..."
 echo "======================================"
