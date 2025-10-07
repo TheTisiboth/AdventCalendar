@@ -1,16 +1,5 @@
 import mongoose from 'mongoose'
 
-const MONGODB_URI = process.env.MONGODB_URI!
-const MONGODB_DATABASE = process.env.MONGODB_DATABASE!
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable')
-}
-
-if (!MONGODB_DATABASE) {
-  throw new Error('Please define the MONGODB_DATABASE environment variable')
-}
-
 interface MongooseCache {
   conn: typeof mongoose | null
   promise: Promise<typeof mongoose> | null
@@ -33,6 +22,18 @@ if (!global.mongooseCache) {
 }
 
 async function connectDB() {
+  // Validate environment variables at runtime, not at module load time
+  const MONGODB_URI = process.env.MONGODB_URI
+  const MONGODB_DATABASE = process.env.MONGODB_DATABASE
+
+  if (!MONGODB_URI) {
+    throw new Error('Please define the MONGODB_URI environment variable')
+  }
+
+  if (!MONGODB_DATABASE) {
+    throw new Error('Please define the MONGODB_DATABASE environment variable')
+  }
+
   if (cached.conn) {
     return cached.conn
   }
