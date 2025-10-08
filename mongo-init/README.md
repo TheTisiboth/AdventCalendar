@@ -9,18 +9,17 @@ This directory contains the initialization script and seed data for MongoDB.
 
 ## How It Works
 
-When you run `docker-compose up` for the first time:
+When you run `docker-compose up`:
 
 1. MongoDB container starts
-2. `init-and-restore.sh` checks for the marker file (`.seed_data_restored`)
-3. If marker exists, skip initialization (preserves existing data)
-4. If no marker:
+2. `init-and-restore.sh` checks if the users collection has any data
+3. If users exist, skip initialization (preserves existing data)
+4. If database is empty:
    - **With seed data**: Restores backup from `seed-data/` (includes collections, indexes, and data)
    - **Without seed data**: Creates empty collections with indexes
-5. Creates marker file to prevent re-running
-6. Database is ready!
+5. Database is ready!
 
-**Important:** The initialization only happens ONCE. On subsequent container restarts, the script detects the marker file and skips to preserve your data.
+**Important:** The initialization is smart and self-healing. It checks actual database content (users collection) rather than a marker file. If the database becomes empty for any reason, it will automatically restore from seed data on the next container start.
 
 ## Workflow
 
@@ -72,7 +71,8 @@ mongo-init/
 - The `seed-data/` directory should be committed to git if you want to deploy with initial data
 - If `seed-data/` doesn't exist, the database starts with empty collections
 - You can populate an empty database by calling `/api/reset_pictures`
-- **The initialization only happens once** - a marker file prevents re-running on container restarts
+- **The initialization is content-aware** - it checks if users exist before running
+- If the database becomes empty, simply restart the container to trigger re-initialization: `docker-compose restart mongodb`
 - To force a fresh initialization, delete the Docker volume: `docker-compose down -v && docker-compose up -d`
 - The script handles both `advent_calendar` and `adventcalendar` directory naming
 - `mongorestore` with `--drop` ensures clean restoration and includes indexes from the backup

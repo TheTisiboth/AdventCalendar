@@ -3,23 +3,15 @@
 # Combined MongoDB initialization script
 # 1. Restores seed data if available (includes collections and indexes)
 # 2. OR creates empty collections and indexes if no seed data
-# This script runs ONCE when the MongoDB container is first created
+# This script runs whenever the database is empty or needs initialization
 
 set -e
 
 SEED_DATA_BASE_DIR="/docker-entrypoint-initdb.d/seed-data"
-RESTORE_MARKER="/data/db/.seed_data_restored"
 DB_NAME="advent_calendar"
 
 echo "🚀 MongoDB Initialization Starting..."
 echo "======================================"
-
-# Check if database was already initialized
-if [ -f "$RESTORE_MARKER" ]; then
-    echo "✅ Database already initialized (found marker file)"
-    echo "   Skipping initialization to preserve data"
-    exit 0
-fi
 
 # Wait for MongoDB to be fully ready
 until mongosh --eval "db.adminCommand('ping')" > /dev/null 2>&1; do
@@ -28,6 +20,18 @@ until mongosh --eval "db.adminCommand('ping')" > /dev/null 2>&1; do
 done
 
 echo "✅ MongoDB is ready"
+echo ""
+
+# Check if database was already initialized by checking users collection
+USER_COUNT=$(mongosh "$DB_NAME" --quiet --eval "db.users.countDocuments()")
+
+if [ "$USER_COUNT" -gt 0 ]; then
+    echo "✅ Database already initialized (found $USER_COUNT users)"
+    echo "   Skipping initialization to preserve data"
+    exit 0
+fi
+
+echo "ℹ️  Database is empty, proceeding with initialization..."
 echo ""
 
 # Try to find the actual database directory (could be advent_calendar or adventcalendar)
@@ -84,9 +88,5 @@ else
     echo "   You can populate data by calling /api/reset_pictures"
 fi
 
-# Create marker file to prevent future re-initialization
-touch "$RESTORE_MARKER"
-echo ""
-echo "🔒 Created marker file to prevent re-initialization"
 echo ""
 echo "✅ Initialization complete!"
