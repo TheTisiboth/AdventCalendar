@@ -6,21 +6,18 @@
 import { prisma } from '@api/lib/prisma'
 import type { Picture } from '@prisma/client'
 
-export async function getAllPictures(): Promise<Picture[]> {
+export async function getAllPictures(year: number): Promise<Picture[]> {
   return prisma.picture.findMany({
+    where: { year },
     orderBy: { day: 'asc' }
   })
 }
 
-export async function getPictureByDay(day: number) {
-  return prisma.picture.findUnique({
-    where: { day }
-  })
-}
-
-export async function updatePictureOpenStatus(day: number, isOpen: boolean) {
+export async function updatePictureOpenStatus(day: number, year: number, isOpen: boolean) {
   return prisma.picture.update({
-    where: { day },
+    where: {
+      day_year: { day, year }
+    },
     data: { isOpen }
   })
 }
@@ -29,12 +26,4 @@ export async function createPictures(pictures: Omit<Picture, 'id'>[]) {
   return prisma.picture.createMany({
     data: pictures
   })
-}
-
-export async function deleteAllPictures() {
-  return prisma.picture.deleteMany()
-}
-
-export async function getPictureCount() {
-  return prisma.picture.count()
 }

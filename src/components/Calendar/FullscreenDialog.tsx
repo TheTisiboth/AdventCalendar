@@ -6,10 +6,9 @@ import IconButton from "@mui/material/IconButton"
 import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
 import Slide from "@mui/material/Slide"
-// eslint-disable-next-line import/named
 import { TransitionProps } from "@mui/material/transitions"
 import { Dispatch, FC, Ref, SetStateAction, forwardRef } from "react"
-import { Picture } from "@/types/types"
+import type { Picture } from "@prisma/client"
 import { usePicture } from "@/hooks/usePicture"
 
 const Transition = forwardRef(function Transition(

@@ -1,10 +1,10 @@
 import { useEffect } from "react"
 import { useAuthStore } from "@/store"
-import { useAPI } from "./useAPI"
+import { useAuthAPI } from "./api/useAuthAPI"
 
 export const useAuth = () => {
     const { jwt, setIsLoggedIn, setJWT, isLoggedIn } = useAuthStore("jwt", "setJWT", "setIsLoggedIn", "isLoggedIn")
-    const { authenticate } = useAPI()
+    const { authenticate } = useAuthAPI()
     useEffect(() => {
         const authentication = async () => {
             if (jwt !== "" && !isLoggedIn) {

@@ -5,7 +5,16 @@ import { checkAuth } from "@api/lib/auth"
 export async function GET(request: NextRequest) {
     try {
         await checkAuth(request)
-        const pictures = await getAllPictures()
+
+        const searchParams = request.nextUrl.searchParams
+        const yearParam = searchParams.get("year")
+
+        if (!yearParam) {
+            return NextResponse.json({ error: "Year parameter is required" }, { status: 400 })
+        }
+
+        const year = parseInt(yearParam)
+        const pictures = await getAllPictures(year)
 
         return NextResponse.json(pictures)
     } catch (error) {

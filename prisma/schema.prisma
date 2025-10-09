@@ -19,20 +19,26 @@ model User {
 
 model Picture {
   id         Int      @id @default(autoincrement())
-  day        Int      @unique
+  day        Int
+  year       Int
   key        String
   isOpenable Boolean  @default(false)
   isOpen     Boolean  @default(false)
   date       DateTime
+
+  @@unique([day, year])
 }
 
 model DummyPicture {
   id         Int      @id @default(autoincrement())
-  day        Int      @unique
+  day        Int
+  year       Int
   key        String
   isOpenable Boolean  @default(false)
   isOpen     Boolean  @default(false)
   date       DateTime
+
+  @@unique([day, year])
 }
 
 model RefreshToken {

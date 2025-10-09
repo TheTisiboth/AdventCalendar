@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
         if (DBUser) {
             const isPasswordCorrect = bcrypt.compareSync(password, DBUser.password)
             if (isPasswordCorrect) {
-                const user: User = { name: DBUser.name, id: DBUser.id.toString(), role: DBUser.role }
+                const user: User = { name: DBUser.name, id: DBUser.id, role: DBUser.role }
                 const accessToken = generateAccessToken(user)
                 const refreshToken = generateRefreshToken(user)
 
