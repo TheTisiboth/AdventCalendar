@@ -13,6 +13,7 @@ export async function GET() {
             date.setUTCDate(i + 1)
             return {
                 day: i + 1,
+                year: 2025,
                 isOpen: false,
                 isOpenable: false,
                 key: "https://picsum.photos/200/300?sig=" + (i + 1),

@@ -6,11 +6,15 @@ import Grid from "@mui/system/Unstable_Grid"
 import { DateCalendar } from "@mui/x-date-pickers"
 import dayjs from "dayjs"
 import { DayGrid } from "./Grid"
-import { useAPI } from "@/hooks/useAPI"
+import { usePictureAPI } from "@/hooks/api/usePictureAPI"
 import { BackdropSpinner } from "./Backdrop"
 import { useCalendarStore } from "@/store"
 
-export const CalendarComponent: FC = () => {
+type CalendarComponentProps = {
+    year: number
+}
+
+export const CalendarComponent: FC<CalendarComponentProps> = ({ year }) => {
     const { setDate, date, isFake, startingDate, endingDate } = useCalendarStore(
         "date",
         "setDate",
@@ -18,10 +22,7 @@ export const CalendarComponent: FC = () => {
         "startingDate",
         "endingDate"
     )
-    const {
-        resetPictures,
-        fetchPictures: { isPictureLoading, pictures }
-    } = useAPI()
+    const { resetPictures, pictures, isPictureLoading } = usePictureAPI({ year })
 
     const handleCalendarChange = (date: dayjs.Dayjs | null) => {
         if (date) setDate(date.toDate())

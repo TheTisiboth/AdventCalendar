@@ -5,6 +5,8 @@ export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams
         const day = searchParams.get("day")
+        // Year parameter is accepted for consistency but not used
+        // Dummy pictures always update based on day only
 
         if (!day) {
             return NextResponse.json({ error: "Day parameter is required" }, { status: 400 })

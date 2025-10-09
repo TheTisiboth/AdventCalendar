@@ -46,7 +46,7 @@ enum Role {
 }
 
 export const dummyUser: User = {
-    id: "1",
+    id: 1,
     name: "dummy",
     role: Role.GUEST
 }
@@ -129,13 +129,7 @@ export const useSnackBarStore = (...items: Array<keyof SnackbarStore>) => useMul
 const useMulti = <T extends object, K extends keyof T>(
     useStoreFn: UseBoundStore<StoreApi<T>>,
     ...items: K[]
-): Pick<T, K> => {
-    // This is a custom hook that calls other hooks properly
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const result = {} as Pick<T, K>
-    items.forEach(item => {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        result[item] = useStoreFn((state) => state[item])
-    })
-    return result
-}
+): Pick<T, K> =>
+    useStoreFn((state) =>
+        Object.fromEntries(items.map((item) => [item, state[item]])) as Pick<T, K>
+    )

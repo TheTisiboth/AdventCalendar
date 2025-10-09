@@ -1,8 +1,8 @@
 import { Dispatch, RefObject, SetStateAction, useState } from "react"
+import type { Picture } from "@prisma/client"
 import { CDN_URL } from "@/constants"
-import { Picture } from "@/types/types"
 import dayjs from "dayjs"
-import { useAPI } from "./useAPI"
+import { usePictureAPI } from "./api/usePictureAPI"
 import { useCalendarStore, useResponsiveStore } from "@/store"
 
 type UsePictureProps = {
@@ -23,7 +23,7 @@ type UsePictureReturn = {
 export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureReturn => {
     const { isMobile } = useResponsiveStore("isMobile")
     const { date } = useCalendarStore("date")
-    const { openPicture } = useAPI()
+    const { openPicture } = usePictureAPI({ year: picture.year })
 
     const [open, setOpen] = useState(false)
     const isBefore = dayjs(picture.date).isBefore(dayjs(date))

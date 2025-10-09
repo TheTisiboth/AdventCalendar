@@ -8,12 +8,17 @@ export async function GET(request: NextRequest) {
 
         const searchParams = request.nextUrl.searchParams
         const day = searchParams.get("day")
+        const year = searchParams.get("year")
 
         if (!day) {
             return NextResponse.json({ error: "Day parameter is required" }, { status: 400 })
         }
 
-        const picture = await updatePictureOpenStatus(parseInt(day), true)
+        if (!year) {
+            return NextResponse.json({ error: "Year parameter is required" }, { status: 400 })
+        }
+
+        const picture = await updatePictureOpenStatus(parseInt(day), parseInt(year), true)
 
         if (!picture) {
             return NextResponse.json({ error: "Picture not found" }, { status: 404 })

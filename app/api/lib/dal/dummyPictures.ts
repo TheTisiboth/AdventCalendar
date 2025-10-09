@@ -13,14 +13,23 @@ export async function getAllDummyPictures(): Promise<DummyPicture[]> {
 }
 
 export async function getDummyPictureByDay(day: number) {
-  return prisma.dummyPicture.findUnique({
+  return prisma.dummyPicture.findFirst({
     where: { day }
   })
 }
 
 export async function updateDummyPictureOpenStatus(day: number, isOpen: boolean) {
+  // Find the first dummy picture with this day (ignoring year)
+  const picture = await prisma.dummyPicture.findFirst({
+    where: { day }
+  })
+
+  if (!picture) {
+    return null
+  }
+
   return prisma.dummyPicture.update({
-    where: { day },
+    where: { id: picture.id },
     data: { isOpen }
   })
 }

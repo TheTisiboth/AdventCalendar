@@ -2,7 +2,7 @@
 
 import { Button, Paper, Skeleton } from "@mui/material"
 import { FC, useRef } from "react"
-import { Picture } from "@/types/types"
+import type { Picture } from "@prisma/client"
 import FullScreenDialog from "./FullscreenDialog"
 import { usePicture } from "@/hooks/usePicture"
 import "./Day.css"

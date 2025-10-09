@@ -1,5 +1,5 @@
 import { FC } from "react"
-import { Picture } from "@/types/types"
+import type { Picture } from "@prisma/client"
 import Grid from "@mui/material/Grid"
 import { Day } from "./Day"
 import { shuffle } from "@/utils/utils"

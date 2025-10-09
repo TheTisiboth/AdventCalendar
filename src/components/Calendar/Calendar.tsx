@@ -13,7 +13,7 @@ export const Calendar: FC = () => {
         setDate(new Date())
     }, [setIsFake, setDate])
 
-    return <CalendarComponent />
+    return <CalendarComponent year={2023} />
 }
 
 export default Calendar
