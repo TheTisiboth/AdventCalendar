@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { dummyPictureModel } from "../lib/models"
-import connectDB from "../lib/mongodb"
+import { updateDummyPictureOpenStatus } from "@api/lib/dal"
 
 export async function GET(request: NextRequest) {
     try {
@@ -11,18 +10,13 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Day parameter is required" }, { status: 400 })
         }
 
-        await connectDB()
-        const picture = await dummyPictureModel.findOneAndUpdate(
-            { day: parseInt(day) },
-            { isOpen: true },
-            { new: true }
-        )
+        const picture = await updateDummyPictureOpenStatus(parseInt(day), true)
 
         if (!picture) {
             return NextResponse.json({ error: "Picture not found" }, { status: 404 })
         }
 
-        return NextResponse.json(picture.toObject())
+        return NextResponse.json(picture)
     } catch (error) {
         return NextResponse.json({ error: String(error) }, { status: 500 })
     }

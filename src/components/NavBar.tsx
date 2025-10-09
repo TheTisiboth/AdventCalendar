@@ -16,8 +16,8 @@ import {
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import MenuIcon from "@mui/icons-material/Menu"
-import { useLogout } from "../hooks/useLogout"
-import { useAuthStore } from "../store"
+import { useLogout } from "@/hooks/useLogout"
+import { useAuthStore } from "@/store"
 
 const drawerWidth = 240
 

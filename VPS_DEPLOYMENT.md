@@ -1,6 +1,6 @@
-# VPS Deployment Guide (No Atlas)
+# VPS Deployment Guide
 
-This guide explains how to deploy the Advent Calendar application to a VPS with a self-contained MongoDB instance, completely independent from MongoDB Atlas.
+This guide explains how to deploy the Advent Calendar application to a VPS with PostgreSQL database running in Docker.
 
 ## Prerequisites
 
@@ -8,29 +8,7 @@ This guide explains how to deploy the Advent Calendar application to a VPS with 
 - SSH access to your VPS
 - Domain name (optional, for SSL)
 
-## Option A: Deploy with Pre-seeded Data (Recommended)
-
-This option allows you to seed your MongoDB database from a backup committed to your repository.
-
-### Step 1: Backup Your Atlas Data (If You Have Existing Data)
-
-On your **local machine**, run:
-
-```bash
-./scripts/backup-atlas-data.sh
-```
-
-This creates a backup in `mongo-init/seed-data/`. Commit this to git:
-
-```bash
-git add mongo-init/seed-data/
-git commit -m "Add MongoDB seed data from Atlas"
-git push
-```
-
-**Now you can safely delete your MongoDB Atlas cluster!**
-
-### Step 2: Set Up Environment Variables on VPS
+## Step 1: Set Up Environment Variables on VPS
 
 SSH into your VPS and create `.env.production`:
 
@@ -40,19 +18,17 @@ cd /path/to/adventcalendar
 nano .env.production
 ```
 
-Use these environment variables (NO Atlas connection):
+Create the environment file with these variables:
 
 ```env
-# MongoDB Configuration (Docker internal network)
-MONGODB_URI=mongodb://mongodb:27017
-MONGODB_DATABASE=adventcalendar
-MONGODB_PICTURES_COLLECTION=pictures
-MONGODB_DUMMY_PICTURES_COLLECTION=dummy_pictures
-MONGODB_USERS_COLLECTION=users
+# PostgreSQL Configuration
+# Note: Database name is hardcoded as 'advent_calendar' in docker-compose.yml
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=CHANGE_ME_TO_SECURE_PASSWORD
 
 # JWT Secrets - CHANGE THESE TO STRONG RANDOM VALUES!
-ACCESS_TOKEN_SECRET=your-super-secret-access-token-change-this-in-production
-REFRESH_TOKEN_SECRET=your-super-secret-refresh-token-change-this-in-production
+ACCESS_TOKEN_SECRET=CHANGE_ME_TO_RANDOM_32_CHARS
+REFRESH_TOKEN_SECRET=CHANGE_ME_TO_RANDOM_32_CHARS
 ```
 
 **Generate secure secrets:**
@@ -61,11 +37,12 @@ REFRESH_TOKEN_SECRET=your-super-secret-refresh-token-change-this-in-production
 # Generate strong random secrets
 echo "ACCESS_TOKEN_SECRET=$(openssl rand -base64 32)"
 echo "REFRESH_TOKEN_SECRET=$(openssl rand -base64 32)"
+echo "POSTGRES_PASSWORD=$(openssl rand -base64 32)"
 ```
 
 Copy these values into your `.env.production` file.
 
-### Step 3: Deploy with Docker Compose
+## Step 2: Deploy with Docker Compose
 
 ```bash
 # Clone or pull latest code
@@ -78,140 +55,97 @@ docker-compose up -d --build
 ```
 
 **What happens:**
-1. MongoDB container starts
-2. `mongo-init/init-db.js` creates collections and indexes
-3. `mongo-init/restore-seed-data.sh` automatically restores your Atlas backup (if present)
-4. Database is ready with all your data!
+1. PostgreSQL container starts with healthcheck
+2. App container waits for PostgreSQL to be healthy
+3. `docker-entrypoint.sh` runs Prisma migrations (`prisma migrate deploy`)
+4. Database is seeded automatically if empty
+5. Next.js application starts on port 3003
 
-### Step 4: Verify Deployment
+## Step 3: Verify Deployment
 
 ```bash
 # Check containers are running
 docker-compose ps
 
 # Check logs
-docker-compose logs -f
+docker-compose logs -f app
+docker-compose logs -f postgres
 
 # Test the API
 curl http://localhost:3003/api/get_fake_pictures
 ```
 
-## Option B: Deploy with Empty Database
-
-If you don't have existing data or want to start fresh:
-
-### Step 1: Same Environment Variables
-
-Use the same `.env.production` from Option A (no Atlas URI needed).
-
-### Step 2: Deploy
-
-```bash
-docker-compose up -d --build
-```
-
-### Step 3: Populate Database via API
-
-After deployment, populate the database by calling the reset endpoint:
-
-**From your VPS:**
-```bash
-curl http://localhost:3003/api/reset_pictures
-```
-
-**Or from your local machine (if VPS has public IP):**
-```bash
-curl http://your-vps-ip:3003/api/reset_pictures
-```
-
-This creates 24 dummy pictures in the database.
+Expected response: JSON array of 24 pictures.
 
 ## Environment Variables Explained
 
-### Required Variables (No Atlas!)
+### Required Variables
 
 ```env
-# MongoDB URI for Docker internal network
-# This connects to the MongoDB container via Docker's internal DNS
-MONGODB_URI=mongodb://mongodb:27017
+# PostgreSQL user (used to construct DATABASE_URL)
+POSTGRES_USER=postgres
 
-# Database name
-MONGODB_DATABASE=adventcalendar
-
-# Collection names (must match your application)
-MONGODB_PICTURES_COLLECTION=pictures
-MONGODB_DUMMY_PICTURES_COLLECTION=dummy_pictures
-MONGODB_USERS_COLLECTION=users
+# PostgreSQL password (used to construct DATABASE_URL)
+# IMPORTANT: Change to a strong random password in production
+POSTGRES_PASSWORD=<generate-random-password>
 
 # JWT secrets for authentication
+# Generate with: openssl rand -base64 32
 ACCESS_TOKEN_SECRET=<generate-random-32-char-string>
 REFRESH_TOKEN_SECRET=<generate-random-32-char-string>
 ```
 
+### Automatic Configuration
+
+The following are automatically configured in `docker-compose.yml`:
+
+- **Database Name**: `advent_calendar` (hardcoded)
+- **DATABASE_URL**: Automatically constructed as `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/advent_calendar?schema=public`
+- **PostgreSQL Port**: 5432 (internal Docker network)
+- **App Port**: 3003 (exposed to host on port 3003)
+
 ### Important Notes:
 
-1. **`MONGODB_URI=mongodb://mongodb:27017`**
+1. **`@postgres:5432`**
    - Uses Docker's internal network
-   - `mongodb` is the service name from docker-compose.yml
-   - Port 27017 is internal to Docker (not exposed publicly)
+   - `postgres` is the service name from docker-compose.yml
+   - Port 5432 is internal to Docker
 
-2. **NO `MONGODB_URI_ATLAS` needed!**
-   - This was only for migration
-   - Not used in production deployment
+2. **Never commit `.env.production` to git**
+   - Listed in `.gitignore`
+   - Use different secrets for development vs production
 
-3. **Collection names**
-   - Must match what your application expects
-   - These are lowercase in the Docker setup
+3. **Database persistence**
+   - Data is stored in Docker volume `postgres_data`
+   - Survives container restarts
+   - Only deleted with `docker-compose down -v`
 
-4. **JWT Secrets**
-   - Generate strong random strings
-   - **Never** commit these to git
-   - Use different values for production vs development
+## Database Migrations
 
-## Database Population Methods
+Migrations are automatically applied on container startup via `docker-entrypoint.sh`.
 
-### Method 1: Seed Data from Backup (Automatic)
-
-If `mongo-init/seed-data/` exists in your repository:
+### Manual migration (if needed)
 
 ```bash
-# Data is automatically restored on first container start
-docker-compose up -d
+# Apply pending migrations
+docker exec adventcalendar-app-1 npx prisma migrate deploy
+
+# View migration status
+docker exec adventcalendar-app-1 npx prisma migrate status
 ```
 
-The `restore-seed-data.sh` script runs automatically and restores your data.
+### Database Seeding
 
-### Method 2: Call Reset API
+The database is automatically seeded on first startup if tables are empty:
+- 1 admin user (username: `paula`, password: `paul@2k23`)
+- 24 Pictures (day 1-24)
+- 24 DummyPictures (Lorem Picsum placeholder images)
+
+To manually reseed:
 
 ```bash
-# This creates 24 dummy pictures
-curl http://localhost:3003/api/reset_pictures
+docker exec adventcalendar-app-1 npm run db:seed
 ```
-
-### Method 3: Manual MongoDB Restore (Advanced)
-
-If you have a backup file but didn't commit it to the repo:
-
-```bash
-# Copy backup to container
-docker cp ./backup adventcalendar-mongodb-1:/tmp/backup
-
-# Restore
-docker exec adventcalendar-mongodb-1 mongorestore \
-  --db=adventcalendar \
-  --gzip \
-  /tmp/backup/adventcalendar
-```
-
-### Method 4: Manual Data Entry
-
-Access MongoDB shell:
-
-```bash
-docker exec -it adventcalendar-mongodb-1 mongosh adventcalendar
-```
-
-Then insert data manually (not recommended for 24 items).
 
 ## Setting Up Reverse Proxy (Nginx)
 
@@ -268,11 +202,9 @@ sudo certbot --nginx -d your-domain.com
 
 - [ ] VPS with Docker and Docker Compose installed
 - [ ] `.env.production` created with secure secrets
-- [ ] (Optional) Backup Atlas data and commit to repo
 - [ ] Clone repository to VPS
 - [ ] Run `docker-compose up -d --build`
 - [ ] Verify containers are healthy: `docker-compose ps`
-- [ ] (If no seed data) Populate database: `curl http://localhost:3003/api/reset_pictures`
 - [ ] Test API endpoints work
 - [ ] Configure Nginx reverse proxy
 - [ ] Set up SSL certificate
@@ -283,7 +215,7 @@ sudo certbot --nginx -d your-domain.com
 ### View Logs
 ```bash
 docker-compose logs -f app
-docker-compose logs -f mongodb
+docker-compose logs -f postgres
 ```
 
 ### Restart Services
@@ -298,14 +230,39 @@ git pull
 docker-compose up -d --build
 ```
 
+### Access PostgreSQL Shell
+```bash
+docker exec -it adventcalendar-postgres-1 psql -U postgres -d advent_calendar
+```
+
+Common queries:
+```sql
+-- View all tables
+\dt
+
+-- Count pictures
+SELECT COUNT(*) FROM "Picture";
+
+-- View users
+SELECT id, name, role FROM "User";
+```
+
 ### Backup Database
 ```bash
-docker exec adventcalendar-mongodb-1 mongodump \
-  --db=adventcalendar \
-  --out=/data/backup \
-  --gzip
+# Backup to file
+docker exec adventcalendar-postgres-1 pg_dump -U postgres advent_calendar > backup-$(date +%Y%m%d).sql
 
-docker cp adventcalendar-mongodb-1:/data/backup ./backup-$(date +%Y%m%d)
+# Backup with compression
+docker exec adventcalendar-postgres-1 pg_dump -U postgres advent_calendar | gzip > backup-$(date +%Y%m%d).sql.gz
+```
+
+### Restore Database
+```bash
+# From plain SQL file
+docker exec -i adventcalendar-postgres-1 psql -U postgres advent_calendar < backup.sql
+
+# From compressed file
+gunzip -c backup.sql.gz | docker exec -i adventcalendar-postgres-1 psql -U postgres advent_calendar
 ```
 
 ### Stop Services
@@ -320,24 +277,27 @@ docker-compose down -v  # This deletes the database volume!
 
 ## Troubleshooting
 
-### Can't connect to MongoDB
+### Can't connect to PostgreSQL
 
-Check MongoDB is healthy:
+Check PostgreSQL is healthy:
 ```bash
 docker-compose ps
-docker exec -it adventcalendar-mongodb-1 mongosh adventcalendar --eval "db.stats()"
+docker exec -it adventcalendar-postgres-1 psql -U postgres -d advent_calendar -c "SELECT version();"
+```
+
+### Database migrations fail
+
+Check if database is accessible:
+```bash
+docker-compose logs postgres
+docker exec adventcalendar-postgres-1 pg_isready -U postgres
 ```
 
 ### Empty database after deployment
 
-If seed data wasn't restored, check:
+Manually seed the database:
 ```bash
-docker-compose logs mongodb | grep -i "seed\|restore"
-```
-
-Manually populate:
-```bash
-curl http://localhost:3003/api/reset_pictures
+docker exec adventcalendar-app-1 npm run db:seed
 ```
 
 ### Port 3003 already in use
@@ -357,25 +317,36 @@ docker-compose logs app
 
 Common issues:
 - Missing environment variables
-- Can't connect to MongoDB (check `MONGODB_URI`)
+- Can't connect to PostgreSQL (check `DATABASE_URL`)
 - Port conflicts
+- Prisma Client not generated (should happen during build)
+
+### Prisma Client errors
+
+Regenerate Prisma Client:
+```bash
+docker-compose down
+docker-compose up -d --build
+```
 
 ## Security Checklist
 
 - [ ] Changed default JWT secrets
-- [ ] Removed MongoDB port exposure in production (edit docker-compose.yml)
+- [ ] Changed default PostgreSQL password
+- [ ] Removed PostgreSQL port exposure in production (not exposed by default)
 - [ ] Set up firewall rules
 - [ ] Configured SSL/HTTPS
 - [ ] Regular backups scheduled
 - [ ] Keep Docker images updated: `docker-compose pull && docker-compose up -d`
 
-## Summary: No Atlas Required!
+## Architecture Overview
 
-Your application now runs completely self-contained:
+Your application runs completely self-contained:
 
-1. **MongoDB runs in Docker** - No external database service needed
+1. **PostgreSQL runs in Docker** - No external database service needed
 2. **Data persists in Docker volumes** - Survives container restarts
-3. **Seed data in git** - Database can be initialized from backup
-4. **Simple environment variables** - Just point to `mongodb://mongodb:27017`
+3. **Automatic migrations** - Applied on startup via docker-entrypoint.sh
+4. **Automatic seeding** - Database initialized if empty
+5. **Type-safe queries** - Prisma ORM provides full TypeScript support
 
-You have **zero dependency** on MongoDB Atlas. Everything runs on your VPS!
+Everything runs on your VPS with zero external dependencies!

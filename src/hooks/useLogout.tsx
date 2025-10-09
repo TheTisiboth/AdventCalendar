@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation"
-import { dummyUser, useAuthStore } from "../store"
+import { dummyUser, useAuthStore } from "@/store"
 
 export const useLogout = () => {
     const router = useRouter()

@@ -12,41 +12,38 @@ services:
       - "3003:3003"
     environment:
       - NODE_ENV=production
-      - MONGODB_URI=mongodb://mongodb:27017
-      - MONGODB_DATABASE=advent_calendar
-      - MONGODB_PICTURES_COLLECTION=Pictures
-      - MONGODB_DUMMY_PICTURES_COLLECTION=dummyPictures
-      - MONGODB_USERS_COLLECTION=users
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/advent_calendar?schema=public
       - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
       - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
     depends_on:
-      mongodb:
+      postgres:
         condition: service_healthy
     restart: unless-stopped
     networks:
       - app-network
 
-  mongodb:
-    image: mongo:7.0
+  postgres:
+    image: postgres:16-alpine
     ports:
-      - "27017:27017"
+      - "5434:5432"
     environment:
-      - MONGO_INITDB_DATABASE=advent_calendar
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=advent_calendar
     volumes:
-      - mongodb_data:/data/db
-      - ./mongo-init:/docker-entrypoint-initdb.d:ro
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 40s
+      start_period: 10s
     restart: unless-stopped
     networks:
       - app-network
 
 volumes:
-  mongodb_data:
+  postgres_data:
     driver: local
 
 networks:

@@ -1,6 +1,6 @@
 import dayjs from "dayjs"
 import { cloneDeep } from "lodash"
-import { STARTING_DATE, ENDING_DATE } from "../constants"
+import { STARTING_DATE, ENDING_DATE } from "@/constants"
 
 export const shuffle = <T,>(array: T[], seed: number) => {
     const copy = cloneDeep(array)

@@ -25,6 +25,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@api/*": [
+        "./app/api/*"
       ]
     },
     "forceConsistentCasingInFileNames": true

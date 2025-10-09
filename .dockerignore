@@ -55,10 +55,6 @@ README.md
 MIGRATION.md
 *.md
 
-# Netlify (old)
-.netlify
-netlify
-
 # Misc development files
 .eslintcache
 tsconfig.tsbuildinfo

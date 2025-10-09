@@ -118,11 +118,10 @@ dist-ssr
 *.sln
 *.sw?
 
-# Local Netlify folder
-.netlify
-
 # PWA files
 dev-dist/
 **/workbox-*.js
 **/sw.js
 **/worker-*.js
+
+/src/generated/prisma

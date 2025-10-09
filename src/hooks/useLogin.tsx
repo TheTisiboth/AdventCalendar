@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useForm, SubmitHandler } from "react-hook-form"
 import { TypeOf, boolean, object, string } from "zod"
 import { useAPI } from "./useAPI"
-import { useAuthStore, useSnackBarStore } from "../store"
+import { useAuthStore, useSnackBarStore } from "@/store"
 
 const loginSchema = object({
     name: string().nonempty("Name is required"),

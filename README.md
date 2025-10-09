@@ -7,7 +7,7 @@ An interactive Advent Calendar web application built with Next.js.
 - **Frontend**: [Next.js 15.5](https://nextjs.org/) with React
 - **UI Framework**: [Material-UI (MUI)](https://mui.com/)
 - **State Management**: [Zustand](https://github.com/pmndrs/zustand)
-- **Database**: [MongoDB](https://www.mongodb.com/) (self-hosted in Docker)
+- **Database**: [PostgreSQL 16](https://www.postgresql.org/) with [Prisma ORM](https://www.prisma.io/)
 - **Authentication**: JWT with access/refresh tokens
 - **Deployment**: Docker + Docker Compose
 - **Responsive**: Desktop and mobile compatible
@@ -17,6 +17,9 @@ An interactive Advent Calendar web application built with Next.js.
 ```bash
 # Install dependencies
 npm install
+
+# Generate Prisma Client
+npx prisma generate
 
 # Run development server
 npm run dev
@@ -33,28 +36,42 @@ npm run build
 
 The app will be available at `http://localhost:3000`
 
+## Database Management
+
+```bash
+# Create a new migration (after schema changes)
+npx prisma migrate dev --name description_of_changes
+
+# Apply migrations
+npx prisma migrate deploy
+
+# Seed the database
+npm run db:seed
+
+# Open Prisma Studio (database GUI)
+npx prisma studio
+```
+
 ## Deployment
 
 See [VPS_DEPLOYMENT.md](./VPS_DEPLOYMENT.md) for complete deployment instructions to a VPS with Docker.
 
 ### Quick Deploy
 
-1. Backup your MongoDB Atlas data (if applicable):
-   ```bash
-   ./scripts/backup-atlas-data.sh
-   git add mongo-init/seed-data/
-   git commit -m "Add seed data"
-   ```
-
-2. On your VPS, create `.env.production`:
+1. On your VPS, create `.env.production`:
    ```env
-   MONGODB_URI=mongodb://mongodb:27017
-   MONGODB_DATABASE=adventcalendar
-   MONGODB_PICTURES_COLLECTION=pictures
-   MONGODB_DUMMY_PICTURES_COLLECTION=dummy_pictures
-   MONGODB_USERS_COLLECTION=users
+   # PostgreSQL Configuration
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=<secure-random-password>
+
+   # JWT Secrets
    ACCESS_TOKEN_SECRET=<generate-random-secret>
    REFRESH_TOKEN_SECRET=<generate-random-secret>
+   ```
+
+2. Generate secure secrets:
+   ```bash
+   openssl rand -base64 32
    ```
 
 3. Deploy:
@@ -66,8 +83,7 @@ See [VPS_DEPLOYMENT.md](./VPS_DEPLOYMENT.md) for complete deployment instruction
 
 - `/app` - Next.js app directory (pages, API routes)
 - `/src` - React components and utilities
-- `/mongo-init` - MongoDB initialization scripts and seed data
-- `/scripts` - Deployment and maintenance scripts
+- `/prisma` - Database schema and migrations
 - `/public` - Static assets
 
 ## Environment Variables

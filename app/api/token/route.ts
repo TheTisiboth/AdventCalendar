@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { refreshTokenModel } from "../lib/models"
-import { generateAccessToken, verifyRefreshToken } from "../lib/auth"
-import connectDB from "../lib/mongodb"
+import { findRefreshToken } from "@api/lib/dal"
+import { generateAccessToken, verifyRefreshToken } from "@api/lib/auth"
 
 export async function POST(request: NextRequest) {
     try {
@@ -12,8 +11,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Refresh token is required" }, { status: 401 })
         }
 
-        await connectDB()
-        const tokenExists = await refreshTokenModel.findOne({ token: refreshToken })
+        const tokenExists = await findRefreshToken(refreshToken)
 
         if (!tokenExists) {
             return NextResponse.json({ error: "Invalid refresh token" }, { status: 403 })

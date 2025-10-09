@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
-import { pictureModel } from "../lib/models"
-import { checkAuth } from "../lib/auth"
-import { Picture } from "@/types/types"
-import connectDB from "../lib/mongodb"
+import { getAllPictures } from "@api/lib/dal"
+import { checkAuth } from "@api/lib/auth"
 
 export async function GET(request: NextRequest) {
     try {
         await checkAuth(request)
-        await connectDB()
-        const pictures = (await pictureModel.find()).map((pic) => pic.toObject() as Picture)
+        const pictures = await getAllPictures()
 
         return NextResponse.json(pictures)
     } catch (error) {

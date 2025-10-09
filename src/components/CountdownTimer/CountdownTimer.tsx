@@ -1,5 +1,5 @@
 import React, { FC } from "react"
-import { useCountdown } from "../../hooks/useCountdown"
+import { useCountdown } from "@/hooks/useCountdown"
 import { ExpiredNotice } from "./ExpiredNotice"
 import { ShowCounter } from "./ShowCounter"
 

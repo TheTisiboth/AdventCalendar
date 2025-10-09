@@ -1,12 +1,9 @@
-import { NextRequest, NextResponse } from "next/server"
-import { dummyPictureModel } from "../lib/models"
-import { Picture } from "@/types/types"
-import connectDB from "../lib/mongodb"
+import { NextResponse } from "next/server"
+import { getAllDummyPictures } from "@api/lib/dal"
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
-        await connectDB()
-        const pictures = (await dummyPictureModel.find()).map((pic) => pic.toObject() as Picture)
+        const pictures = await getAllDummyPictures()
 
         return NextResponse.json(pictures)
     } catch (error) {

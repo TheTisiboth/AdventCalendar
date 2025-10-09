@@ -3,8 +3,9 @@ FROM node:18-alpine AS deps
 RUN apk add --no-cache libc6-compat python3 make g++
 WORKDIR /app
 
-# Copy package files
+# Copy package files and Prisma schema
 COPY package.json package-lock.json* ./
+COPY prisma ./prisma
 RUN npm ci
 
 # Stage 2: Builder
@@ -21,19 +22,14 @@ ENV NEXT_TELEMETRY_DISABLED 1
 # Build args (dummy values for Next.js validation during build)
 ARG ACCESS_TOKEN_SECRET
 ARG REFRESH_TOKEN_SECRET
-ARG MONGODB_URI=mongodb://localhost:27017
-ARG MONGODB_DATABASE=advent_calendar
-ARG MONGODB_PICTURES_COLLECTION=Pictures
-ARG MONGODB_DUMMY_PICTURES_COLLECTION=dummyPictures
-ARG MONGODB_USERS_COLLECTION=users
+ARG DATABASE_URL=postgresql://postgres:postgres@localhost:5432/advent_calendar
 
 ENV ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
 ENV REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
-ENV MONGODB_URI=${MONGODB_URI}
-ENV MONGODB_DATABASE=${MONGODB_DATABASE}
-ENV MONGODB_PICTURES_COLLECTION=${MONGODB_PICTURES_COLLECTION}
-ENV MONGODB_DUMMY_PICTURES_COLLECTION=${MONGODB_DUMMY_PICTURES_COLLECTION}
-ENV MONGODB_USERS_COLLECTION=${MONGODB_USERS_COLLECTION}
+ENV DATABASE_URL=${DATABASE_URL}
+
+# Generate Prisma Client
+RUN npx prisma generate
 
 # Build the application
 RUN npm run build
@@ -48,10 +44,22 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Install bash for running migration script
+RUN apk add --no-cache bash
+
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+
+# Copy Prisma schema and migrations
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# Copy startup script
+COPY docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app
@@ -63,4 +71,4 @@ EXPOSE 3003
 ENV PORT 3003
 ENV HOSTNAME "0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["./docker-entrypoint.sh"]

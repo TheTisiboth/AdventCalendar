@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server"
-import { dummyPictureModel } from "../lib/models"
-import { Picture } from "@/types/types"
-import connectDB from "../lib/mongodb"
+import { deleteAllDummyPictures, createDummyPictures } from "@api/lib/dal"
 
 export async function GET() {
     try {
-        await connectDB()
-        await dummyPictureModel.collection.drop().catch(() => {
-            // Collection might not exist, ignore error
-        })
+        // Delete all dummy pictures
+        await deleteAllDummyPictures()
 
         const dummyPictures = [...Array(24)].map((_, i) => {
             const date = new Date()
@@ -21,10 +17,10 @@ export async function GET() {
                 isOpenable: false,
                 key: "https://picsum.photos/200/300?sig=" + (i + 1),
                 date: date
-            } as Picture
+            }
         })
 
-        await dummyPictureModel.insertMany(dummyPictures)
+        await createDummyPictures(dummyPictures)
 
         return NextResponse.json(dummyPictures)
     } catch (error) {

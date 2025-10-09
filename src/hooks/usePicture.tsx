@@ -1,9 +1,9 @@
 import { Dispatch, RefObject, SetStateAction, useState } from "react"
-import { CDN_URL } from "../constants"
-import { Picture } from "../types/types"
+import { CDN_URL } from "@/constants"
+import { Picture } from "@/types/types"
 import dayjs from "dayjs"
 import { useAPI } from "./useAPI"
-import { useCalendarStore, useResponsiveStore } from "../store"
+import { useCalendarStore, useResponsiveStore } from "@/store"
 
 type UsePictureProps = {
     picture: Picture

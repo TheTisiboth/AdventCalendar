@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { useAuthStore } from "../store"
+import { useAuthStore } from "@/store"
 import { useAPI } from "./useAPI"
 
 export const useAuth = () => {
@@ -18,5 +18,5 @@ export const useAuth = () => {
             }
         }
         authentication()
-    }, [])
+    }, [jwt, isLoggedIn, authenticate, setIsLoggedIn, setJWT])
 }

@@ -2,11 +2,11 @@
 
 import { Button, Paper, Skeleton } from "@mui/material"
 import { FC, useRef } from "react"
-import { Picture } from "../../types/types"
+import { Picture } from "@/types/types"
 import FullScreenDialog from "./FullscreenDialog"
-import { usePicture } from "../../hooks/usePicture"
+import { usePicture } from "@/hooks/usePicture"
 import "./Day.css"
-import {  useResponsiveStore } from "../../store"
+import {  useResponsiveStore } from "@/store"
 
 type DayProps = {
     picture: Picture

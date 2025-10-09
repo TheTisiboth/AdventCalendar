@@ -2,7 +2,7 @@ import { Box, Grid, Typography } from "@mui/material"
 import { FormProvider } from "react-hook-form"
 import { LoadingButton } from "@mui/lab"
 import FormInput from "./FormInput"
-import { useLogin } from "../../hooks/useLogin"
+import { useLogin } from "@/hooks/useLogin"
 import FormCheckbox from "./FormCheckbox"
 
 const Login = () => {

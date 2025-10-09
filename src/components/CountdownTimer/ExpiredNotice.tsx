@@ -1,6 +1,6 @@
 import Link from "next/link"
 import dayjs from "dayjs"
-import { useCalendarStore } from "../../store"
+import { useCalendarStore } from "@/store"
 
 export const ExpiredNotice = () => {
     const { startingDate, isStarted, setIsStarted } = useCalendarStore("startingDate", "isStarted", "setIsStarted")
