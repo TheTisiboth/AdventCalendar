@@ -1,6 +1,5 @@
-import { Types } from "mongoose"
 export type Picture = {
-    _id: Types.ObjectId
+    id: number
     day: number
     key: string
     isOpenable: boolean

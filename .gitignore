@@ -126,3 +126,5 @@ dev-dist/
 **/workbox-*.js
 **/sw.js
 **/worker-*.js
+
+/src/generated/prisma

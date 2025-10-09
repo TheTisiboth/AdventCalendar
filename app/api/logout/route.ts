@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import { refreshTokenModel } from "../lib/models"
-import connectDB from "../lib/mongodb"
+import { deleteRefreshToken } from "../lib/dal"
 
 export async function DELETE(request: NextRequest) {
     try {
         const body = await request.json()
         const { refreshToken } = body
 
-        await connectDB()
-        await refreshTokenModel.deleteOne({ token: refreshToken })
+        await deleteRefreshToken(refreshToken)
 
         return NextResponse.json({ message: "Logged out successfully" })
     } catch (error) {
