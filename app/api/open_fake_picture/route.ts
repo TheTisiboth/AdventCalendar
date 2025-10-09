@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { updateDummyPictureOpenStatus } from "../lib/dal"
+import { updateDummyPictureOpenStatus } from "@api/lib/dal"
 
 export async function GET(request: NextRequest) {
     try {

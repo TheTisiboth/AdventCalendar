@@ -3,7 +3,7 @@
  * Handles all database operations related to pictures
  */
 
-import { prisma } from '../prisma'
+import { prisma } from '@api/lib/prisma'
 import type { Picture } from '@prisma/client'
 
 export async function getAllPictures(): Promise<Picture[]> {

@@ -3,7 +3,7 @@
 import { FC, ReactNode, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { BackdropSpinner } from "./Calendar/Backdrop"
-import { useAuthStore } from "../store"
+import { useAuthStore } from "@/store"
 
 export const Auth: FC<{ children: ReactNode }> = ({ children }) => {
     const router = useRouter()

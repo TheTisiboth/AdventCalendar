@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { findRefreshToken } from "../lib/dal"
-import { generateAccessToken, verifyRefreshToken } from "../lib/auth"
+import { findRefreshToken } from "@api/lib/dal"
+import { generateAccessToken, verifyRefreshToken } from "@api/lib/auth"
 
 export async function POST(request: NextRequest) {
     try {

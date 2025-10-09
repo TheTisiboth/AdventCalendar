@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { NETLIFY_FUNCTIONS_PATH } from "../constants"
-import { LoginResponse, Picture } from "../types/types"
-import { useAuthStore, useCalendarStore, useSnackBarStore } from "../store"
+import { API_BASE_PATH } from "@/constants"
+import { LoginResponse, Picture } from "@/types/types"
+import { useAuthStore, useCalendarStore, useSnackBarStore } from "@/store"
 
 const QUERY_KEY = "pictures"
 
@@ -27,7 +27,7 @@ export const useAPI = () => {
 
     const resetPictures = async () => {
         try {
-            await api(NETLIFY_FUNCTIONS_PATH + "reset_pictures")
+            await api(API_BASE_PATH + "reset_pictures")
             queryClient.invalidateQueries({ queryKey })
         } catch (e) {
             handleClick("Server error")
@@ -38,7 +38,7 @@ export const useAPI = () => {
         const openPicturePath = isFake ? "open_fake_picture" : "open_picture"
         try {
             return await api<Picture>(
-                NETLIFY_FUNCTIONS_PATH +
+                API_BASE_PATH +
                     `${openPicturePath}?` +
                     new URLSearchParams({
                         day: day.toString()
@@ -79,7 +79,7 @@ export const useAPI = () => {
     })
 
     const login = async (name: string, password: string) => {
-        return await api<LoginResponse>(NETLIFY_FUNCTIONS_PATH + "login", {
+        return await api<LoginResponse>(API_BASE_PATH + "login", {
             method: "POST",
             body: JSON.stringify({ name, password })
         })
@@ -88,14 +88,14 @@ export const useAPI = () => {
     const fetchPictures = async () => {
         const getPicturePath = isFake ? "get_fake_pictures" : "get_pictures"
         try {
-            return await api<Picture[]>(NETLIFY_FUNCTIONS_PATH + getPicturePath, { headers })
+            return await api<Picture[]>(API_BASE_PATH + getPicturePath, { headers })
         } catch (e) {
             return []
         }
     }
 
     const authenticate = async () => {
-        return await api(NETLIFY_FUNCTIONS_PATH + "authenticate", { headers })
+        return await api(API_BASE_PATH + "authenticate", { headers })
     }
 
     const { data: pictures, isLoading: isPictureLoading } = useQuery<Picture[]>({

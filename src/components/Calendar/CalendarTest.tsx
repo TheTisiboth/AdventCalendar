@@ -3,7 +3,7 @@
 import { FC, useEffect } from "react"
 
 import CalendarComponent from "./CalendarComponent"
-import { useCalendarStore } from "../../store"
+import { useCalendarStore } from "@/store"
 
 export const CalendarTest: FC = () => {
     const { setIsFake,setDate,startingDate } = useCalendarStore("setIsFake","setDate","startingDate")
@@ -11,7 +11,7 @@ export const CalendarTest: FC = () => {
     useEffect(() => {
         setIsFake(true)
         setDate(startingDate)
-    }, [setIsFake])
+    }, [setIsFake, setDate, startingDate])
 
     return <CalendarComponent />
 }

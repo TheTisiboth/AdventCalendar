@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcrypt"
-import { findUserByName, createRefreshToken } from "../lib/dal"
-import { generateAccessToken, generateRefreshToken } from "../lib/auth"
+import { findUserByName, createRefreshToken } from "@api/lib/dal"
+import { generateAccessToken, generateRefreshToken } from "@api/lib/auth"
 import { User, Credentials } from "@/types/types"
 
 export async function POST(request: NextRequest) {

@@ -3,7 +3,7 @@
  * Handles all database operations related to users
  */
 
-import { prisma } from '../prisma'
+import { prisma } from '@api/lib/prisma'
 
 export async function findUserByName(name: string) {
   return prisma.user.findUnique({

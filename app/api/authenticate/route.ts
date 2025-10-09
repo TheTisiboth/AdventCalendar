@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { checkAuth } from "../lib/auth"
+import { checkAuth } from "@api/lib/auth"
 
 export async function GET(request: NextRequest) {
     try {

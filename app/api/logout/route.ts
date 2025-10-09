@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { deleteRefreshToken } from "../lib/dal"
+import { deleteRefreshToken } from "@api/lib/dal"
 
 export async function DELETE(request: NextRequest) {
     try {

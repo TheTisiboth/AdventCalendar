@@ -1,4 +1,4 @@
-export const NETLIFY_FUNCTIONS_PATH = "/api/"
+export const API_BASE_PATH = "/api/"
 
 export const CDN_URL = "https://cdn.leojan.fr/"
 

@@ -3,7 +3,7 @@
  * Handles all database operations related to dummy pictures
  */
 
-import { prisma } from '../prisma'
+import { prisma } from '@api/lib/prisma'
 import type { DummyPicture } from '@prisma/client'
 
 export async function getAllDummyPictures(): Promise<DummyPicture[]> {

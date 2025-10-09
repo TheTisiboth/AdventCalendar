@@ -3,7 +3,7 @@
  * Handles all database operations related to refresh tokens
  */
 
-import { prisma } from '../prisma'
+import { prisma } from '@api/lib/prisma'
 
 export async function findRefreshToken(token: string) {
   return prisma.refreshToken.findUnique({

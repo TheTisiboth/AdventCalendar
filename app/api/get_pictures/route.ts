@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getAllPictures } from "../lib/dal"
-import { checkAuth } from "../lib/auth"
+import { getAllPictures } from "@api/lib/dal"
+import { checkAuth } from "@api/lib/auth"
 
 export async function GET(request: NextRequest) {
     try {

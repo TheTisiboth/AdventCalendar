@@ -35,7 +35,7 @@ type SnackbarStore = {
     open: boolean
     message: string
     handleClick: (message: string, severity?: AlertColor) => void
-    handleClose: (_event: Event | React.SyntheticEvent<Element, Event>, reason?: string | undefined) => void
+    handleClose: () => void
     severity: AlertColor
 }
 
@@ -113,7 +113,7 @@ const snackbarStore = create<SnackbarStore>()((set) => ({
     handleClick: (message: string, severity: AlertColor = "error") => {
         set({ message, severity, open: true })
     },
-    handleClose: (_event: React.SyntheticEvent | Event, _reason?: string) => {
+    handleClose: () => {
         set({ open: false })
     }
 }))

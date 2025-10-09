@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
-import { getAllDummyPictures } from "../lib/dal"
+import { NextResponse } from "next/server"
+import { getAllDummyPictures } from "@api/lib/dal"
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
         const pictures = await getAllDummyPictures()
 

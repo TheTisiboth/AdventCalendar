@@ -1,9 +1,9 @@
 import { FC } from "react"
-import { Picture } from "../../types/types"
+import { Picture } from "@/types/types"
 import Grid from "@mui/material/Grid"
 import { Day } from "./Day"
-import { shuffle } from "../../utils/utils"
-import { useCalendarStore } from "../../store"
+import { shuffle } from "@/utils/utils"
+import { useCalendarStore } from "@/store"
 
 type DayGridProps = {
     pictures: Picture[]

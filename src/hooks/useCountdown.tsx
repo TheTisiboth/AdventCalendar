@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { ONE_DAY_MS, ONE_HOUR_MS, ONE_MINUTE_MS, ONE_SECOND_MS } from "../constants"
+import { ONE_DAY_MS, ONE_HOUR_MS, ONE_MINUTE_MS, ONE_SECOND_MS } from "@/constants"
 
 const useCountdown = (targetDate: Date) => {
     const countDownDate = targetDate.getTime()

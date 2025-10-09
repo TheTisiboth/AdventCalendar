@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { deleteAllDummyPictures, createDummyPictures } from "../lib/dal"
+import { deleteAllDummyPictures, createDummyPictures } from "@api/lib/dal"
 
 export async function GET() {
     try {
