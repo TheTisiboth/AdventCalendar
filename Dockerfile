@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy package files and Prisma schema
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma
-RUN npm ci --legacy-peer-deps
+RUN npm ci
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
