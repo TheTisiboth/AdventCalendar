@@ -13,7 +13,8 @@
         "test:run": "vitest run",
         "postinstall": "prisma generate",
         "db:migrate": "prisma migrate deploy",
-        "db:seed": "npx tsx prisma/seed.ts"
+        "db:seed": "npx tsx prisma/seed.ts",
+        "db:reset": "npx prisma migrate reset --force"
     },
     "prisma": {
         "seed": "npx tsx prisma/seed.ts"

@@ -1,0 +1,101 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { Auth } from "@/components/Auth"
+import { Calendar } from "@/components/Calendar/Calendar"
+import { API_BASE_PATH } from "@/constants"
+
+type PageProps = {
+  params: Promise<{ year: string }>
+}
+
+/**
+ * Archived Calendar View - Client Component with Auth
+ * Displays calendar for a specific year using the reusable Calendar component
+ */
+export default function ArchivedCalendarPage({ params }: PageProps) {
+  const router = useRouter()
+  const [year, setYear] = useState<number | null>(null)
+  const [calendarTitle, setCalendarTitle] = useState<string>("")
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+
+  useEffect(() => {
+    async function init() {
+      const { year: yearParam } = await params
+      const parsedYear = parseInt(yearParam)
+
+      if (isNaN(parsedYear)) {
+        router.push("/archive")
+        return
+      }
+
+      setYear(parsedYear)
+
+      // Verify calendar exists
+      try {
+        const jwt = localStorage.getItem("jwt")
+        const response = await fetch(API_BASE_PATH + `calendars/${parsedYear}`, {
+          headers: jwt ? { Authorization: `Bearer ${jwt}` } : {}
+        })
+
+        if (response.ok) {
+          const calendar = await response.json()
+          setCalendarTitle(calendar.title)
+        } else {
+          setNotFound(true)
+        }
+      } catch (error) {
+        console.error("Failed to fetch calendar:", error)
+        setNotFound(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+    init()
+  }, [params, router])
+
+  if (loading) {
+    return (
+      <Auth>
+        <div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>
+      </Auth>
+    )
+  }
+
+  if (notFound) {
+    return (
+      <Auth>
+        <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
+          <h1>Calendar Not Found</h1>
+          <p>No calendar found for year {year}.</p>
+          <Link href="/archive" style={{ color: "#0070f3", textDecoration: "none" }}>
+            ← Back to archive
+          </Link>
+        </div>
+      </Auth>
+    )
+  }
+
+  return (
+    <Auth>
+      <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
+        <div style={{ marginBottom: "2rem", display: "flex", gap: "1rem", alignItems: "center" }}>
+          <Link href="/archive" style={{ color: "#0070f3", textDecoration: "none" }}>
+            ← Back to archive
+          </Link>
+          <span style={{ color: "#999" }}>|</span>
+          <Link href="/calendar" style={{ color: "#0070f3", textDecoration: "none" }}>
+            Current calendar
+          </Link>
+        </div>
+
+        {calendarTitle && <h1 style={{ marginBottom: "1rem" }}>{calendarTitle}</h1>}
+
+        {year && <Calendar year={year} isArchived={true} />}
+      </div>
+    </Auth>
+  )
+}

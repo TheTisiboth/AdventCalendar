@@ -13,11 +13,12 @@ import {
     Button,
     Drawer
 } from "@mui/material"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import MenuIcon from "@mui/icons-material/Menu"
 import { useLogout } from "@/hooks/useLogout"
 import { useAuthStore } from "@/store"
+import { isInAdventPeriod } from "@/utils/utils"
 
 const drawerWidth = 240
 
@@ -30,6 +31,12 @@ export const NavBar = () => {
     const { logout } = useLogout()
     const { isLoggedIn } = useAuthStore("isLoggedIn")
     const [mobileOpen, setMobileOpen] = useState(false)
+    const [showCalendar, setShowCalendar] = useState(false)
+
+    useEffect(() => {
+        // Check if we're in the Advent period
+        setShowCalendar(isInAdventPeriod())
+    }, [])
 
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState)
@@ -44,9 +51,17 @@ export const NavBar = () => {
                     </ListItemButton>
                 </ListItem>
 
-                <ListItem key={"Calendar"} disablePadding>
-                    <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/calendar" })}>
-                        <ListItemText primary={"Calender"} />
+                {showCalendar && (
+                    <ListItem key={"Calendar"} disablePadding>
+                        <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/calendar" })}>
+                            <ListItemText primary={"Calender"} />
+                        </ListItemButton>
+                    </ListItem>
+                )}
+
+                <ListItem key={"Archive"} disablePadding>
+                    <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/archive" })}>
+                        <ListItemText primary={"Archive"} />
                     </ListItemButton>
                 </ListItem>
 
@@ -95,8 +110,14 @@ export const NavBar = () => {
                             <ListItemText primary="Home" />
                         </Button>
 
-                        <Button key={"Calendar"} onClick={() => navigate({ to: "/calendar" })}>
-                            <ListItemText primary="Calendar" />
+                        {showCalendar && (
+                            <Button key={"Calendar"} onClick={() => navigate({ to: "/calendar" })}>
+                                <ListItemText primary="Calendar" />
+                            </Button>
+                        )}
+
+                        <Button key={"Archive"} onClick={() => navigate({ to: "/archive" })}>
+                            <ListItemText primary="Archive" />
                         </Button>
 
                         <Button key={"Test"} onClick={() => navigate({ to: "/test" })}>

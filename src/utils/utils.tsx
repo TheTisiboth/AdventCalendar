@@ -42,3 +42,39 @@ export const computeStartingAndEndingDate = () => {
     }
     return { startingDate, endingDate }
 }
+
+/**
+ * Checks if the current date is within the Advent period (December 1-24)
+ * @returns true if we're in the Advent period, false otherwise
+ */
+export const isInAdventPeriod = (): boolean => {
+    const now = dayjs()
+    const { startingDate, endingDate } = computeStartingAndEndingDate()
+
+    return now.isAfter(dayjs(startingDate)) && now.isBefore(dayjs(endingDate))
+}
+
+/**
+ * Gets the appropriate calendar year to display
+ * If we're in the Advent period (Dec 1-24), returns the current year
+ * Otherwise, returns the most recent completed Advent calendar year
+ * @returns The year of the calendar to display
+ */
+export const getCurrentCalendarYear = (): number => {
+    const now = dayjs()
+    const currentYear = now.year()
+    const { startingDate } = computeStartingAndEndingDate()
+
+    // If we're in the Advent period, show current year's calendar
+    if (isInAdventPeriod()) {
+        return currentYear
+    }
+
+    // If we're before December 1st, show last year's calendar
+    if (now.isBefore(dayjs(startingDate))) {
+        return currentYear - 1
+    }
+
+    // If we're after December 24th, show this year's calendar (as archive)
+    return currentYear
+}

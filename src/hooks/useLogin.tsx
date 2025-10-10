@@ -5,6 +5,7 @@ import { useForm, SubmitHandler } from "react-hook-form"
 import { TypeOf, boolean, object, string } from "zod"
 import { useAuthAPI } from "./api/useAuthAPI"
 import { useAuthStore, useSnackBarStore } from "@/store"
+import { isInAdventPeriod } from "@/utils/utils"
 
 const loginSchema = object({
     name: string().nonempty("Name is required"),
@@ -39,7 +40,8 @@ export const useLogin = () => {
 
     useEffect(() => {
         if (isSubmitSuccessful || isLoggedIn) {
-            router.push("/calendar")
+            if (isInAdventPeriod()) router.push("/calendar")
+            else router.push("/archive")
         }
     }, [isSubmitSuccessful, isLoggedIn, router])
 
@@ -51,7 +53,7 @@ export const useLogin = () => {
             setIsLoggedIn(true)
             handleClick("User authentified successfuly", "success")
             setJWT(response.accessToken)
-            if (values.rememberMe && typeof window !== 'undefined') {
+            if (values.rememberMe && typeof window !== "undefined") {
                 localStorage.setItem("jwt", response.accessToken)
             }
         } catch (e) {
