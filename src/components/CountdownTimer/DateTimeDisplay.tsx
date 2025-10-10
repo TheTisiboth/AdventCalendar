@@ -8,7 +8,7 @@ type DateTimeDisplayProps = {
 const DateTimeDisplay: FC<DateTimeDisplayProps> = ({ value, type, isDanger }) => {
     return (
         <div className={isDanger ? "countdown danger" : "countdown"}>
-            <p>{value}</p>
+            <p suppressHydrationWarning>{value}</p>
             <span>{type}</span>
         </div>
     )
