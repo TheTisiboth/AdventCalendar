@@ -55,9 +55,9 @@ COPY --from=builder /app/.next/static ./.next/static
 # Copy Prisma schema and migrations
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/.bin ./node_modules/.bin
+
+# Install Prisma CLI with all its dependencies
+RUN npm install prisma --omit=dev
 
 # Copy startup script
 COPY docker-entrypoint.sh ./
