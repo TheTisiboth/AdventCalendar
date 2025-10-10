@@ -60,7 +60,7 @@ RUN chmod +x docker-entrypoint.sh
 
 USER nextjs
 
-RUN --mount=type=cache,target=/home/nextjs/.npm \
+RUN --mount=type=cache,target=/home/nextjs/.npm,uid=1001,gid=1001 \
     npm ci --omit=dev && \
     npm cache clean --force
 
