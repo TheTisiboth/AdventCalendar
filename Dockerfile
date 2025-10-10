@@ -6,7 +6,8 @@ WORKDIR /app
 # Copy package files and Prisma schema
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
@@ -28,10 +29,7 @@ ENV ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
 ENV REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
 ENV DATABASE_URL=${DATABASE_URL}
 
-# Generate Prisma Client
-RUN npx prisma generate
-
-# Build the application
+# Build the application (Prisma client already generated in deps stage)
 RUN npm run build
 
 # Stage 3: Runner
@@ -62,8 +60,8 @@ RUN chmod +x docker-entrypoint.sh
 
 USER nextjs
 
-RUN npm ci --omit=dev && \
-    npx prisma generate && \
+RUN --mount=type=cache,target=/home/nextjs/.npm \
+    npm ci --omit=dev && \
     npm cache clean --force
 
 EXPOSE 3003

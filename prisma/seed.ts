@@ -2,9 +2,6 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-// Pre-computed bcrypt hash for password 'paul@2k23' with salt rounds 10
-const PAULA_PASSWORD_HASH = '$2b$10$8x8Roob1Co8LvsZiCAT0fusGE2XX4HFXGRrFsNjRxTRf6JVQezFy6'
-
 async function main() {
   console.log('🌱 Starting database seed...')
 
@@ -26,7 +23,7 @@ async function main() {
     await prisma.user.create({
       data: {
         name: 'paula',
-        password: PAULA_PASSWORD_HASH,
+        password: '$2b$10$8x8Roob1Co8LvsZiCAT0fusGE2XX4HFXGRrFsNjRxTRf6JVQezFy6',
         role: 'admin'
       }
     })
