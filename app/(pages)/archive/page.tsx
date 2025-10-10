@@ -103,12 +103,6 @@ export default function ArchivePage() {
           ))}
         </div>
       )}
-
-        <div style={{ marginTop: "2rem" }}>
-          <Link href="/calendar" style={{ color: "#0070f3", textDecoration: "none" }}>
-            ← Back to current calendar
-          </Link>
-        </div>
       </div>
     </Auth>
   )
