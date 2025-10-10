@@ -1,9 +1,15 @@
 "use client"
 
 import { FC } from "react"
-import { CountdownTimer } from "./CountdownTimer/CountdownTimer"
+import dynamic from "next/dynamic"
 import { Box } from "@mui/material"
 import { useCalendarStore } from "@/store"
+
+// Import CountdownTimer without SSR to prevent hydration mismatch
+const CountdownTimer = dynamic(
+    () => import("./CountdownTimer/CountdownTimer").then((mod) => ({ default: mod.CountdownTimer })),
+    { ssr: false }
+)
 
 export const Home: FC = () => {
     const { startingDate } = useCalendarStore("startingDate")
