@@ -44,8 +44,8 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Install bash for running migration script
-RUN apk add --no-cache bash
+# Install bash and openssl for running migration script and Prisma
+RUN apk add --no-cache bash openssl
 
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
@@ -56,8 +56,8 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-# Install Prisma CLI with all its dependencies
-RUN npm install prisma --omit=dev
+# Install Prisma CLI and Client with all dependencies (needed for migrations and runtime)
+RUN npm install prisma @prisma/client --omit=dev
 
 # Copy startup script
 COPY docker-entrypoint.sh ./
