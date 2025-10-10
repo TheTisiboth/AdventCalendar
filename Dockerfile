@@ -52,12 +52,14 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy Prisma schema and migrations
+# Copy Prisma schema for migrations and generation
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-# Install Prisma CLI and Client with all dependencies (needed for migrations and runtime)
-RUN npm install prisma @prisma/client --omit=dev
+# Copy package files and install production dependencies (includes prisma & @prisma/client)
+# The postinstall script will run "prisma generate" automatically
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/package-lock.json ./package-lock.json
+RUN npm ci --only=production
 
 # Copy startup script
 COPY docker-entrypoint.sh ./
