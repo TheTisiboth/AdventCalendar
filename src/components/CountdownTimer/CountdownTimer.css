@@ -7,22 +7,20 @@
 }
 
 .expired-notice > span {
-    font-size: 3.5rem;
+    font-size: clamp(1.75rem, 6vw, 3.5rem);
     font-weight: bold;
     color: red;
 }
 
 .expired-notice > p {
-    font-size: 3rem;
+    font-size: clamp(1.25rem, 5vw, 3rem);
 }
 
 .show-counter {
     padding: 0.5rem;
     display: flex;
-}
-.show-counter *,
-.expired-notice * {
-    font-size: 3rem;
+    gap: clamp(0.25rem, 1vw, 0.5rem);
+    justify-content: center;
 }
 
 .show-counter .countdown-link {
@@ -41,7 +39,7 @@
 }
 
 .show-counter .countdown {
-    padding: 0 0.75rem 0 0.75rem;
+    padding: 0 clamp(0.25rem, 1.5vw, 0.75rem);
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -53,11 +51,11 @@
 
 .show-counter .countdown > p {
     margin: 0;
-    font-size: 3rem;
+    font-size: clamp(1.5rem, 5vw, 3rem);
 }
 
 .show-counter .countdown > span {
     text-transform: uppercase;
-    font-size: 3rem;
-    line-height: 2rem;
+    font-size: clamp(0.75rem, 3vw, 1.5rem);
+    line-height: clamp(1rem, 3vw, 2rem);
 }

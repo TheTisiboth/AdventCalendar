@@ -10,11 +10,13 @@ export const Home: FC = () => {
 
     return (
         <Box
-            style={{
+            sx={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                padding: 10
+                padding: "clamp(0.5rem, 2vw, 2rem)",
+                width: "100%",
+                boxSizing: "border-box"
             }}
         >
             <CountdownTimer targetDate={startingDate} />
