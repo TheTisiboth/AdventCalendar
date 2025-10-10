@@ -47,26 +47,24 @@ RUN adduser --system --uid 1001 nextjs
 # Install bash and openssl for running migration script and Prisma
 RUN apk add --no-cache bash openssl
 
-# Copy necessary files from builder (standalone already includes minimal node_modules and public folder with PWA files)
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Copy necessary files from builder with correct ownership (much faster than chown -R)
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Copy Prisma schema and install production dependencies for migrations
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/package.json /app/package-lock.json* ./
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/package.json /app/package-lock.json* ./
+
+# Copy startup script
+COPY --chown=nextjs:nodejs docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
+
+USER nextjs
+
 RUN npm ci --omit=dev && \
     npx prisma generate && \
     npm cache clean --force
-
-# Copy startup script
-COPY docker-entrypoint.sh ./
-RUN chmod +x docker-entrypoint.sh
-
-# Set correct permissions
-RUN chown -R nextjs:nodejs /app
-
-USER nextjs
 
 EXPOSE 3003
 
