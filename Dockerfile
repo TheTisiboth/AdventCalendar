@@ -50,7 +50,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy Prisma schema and files for migrations
+# Copy Prisma schema and install production dependencies for migrations
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/package.json /app/package-lock.json* ./
 
@@ -60,11 +60,9 @@ RUN chmod +x docker-entrypoint.sh
 
 USER nextjs
 
-# Install only Prisma packages for migrations (versions from package-lock.json)
+# Install production dependencies (includes Prisma for migrations)
 RUN --mount=type=cache,target=/home/nextjs/.npm,uid=1001,gid=1001 \
-    npm install --no-save prisma @prisma/client && \
-    npx prisma generate && \
-    npm cache clean --force
+    npm ci --omit=dev
 
 EXPOSE 3003
 
