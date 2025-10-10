@@ -3,7 +3,15 @@ version: '3.8'
 # Production override for Dokploy deployment
 # This ensures both containers use the dokploy-network
 
+services:
+  app:
+    networks:
+      - dokploy-network
+
+  postgres:
+    networks:
+      - dokploy-network
+
 networks:
-  default:
-    name: dokploy-network
+  dokploy-network:
     external: true
