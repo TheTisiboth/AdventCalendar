@@ -1,0 +1,115 @@
+"use client"
+
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import { Auth } from "@/components/Auth"
+import type { Calendar } from "@prisma/client"
+import { API_BASE_PATH } from "@/constants"
+
+/**
+ * Archive page - Client Component with Auth
+ * Displays all available calendar years for viewing past Advent calendars
+ */
+export default function ArchivePage() {
+  const [calendars, setCalendars] = useState<Calendar[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchCalendars() {
+      try {
+        const jwt = localStorage.getItem("jwt")
+        const response = await fetch(API_BASE_PATH + "calendars?published=true", {
+          headers: jwt ? { Authorization: `Bearer ${jwt}` } : {}
+        })
+        if (response.ok) {
+          const data = await response.json()
+          setCalendars(data)
+        }
+      } catch (error) {
+        console.error("Failed to fetch calendars:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCalendars()
+  }, [])
+
+  if (loading) {
+    return (
+      <Auth>
+        <div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>
+      </Auth>
+    )
+  }
+
+  return (
+    <Auth>
+      <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
+        <h1 style={{ marginBottom: "2rem" }}>Calendar Archive</h1>
+
+        {!calendars || calendars.length === 0 ? (
+          <p>No calendars available yet.</p>
+        ) : (
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+          gap: "1.5rem"
+        }}>
+          {calendars.map((calendar) => (
+            <Link
+              key={calendar.id}
+              href={`/archive/${calendar.year}`}
+              style={{
+                display: "block",
+                padding: "1.5rem",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                textDecoration: "none",
+                color: "inherit",
+                transition: "transform 0.2s, box-shadow 0.2s",
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = "translateY(-4px)"
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)"
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = "translateY(0)"
+                e.currentTarget.style.boxShadow = "none"
+              }}
+            >
+              <h2 style={{ margin: "0 0 0.5rem 0" }}>{calendar.title}</h2>
+              <p style={{ color: "#666", margin: "0 0 0.5rem 0" }}>
+                Year: {calendar.year}
+              </p>
+              {calendar.description && (
+                <p style={{ fontSize: "0.9rem", color: "#888", margin: 0 }}>
+                  {calendar.description}
+                </p>
+              )}
+              {calendar.isArchived && (
+                <span style={{
+                  display: "inline-block",
+                  marginTop: "0.5rem",
+                  padding: "0.25rem 0.5rem",
+                  backgroundColor: "#f0f0f0",
+                  borderRadius: "4px",
+                  fontSize: "0.8rem",
+                  color: "#666"
+                }}>
+                  Archived
+                </span>
+              )}
+            </Link>
+          ))}
+        </div>
+      )}
+
+        <div style={{ marginTop: "2rem" }}>
+          <Link href="/calendar" style={{ color: "#0070f3", textDecoration: "none" }}>
+            ← Back to current calendar
+          </Link>
+        </div>
+      </div>
+    </Auth>
+  )
+}

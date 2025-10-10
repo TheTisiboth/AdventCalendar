@@ -14,3 +14,6 @@ export * from './dummyPictures'
 
 // Export all refresh token operations
 export * from './refreshTokens'
+
+// Export all calendar operations
+export * from './calendars'

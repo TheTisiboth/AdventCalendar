@@ -9,10 +9,11 @@ async function main() {
   const userCount = await prisma.user.count()
   const pictureCount = await prisma.picture.count()
   const dummyPictureCount = await prisma.dummyPicture.count()
+  const calendarCount = await prisma.calendar.count()
 
-  if (userCount > 0 && pictureCount > 0 && dummyPictureCount > 0) {
+  if (userCount > 0 && pictureCount > 0 && dummyPictureCount > 0 && calendarCount > 0) {
     console.log('✅ Database already seeded')
-    console.log('   Found:', userCount, 'users,', pictureCount, 'pictures,', dummyPictureCount, 'dummy pictures')
+    console.log('   Found:', userCount, 'users,', pictureCount, 'pictures,', dummyPictureCount, 'dummy pictures,', calendarCount, 'calendars')
     console.log('   Skipping seed to preserve data')
     return
   }
@@ -30,9 +31,28 @@ async function main() {
     console.log('✅ Users created')
   }
 
-  // Seed pictures if not exists
+  // Seed calendars FIRST (needed for foreign key constraint)
+  if (calendarCount === 0) {
+    console.log('📦 Creating calendars...')
+    await prisma.calendar.createMany({
+      data: [
+        {
+          year: 2023,
+          title: 'Advent Calendar 2023',
+          description: 'A beautiful collection of moments from 2023',
+          isArchived: true,
+          isPublished: true
+        }
+      ]
+    })
+    console.log('✅ Calendars created')
+  }
+
+  // Seed pictures if not exists (AFTER calendars)
   if (pictureCount === 0) {
     console.log('📦 Creating pictures...')
+
+    // Create 2023 pictures (real)
     await prisma.picture.createMany({
       data: [
         { day: 1, year: 2023, key: '1.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-01T00:00:00.000Z') },
@@ -61,7 +81,8 @@ async function main() {
         { day: 24, year: 2023, key: '24.png', isOpenable: false, isOpen: true, date: new Date('2023-12-24T00:00:00.000Z') }
       ]
     })
-    console.log('✅ Pictures created')
+
+    console.log('✅ Pictures created (2023 real)')
   }
 
   // Seed dummy pictures if not exists
@@ -103,6 +124,7 @@ async function main() {
   console.log('  Users:', await prisma.user.count())
   console.log('  Pictures:', await prisma.picture.count())
   console.log('  Dummy Pictures:', await prisma.dummyPicture.count())
+  console.log('  Calendars:', await prisma.calendar.count())
   console.log('')
   console.log('✅ Seed complete!')
 }

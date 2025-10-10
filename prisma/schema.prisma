@@ -18,6 +18,20 @@ model User {
   password String
 }
 
+model Calendar {
+  id          Int       @id @default(autoincrement())
+  year        Int       @unique
+  title       String
+  description String?
+  isArchived  Boolean   @default(false)
+  isPublished Boolean   @default(true)
+  coverImage  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  pictures    Picture[] @relation("CalendarPictures")
+}
+
 model Picture {
   id         Int      @id @default(autoincrement())
   day        Int
@@ -26,6 +40,8 @@ model Picture {
   isOpenable Boolean  @default(false)
   isOpen     Boolean  @default(false)
   date       DateTime
+
+  calendar   Calendar @relation("CalendarPictures", fields: [year], references: [year])
 
   @@unique([day, year])
 }
