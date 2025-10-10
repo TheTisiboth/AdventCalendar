@@ -47,14 +47,16 @@ RUN adduser --system --uid 1001 nextjs
 # Install bash and openssl for running migration script and Prisma
 RUN apk add --no-cache bash openssl
 
-# Copy necessary files from builder
+# Copy necessary files from builder (standalone already includes minimal node_modules)
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy Prisma schema and full node_modules (includes all Prisma dependencies)
+# Copy Prisma files for migrations
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
 # Copy startup script
 COPY docker-entrypoint.sh ./
