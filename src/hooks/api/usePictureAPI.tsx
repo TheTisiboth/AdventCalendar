@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import type { Picture } from "@prisma/client"
 import { API_BASE_PATH } from "@/constants"
-import { useAuthStore, useCalendarStore, useSnackBarStore } from "@/store"
-import { api, getAuthHeaders } from "./baseAPI"
+import { useCalendarStore, useSnackBarStore } from "@/store"
+import { api } from "./baseAPI"
 
 const QUERY_KEY = "pictures"
 
@@ -16,13 +16,9 @@ type UsePictureAPIProps = {
  */
 export const usePictureAPI = ({ year }: UsePictureAPIProps) => {
   const queryClient = useQueryClient()
-  const { jwt: stateJWT } = useAuthStore("jwt")
   const { isFake } = useCalendarStore("isFake")
   const { handleClick } = useSnackBarStore("handleClick")
 
-  const localJWT = typeof window !== 'undefined' ? localStorage.getItem("jwt") : null
-  const jwt = localJWT ?? stateJWT
-  const headers: HeadersInit = getAuthHeaders(jwt)
   const queryKey = [QUERY_KEY, isFake, year]
 
   const resetPictures = async () => {
@@ -43,8 +39,7 @@ export const usePictureAPI = ({ year }: UsePictureAPIProps) => {
       })
 
       return await api<Picture>(
-        API_BASE_PATH + `${openPicturePath}?` + params,
-        { headers }
+        API_BASE_PATH + `${openPicturePath}?` + params
       )
     } catch (e) {
       handleClick("Server error")
@@ -83,7 +78,7 @@ export const usePictureAPI = ({ year }: UsePictureAPIProps) => {
     const getPicturePath = isFake ? "get_fake_pictures" : "get_pictures"
     try {
       const url = API_BASE_PATH + getPicturePath + "?" + new URLSearchParams({ year: year.toString() })
-      return await api<Picture[]>(url, { headers })
+      return await api<Picture[]>(url)
     } catch (e) {
       return []
     }

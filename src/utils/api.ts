@@ -1,5 +1,6 @@
 /**
  * Centralized API fetch wrapper with automatic auth error handling
+ * Now works with Kinde authentication (cookie-based, no manual headers needed)
  */
 
 export class AuthenticationError extends Error {
@@ -13,24 +14,18 @@ export async function authenticatedFetch(
     url: string,
     options: RequestInit = {}
 ): Promise<Response> {
-    const jwt = typeof window !== 'undefined' ? localStorage.getItem("jwt") : null
-
+    // Kinde uses HTTP-only cookies, so we don't need to manually add auth headers
+    // The browser automatically sends cookies with the request
     const response = await fetch(url, {
         ...options,
+        credentials: 'same-origin', // Ensure cookies are sent
         headers: {
-            ...options.headers,
-            ...(jwt ? { Authorization: `Bearer ${jwt}` } : {})
+            ...options.headers
         }
     })
 
     // Handle authentication errors
     if (response.status === 401) {
-        // Clear invalid auth data
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem("jwt")
-            localStorage.removeItem("user")
-        }
-
         throw new AuthenticationError("Session expired. Please login again.")
     }
 

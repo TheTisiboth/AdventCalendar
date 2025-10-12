@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { updatePictureOpenStatus } from "@api/lib/dal"
-import { checkAuth } from "@api/lib/auth"
+import { requireKindeAuth } from "@api/lib/kindeAuth"
 
 export async function GET(request: NextRequest) {
     try {
-        await checkAuth(request)
+        const kindeUser = await requireKindeAuth()
 
         const searchParams = request.nextUrl.searchParams
         const day = searchParams.get("day")

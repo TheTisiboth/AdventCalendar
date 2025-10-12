@@ -35,7 +35,6 @@ export async function DELETE(
 
         return NextResponse.json({ success: true })
     } catch (error) {
-        console.error("Admin delete picture error:", error)
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Failed to delete picture" },
             { status: error instanceof Error && error.message.includes("Unauthorized") ? 401 : 500 }

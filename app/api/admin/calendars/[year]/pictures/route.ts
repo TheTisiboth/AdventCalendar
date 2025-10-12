@@ -121,7 +121,6 @@ export async function POST(
 
         return NextResponse.json({ success: true, count: pictures.length })
     } catch (error) {
-        console.error("Error adding pictures:", error)
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Failed to add pictures" },
             { status: error instanceof Error && error.message.includes("Unauthorized") ? 401 : 500 }

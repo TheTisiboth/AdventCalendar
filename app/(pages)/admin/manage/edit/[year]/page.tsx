@@ -32,6 +32,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { useQuery } from "@tanstack/react-query"
+import { authenticatedFetch } from "@/utils/api"
 
 const calendarSchema = z.object({
     year: z.number().min(2020).max(2100),
@@ -39,6 +41,7 @@ const calendarSchema = z.object({
     description: z.string().optional(),
     isPublished: z.boolean(),
     isArchived: z.boolean(),
+    kindeUserId: z.string().nullable().optional(),
     pictureCount: z.number().optional()
 }).refine(
     (data) => {
@@ -66,6 +69,12 @@ type NewPictureWithPreview = {
     preview: string
 }
 
+type KindeUser = {
+    id: string
+    email: string
+    fullName: string
+}
+
 export default function EditCalendar() {
     const router = useRouter()
     const params = useParams()
@@ -80,6 +89,18 @@ export default function EditCalendar() {
     const [pictureToDelete, setPictureToDelete] = useState<ExistingPicture | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
 
+    const { data: users, isLoading: isLoadingUsers, error: usersError } = useQuery<KindeUser[], Error>({
+        queryKey: ["kinde-users"],
+        queryFn: async () => {
+            const response = await authenticatedFetch("/api/admin/users")
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || `Failed to fetch users (${response.status})`)
+            }
+            return response.json()
+        }
+    })
+
     const {
         register,
         handleSubmit,
@@ -92,19 +113,15 @@ export default function EditCalendar() {
             title: "",
             description: "",
             isPublished: true,
-            isArchived: false
+            isArchived: false,
+            kindeUserId: null
         }
     })
 
     useEffect(() => {
         const fetchCalendar = async () => {
             try {
-                const jwt = localStorage.getItem("jwt")
-                const response = await fetch(`/api/admin/calendars/${year}`, {
-                    headers: {
-                        Authorization: `Bearer ${jwt}`
-                    }
-                })
+                const response = await authenticatedFetch(`/api/admin/calendars/${year}`)
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch calendar")
@@ -119,6 +136,7 @@ export default function EditCalendar() {
                     description: data.description || "",
                     isPublished: data.isPublished,
                     isArchived: data.isArchived,
+                    kindeUserId: data.kindeUserId || null,
                     pictureCount: data.pictures?.length || 0
                 })
 
@@ -146,8 +164,6 @@ export default function EditCalendar() {
         setError(null)
 
         try {
-            const jwt = localStorage.getItem("jwt")
-
             // First, upload any new pictures if they exist
             if (newPictures.length > 0) {
                 const formData = new FormData()
@@ -157,11 +173,8 @@ export default function EditCalendar() {
                     formData.append("days", picture.day.toString())
                 })
 
-                const uploadResponse = await fetch(`/api/admin/calendars/${year}/pictures`, {
+                const uploadResponse = await authenticatedFetch(`/api/admin/calendars/${year}/pictures`, {
                     method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${jwt}`
-                    },
                     body: formData
                 })
 
@@ -172,10 +185,9 @@ export default function EditCalendar() {
             }
 
             // Then, update the calendar metadata
-            const response = await fetch(`/api/admin/calendars/${year}`, {
+            const response = await authenticatedFetch(`/api/admin/calendars/${year}`, {
                 method: "PATCH",
                 headers: {
-                    Authorization: `Bearer ${jwt}`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(data)
@@ -206,12 +218,8 @@ export default function EditCalendar() {
         setError(null)
 
         try {
-            const jwt = localStorage.getItem("jwt")
-            const response = await fetch(`/api/admin/calendars/${year}/pictures/${pictureToDelete.id}`, {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${jwt}`
-                }
+            const response = await authenticatedFetch(`/api/admin/calendars/${year}/pictures/${pictureToDelete.id}`, {
+                method: "DELETE"
             })
 
             if (!response.ok) {
@@ -353,7 +361,42 @@ export default function EditCalendar() {
                                 helperText={errors.description?.message}
                             />
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12}>
+                            <FormControl fullWidth error={!!errors.kindeUserId}>
+                                <InputLabel>Assigned User</InputLabel>
+                                <Select
+                                    {...register("kindeUserId")}
+                                    label="Assigned User"
+                                    defaultValue=""
+                                    disabled={isLoadingUsers}
+                                >
+                                    <MenuItem value="">
+                                        <em>Unassigned</em>
+                                    </MenuItem>
+                                    {isLoadingUsers && (
+                                        <MenuItem disabled>
+                                            <em>Loading users...</em>
+                                        </MenuItem>
+                                    )}
+                                    {!isLoadingUsers && users && users.length === 0 && (
+                                        <MenuItem disabled>
+                                            <em>No users available</em>
+                                        </MenuItem>
+                                    )}
+                                    {users?.map((user) => (
+                                        <MenuItem key={user.id} value={user.id}>
+                                            {user.email}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {usersError && (
+                                    <Typography color="error" variant="caption" sx={{ display: "block", mt: 1 }}>
+                                        Failed to load users: {usersError.message}
+                                    </Typography>
+                                )}
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12}>
                             <FormControlLabel
                                 control={<Checkbox {...register("isPublished")} />}
                                 label="Published (requires 24 pictures)"
@@ -364,7 +407,7 @@ export default function EditCalendar() {
                                 </Typography>
                             )}
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12}>
                             <FormControlLabel
                                 control={<Checkbox {...register("isArchived")} />}
                                 label="Archived"

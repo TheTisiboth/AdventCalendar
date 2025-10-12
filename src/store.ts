@@ -1,4 +1,3 @@
-import { User } from "./types/types"
 import { AlertColor } from "@mui/material"
 import { StoreApi, UseBoundStore, create } from "zustand"
 import { computeStartingAndEndingDate } from "./utils/utils"
@@ -22,33 +21,12 @@ type ResponsiveStore = {
     setImageSize: (s: string) => void
 }
 
-type AuthStore = {
-    isLoggedIn: boolean
-    setIsLoggedIn: (i: boolean) => void
-    user: User | null
-    setUser: (u: User) => void
-    jwt: string
-    setJWT: (jwt: string) => void
-}
-
 type SnackbarStore = {
     open: boolean
     message: string
     handleClick: (message: string, severity?: AlertColor) => void
     handleClose: () => void
     severity: AlertColor
-}
-
-enum Role {
-    ADMIN = "admin",
-    GUEST = "guest",
-    USER = "user"
-}
-
-export const dummyUser: User = {
-    id: 1,
-    name: "dummy",
-    role: Role.GUEST
 }
 
 const { startingDate, endingDate } = computeStartingAndEndingDate()
@@ -88,42 +66,6 @@ const responsiveStore = create<ResponsiveStore>()((set) => {
 
 export const useResponsiveStore = (...items: Array<keyof ResponsiveStore>) =>
     useMulti(responsiveStore, ...items)
-
-const authStore = create<AuthStore>()((set) => {
-    // Load user from localStorage on initialization
-    let initialUser = dummyUser
-    if (typeof window !== 'undefined') {
-        const storedUser = localStorage.getItem("user")
-        if (storedUser) {
-            try {
-                initialUser = JSON.parse(storedUser)
-            } catch (e) {
-                console.error("Failed to parse stored user:", e)
-            }
-        }
-    }
-
-    return {
-        isLoggedIn: false,
-        jwt: typeof window !== 'undefined' ? localStorage.getItem("jwt") || "" : "",
-        user: initialUser,
-        setIsLoggedIn: (isLoggedIn) => {
-            set({ isLoggedIn })
-        },
-        setJWT: (jwt) => {
-            set({ jwt })
-        },
-        setUser: (user) => {
-            set({ user })
-            // Persist user to localStorage
-            if (typeof window !== 'undefined') {
-                localStorage.setItem("user", JSON.stringify(user))
-            }
-        }
-    }
-})
-
-export const useAuthStore = (...items: Array<keyof AuthStore>) => useMulti(authStore, ...items)
 
 const snackbarStore = create<SnackbarStore>()((set) => ({
     message: "",

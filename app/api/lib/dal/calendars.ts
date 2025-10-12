@@ -26,6 +26,8 @@ export async function getAllCalendars(options?: {
 
 /**
  * Get a calendar by year with optional picture inclusion and user filtering
+ * - If kindeUserId is undefined: Returns calendar regardless of assignment (admin access)
+ * - If kindeUserId is provided: Returns calendar only if assigned to that user
  */
 export async function getCalendarByYear(
   year: number,
@@ -41,8 +43,8 @@ export async function getCalendarByYear(
 
   // If kindeUserId is provided, check if user has access to this calendar
   if (calendar && kindeUserId !== undefined) {
-    // User can only access calendars assigned to them or unassigned calendars (null kindeUserId)
-    if (calendar.kindeUserId !== null && calendar.kindeUserId !== kindeUserId) {
+    // User can only access calendars assigned to them (exact match required)
+    if (calendar.kindeUserId !== kindeUserId) {
       return null
     }
   }
@@ -52,6 +54,8 @@ export async function getCalendarByYear(
 
 /**
  * Get the most recent calendar with optional user filtering
+ * - If kindeUserId is undefined: Returns latest calendar regardless of assignment (admin access)
+ * - If kindeUserId is provided: Returns latest calendar only if assigned to that user
  */
 export async function getLatestCalendar(
   includePictures = false,
@@ -60,13 +64,8 @@ export async function getLatestCalendar(
   return prisma.calendar.findFirst({
     where: {
       isPublished: true,
-      // If kindeUserId provided, get calendars for that user or unassigned calendars
-      ...(kindeUserId !== undefined && {
-        OR: [
-          { kindeUserId: kindeUserId },
-          { kindeUserId: null }
-        ]
-      })
+      // If kindeUserId provided, only get calendars assigned to that user
+      ...(kindeUserId !== undefined && { kindeUserId: kindeUserId })
     },
     orderBy: { year: 'desc' },
     include: {

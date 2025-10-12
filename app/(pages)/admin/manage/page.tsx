@@ -18,18 +18,13 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    DialogContentText,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel
+    DialogContentText
 } from "@mui/material"
 import { useRouter } from "next/navigation"
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"
 import AddIcon from "@mui/icons-material/Add"
 import DeleteIcon from "@mui/icons-material/Delete"
 import { authenticatedFetch, AuthenticationError } from "@/utils/api"
-import { useLogout } from "@/hooks/useLogout"
 
 type Calendar = {
     id: number
@@ -51,7 +46,6 @@ type KindeUser = {
 export default function ManageCalendars() {
     const router = useRouter()
     const queryClient = useQueryClient()
-    const { logout } = useLogout()
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [calendarToDelete, setCalendarToDelete] = useState<Calendar | null>(null)
 
@@ -66,15 +60,13 @@ export default function ManageCalendars() {
                 }
                 return response.json()
             } catch (error) {
-                if (error instanceof AuthenticationError) {
-                    logout()
-                }
+                // AuthenticationError will be handled by middleware redirecting to login
                 throw error
             }
         }
     })
 
-    const { data: users } = useQuery<KindeUser[], Error>({
+    const { data: users, isLoading: isLoadingUsers, error: usersError } = useQuery<KindeUser[], Error>({
         queryKey: ["kinde-users"],
         queryFn: async () => {
             try {
@@ -83,11 +75,9 @@ export default function ManageCalendars() {
                     const errorData = await response.json()
                     throw new Error(errorData.error || `Failed to fetch users (${response.status})`)
                 }
-                return response.json()
+                const data = await response.json()
+                return data
             } catch (error) {
-                if (error instanceof AuthenticationError) {
-                    logout()
-                }
                 throw error
             }
         }
@@ -105,9 +95,7 @@ export default function ManageCalendars() {
                 }
                 return response.json()
             } catch (error) {
-                if (error instanceof AuthenticationError) {
-                    logout()
-                }
+                // AuthenticationError will be handled by middleware redirecting to login
                 throw error
             }
         },
@@ -118,40 +106,17 @@ export default function ManageCalendars() {
         }
     })
 
-    const assignUserMutation = useMutation({
-        mutationFn: async ({ year, kindeUserId }: { year: number; kindeUserId: string | null }) => {
-            try {
-                const response = await authenticatedFetch(`/api/admin/calendars/${year}`, {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ kindeUserId })
-                })
-                if (!response.ok) {
-                    const errorData = await response.json()
-                    throw new Error(errorData.error || "Failed to assign user")
-                }
-                return response.json()
-            } catch (error) {
-                if (error instanceof AuthenticationError) {
-                    logout()
-                }
-                throw error
-            }
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["admin-calendars"] })
-        }
-    })
-
-    const handleUserAssignment = (year: number, kindeUserId: string | null) => {
-        assignUserMutation.mutate({ year, kindeUserId })
-    }
 
     const handleDeleteClick = (calendar: Calendar) => {
         setCalendarToDelete(calendar)
         setDeleteDialogOpen(true)
+    }
+
+    const getUserDisplayName = (kindeUserId: string | null): string => {
+        if (!kindeUserId) return "Unassigned"
+        if (isLoadingUsers) return "Loading..."
+        const user = users?.find((u) => u.id === kindeUserId)
+        return user ? user.email : "Unknown User"
     }
 
     const handleDeleteConfirm = () => {
@@ -186,6 +151,12 @@ export default function ManageCalendars() {
                 </Alert>
             )}
 
+            {usersError && (
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                    Failed to load users: {usersError.message}
+                </Alert>
+            )}
+
             {isLoading ? (
                 <Typography>Loading...</Typography>
             ) : calendars && calendars.length > 0 ? (
@@ -210,28 +181,9 @@ export default function ManageCalendars() {
                                     <TableCell>{calendar.description || "-"}</TableCell>
                                     <TableCell>{calendar.pictureCount}/24</TableCell>
                                     <TableCell>
-                                        <FormControl size="small" sx={{ minWidth: 200 }}>
-                                            <Select
-                                                value={calendar.kindeUserId || ""}
-                                                onChange={(e) =>
-                                                    handleUserAssignment(
-                                                        calendar.year,
-                                                        e.target.value === "" ? null : e.target.value
-                                                    )
-                                                }
-                                                displayEmpty
-                                                disabled={assignUserMutation.isPending}
-                                            >
-                                                <MenuItem value="">
-                                                    <em>Unassigned</em>
-                                                </MenuItem>
-                                                {users?.map((user) => (
-                                                    <MenuItem key={user.id} value={user.id}>
-                                                        {user.fullName} ({user.email})
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
+                                        <Typography variant="body2">
+                                            {getUserDisplayName(calendar.kindeUserId)}
+                                        </Typography>
                                     </TableCell>
                                     <TableCell>
                                         <Box sx={{ display: "flex", gap: 1 }}>

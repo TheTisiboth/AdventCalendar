@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getAllCalendars } from "@api/lib/dal"
-import { requireKindeAuth } from "@api/lib/kindeAuth"
+import { requireKindeAuth, isKindeAdmin } from "@api/lib/kindeAuth"
 
 /**
  * GET /api/calendars
- * Returns all calendars for the authenticated user, optionally filtered by archived/published status
+ * Returns calendars based on user role:
+ * - Admins: All calendars
+ * - Regular users: Only calendars assigned to them
  * Query params:
  * - archived: true/false (optional)
  * - published: true/false (optional)
@@ -14,6 +16,9 @@ export async function GET(request: NextRequest) {
         // Get authenticated Kinde user
         const kindeUser = await requireKindeAuth()
 
+        // Check if user is admin
+        const isAdmin = await isKindeAdmin()
+
         const searchParams = request.nextUrl.searchParams
         const archivedParam = searchParams.get("archived")
         const publishedParam = searchParams.get("published")
@@ -22,9 +27,11 @@ export async function GET(request: NextRequest) {
             isArchived?: boolean
             isPublished?: boolean
             kindeUserId?: string | null
-        } = {
-            // Filter by user - include calendars assigned to this user OR unassigned (null)
-            kindeUserId: kindeUser.id
+        } = {}
+
+        // Admins see all calendars, regular users only see calendars assigned to them
+        if (!isAdmin) {
+            options.kindeUserId = kindeUser.id
         }
 
         if (archivedParam !== null) {
@@ -35,20 +42,11 @@ export async function GET(request: NextRequest) {
             options.isPublished = publishedParam === "true"
         }
 
-        // Get calendars for the user or unassigned calendars
-        const allCalendars = await getAllCalendars(options)
-        const unassignedCalendars = await getAllCalendars({
-            ...options,
-            kindeUserId: null
-        })
+        // Get calendars based on user role
+        const calendars = await getAllCalendars(options)
 
-        // Combine and deduplicate calendars
-        const calendarsMap = new Map()
-        ;[...allCalendars, ...unassignedCalendars].forEach(cal => {
-            calendarsMap.set(cal.id, cal)
-        })
-
-        const calendars = Array.from(calendarsMap.values()).sort((a, b) => b.year - a.year)
+        // Sort by year descending
+        calendars.sort((a, b) => b.year - a.year)
 
         return NextResponse.json(calendars)
     } catch (error) {

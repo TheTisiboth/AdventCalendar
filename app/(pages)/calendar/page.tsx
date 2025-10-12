@@ -2,7 +2,6 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Auth } from "@/components/Auth"
 import Calendar from "@/components/Calendar/Calendar"
 import { isInAdventPeriod } from "@/utils/utils"
 
@@ -19,9 +18,5 @@ export default function CalendarPage() {
     return null
   }
 
-  return (
-    <Auth>
-      <Calendar />
-    </Auth>
-  )
+  return <Calendar />
 }

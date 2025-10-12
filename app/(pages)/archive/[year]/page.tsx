@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Auth } from "@/components/Auth"
 import { Calendar } from "@/components/Calendar/Calendar"
 import { API_BASE_PATH } from "@/constants"
 import { isInAdventPeriod } from "@/utils/utils"
+import { authenticatedFetch } from "@/utils/api"
 
 type PageProps = {
   params: Promise<{ year: string }>
@@ -38,10 +38,7 @@ export default function ArchivedCalendarPage({ params }: PageProps) {
 
       // Verify calendar exists
       try {
-        const jwt = localStorage.getItem("jwt")
-        const response = await fetch(API_BASE_PATH + `calendars/${parsedYear}`, {
-          headers: jwt ? { Authorization: `Bearer ${jwt}` } : {}
-        })
+        const response = await authenticatedFetch(API_BASE_PATH + `calendars/${parsedYear}`)
 
         if (response.ok) {
           const calendar = await response.json()
@@ -50,7 +47,6 @@ export default function ArchivedCalendarPage({ params }: PageProps) {
           setNotFound(true)
         }
       } catch (error) {
-        console.error("Failed to fetch calendar:", error)
         setNotFound(true)
       } finally {
         setLoading(false)
@@ -60,30 +56,23 @@ export default function ArchivedCalendarPage({ params }: PageProps) {
   }, [params, router])
 
   if (loading) {
-    return (
-      <Auth>
-        <div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>
-      </Auth>
-    )
+    return <div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>
   }
 
   if (notFound) {
     return (
-      <Auth>
-        <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-          <h1>Calendar Not Found</h1>
-          <p>No calendar found for year {year}.</p>
-          <Link href="/archive" style={{ color: "#0070f3", textDecoration: "none" }}>
-            ← Back to archive
-          </Link>
-        </div>
-      </Auth>
+      <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
+        <h1>Calendar Not Found</h1>
+        <p>No calendar found for year {year}.</p>
+        <Link href="/archive" style={{ color: "#0070f3", textDecoration: "none" }}>
+          ← Back to archive
+        </Link>
+      </div>
     )
   }
 
   return (
-    <Auth>
-      <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
+    <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
         <div style={{ marginBottom: "2rem", display: "flex", gap: "1rem", alignItems: "center" }}>
           <Link href="/archive" style={{ color: "#0070f3", textDecoration: "none" }}>
             ← Back to archive
@@ -102,6 +91,5 @@ export default function ArchivedCalendarPage({ params }: PageProps) {
 
         {year && <Calendar year={year} isArchived={true} />}
       </div>
-    </Auth>
   )
 }

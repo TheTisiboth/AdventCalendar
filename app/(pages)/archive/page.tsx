@@ -2,12 +2,12 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { Auth } from "@/components/Auth"
 import type { Calendar } from "@prisma/client"
 import { API_BASE_PATH } from "@/constants"
+import { authenticatedFetch } from "@/utils/api"
 
 /**
- * Archive page - Client Component with Auth
+ * Archive page - Client Component
  * Displays all available calendar years for viewing past Advent calendars
  */
 export default function ArchivePage() {
@@ -17,16 +17,13 @@ export default function ArchivePage() {
   useEffect(() => {
     async function fetchCalendars() {
       try {
-        const jwt = localStorage.getItem("jwt")
-        const response = await fetch(API_BASE_PATH + "calendars?published=true", {
-          headers: jwt ? { Authorization: `Bearer ${jwt}` } : {}
-        })
+        const response = await authenticatedFetch(API_BASE_PATH + "calendars?published=true")
         if (response.ok) {
           const data = await response.json()
           setCalendars(data)
         }
       } catch (error) {
-        console.error("Failed to fetch calendars:", error)
+        // Silently fail - user will see empty state
       } finally {
         setLoading(false)
       }
@@ -35,16 +32,11 @@ export default function ArchivePage() {
   }, [])
 
   if (loading) {
-    return (
-      <Auth>
-        <div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>
-      </Auth>
-    )
+    return <div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>
   }
 
   return (
-    <Auth>
-      <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
+    <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
         <h1 style={{ marginBottom: "2rem" }}>Calendar Archive</h1>
 
         {!calendars || calendars.length === 0 ? (
@@ -104,6 +96,5 @@ export default function ArchivePage() {
         </div>
       )}
       </div>
-    </Auth>
   )
 }

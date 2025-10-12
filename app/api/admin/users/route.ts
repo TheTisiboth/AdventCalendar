@@ -12,9 +12,10 @@ export async function GET(request: NextRequest) {
         await requireKindeAdmin()
 
         // Get Kinde Management API credentials
+        // Use M2M credentials if available, otherwise fall back to regular credentials
         const kindeIssuerUrl = process.env.KINDE_ISSUER_URL!
-        const clientId = process.env.KINDE_CLIENT_ID!
-        const clientSecret = process.env.KINDE_CLIENT_SECRET!
+        const clientId = process.env.KINDE_M2M_CLIENT_ID || process.env.KINDE_CLIENT_ID!
+        const clientSecret = process.env.KINDE_M2M_CLIENT_SECRET || process.env.KINDE_CLIENT_SECRET!
 
         if (!kindeIssuerUrl || !clientId || !clientSecret) {
             throw new Error("Kinde configuration missing")
@@ -35,11 +36,15 @@ export async function GET(request: NextRequest) {
         })
 
         if (!tokenResponse.ok) {
-            throw new Error("Failed to get Kinde API access token")
+            throw new Error(`Failed to get Kinde API access token: ${tokenResponse.status}`)
         }
 
         const tokenData = await tokenResponse.json()
         const accessToken = tokenData.access_token
+
+        if (!accessToken) {
+            throw new Error("No access token received from Kinde")
+        }
 
         // Fetch users from Kinde Management API
         const usersResponse = await fetch(`${kindeIssuerUrl}/api/v1/users`, {
@@ -50,26 +55,29 @@ export async function GET(request: NextRequest) {
         })
 
         if (!usersResponse.ok) {
-            throw new Error("Failed to fetch users from Kinde")
+            throw new Error(`Failed to fetch users from Kinde: ${usersResponse.status}. Check M2M permissions in Kinde dashboard.`)
         }
 
         const usersData = await usersResponse.json()
 
         // Transform users to simple format
-        const users = usersData.users?.map((user: any) => ({
+        // Kinde API might return { users: [...] } or just an array
+        const usersList = Array.isArray(usersData) ? usersData : (usersData.users || [])
+
+        const users = usersList.map((user: any) => ({
             id: user.id,
             email: user.email,
             firstName: user.first_name,
             lastName: user.last_name,
             fullName: `${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email
-        })) || []
+        }))
 
         return NextResponse.json(users)
     } catch (error) {
-        console.error("Admin users API error:", error)
+        const statusCode = error instanceof Error && error.message.includes("Admin access required") ? 403 : 500
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Failed to fetch users" },
-            { status: 401 }
+            { status: statusCode }
         )
     }
 }

@@ -16,7 +16,7 @@ import {
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import MenuIcon from "@mui/icons-material/Menu"
-import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components"
+import { LogoutLink, LoginLink } from "@kinde-oss/kinde-auth-nextjs/components"
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs"
 import { isInAdventPeriod } from "@/utils/utils"
 
@@ -91,9 +91,11 @@ export const NavBar = () => {
                 </ListItem>
                 {!isAuthenticated && !isLoading && (
                     <ListItem key={"Login"} disablePadding>
-                        <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/login" })}>
-                            <ListItemText primary={"Login"} />
-                        </ListItemButton>
+                        <LoginLink>
+                            <ListItemButton sx={{ textAlign: "center" }}>
+                                <ListItemText primary={"Login"} />
+                            </ListItemButton>
+                        </LoginLink>
                     </ListItem>
                 )}
                 {isAuthenticated && (
@@ -151,9 +153,11 @@ export const NavBar = () => {
                             <ListItemText primary="Test" />
                         </Button>
                         {!isAuthenticated && !isLoading && (
-                            <Button key={"Login"} onClick={() => navigate({ to: "/login" })}>
-                                <ListItemText primary="Login" />
-                            </Button>
+                            <LoginLink>
+                                <Button key={"Login"}>
+                                    <ListItemText primary="Login" />
+                                </Button>
+                            </LoginLink>
                         )}
                         {isAuthenticated && (
                             <LogoutLink>

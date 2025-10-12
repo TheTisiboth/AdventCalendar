@@ -53,7 +53,6 @@ export async function GET(
             pictures: picturesWithUrls
         })
     } catch (error) {
-        console.error("Admin get calendar error:", error)
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Unauthorized" },
             { status: 401 }
@@ -113,7 +112,6 @@ export async function PATCH(
 
         return NextResponse.json({ success: true, calendar: updatedCalendar })
     } catch (error) {
-        console.error("Admin update calendar error:", error)
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Failed to update calendar" },
             { status: error instanceof Error && error.message.includes("Unauthorized") ? 401 : 500 }
@@ -164,7 +162,6 @@ export async function DELETE(
 
         return NextResponse.json({ success: true })
     } catch (error) {
-        console.error("Admin delete calendar error:", error)
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Failed to delete calendar" },
             { status: error instanceof Error && error.message.includes("Unauthorized") ? 401 : 500 }
