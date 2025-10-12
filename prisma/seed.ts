@@ -60,34 +60,35 @@ async function main() {
     console.log('📦 Creating pictures...')
 
     // Create 2023 pictures (real)
-    await prisma.picture.createMany({
-      data: [
-        { day: 1, year: 2023, key: '1.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-01T00:00:00.000Z') },
-        { day: 2, year: 2023, key: '2.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-02T00:00:00.000Z') },
-        { day: 3, year: 2023, key: '3.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-03T00:00:00.000Z') },
-        { day: 4, year: 2023, key: '4.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-04T00:00:00.000Z') },
-        { day: 5, year: 2023, key: '5.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-05T00:00:00.000Z') },
-        { day: 6, year: 2023, key: '6.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-06T00:00:00.000Z') },
-        { day: 7, year: 2023, key: '7.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-07T00:00:00.000Z') },
-        { day: 8, year: 2023, key: '8.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-08T00:00:00.000Z') },
-        { day: 9, year: 2023, key: '9.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-09T00:00:00.000Z') },
-        { day: 10, year: 2023, key: '10.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-10T00:00:00.000Z') },
-        { day: 11, year: 2023, key: '11.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-11T00:00:00.000Z') },
-        { day: 12, year: 2023, key: '12.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-12T00:00:00.000Z') },
-        { day: 13, year: 2023, key: '13.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-13T00:00:00.000Z') },
-        { day: 14, year: 2023, key: '14.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-14T00:00:00.000Z') },
-        { day: 15, year: 2023, key: '15.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-15T00:00:00.000Z') },
-        { day: 16, year: 2023, key: '16.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-16T00:00:00.000Z') },
-        { day: 17, year: 2023, key: '17.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-17T00:00:00.000Z') },
-        { day: 18, year: 2023, key: '18.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-18T00:00:00.000Z') },
-        { day: 19, year: 2023, key: '19.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-19T00:00:00.000Z') },
-        { day: 20, year: 2023, key: '20.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-20T00:00:00.000Z') },
-        { day: 21, year: 2023, key: '21.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-21T00:00:00.000Z') },
-        { day: 22, year: 2023, key: '22.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-22T00:00:00.000Z') },
-        { day: 23, year: 2023, key: '23.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-23T00:00:00.000Z') },
-        { day: 24, year: 2023, key: '24.png', isOpenable: false, isOpen: true, date: new Date('2023-12-24T00:00:00.000Z') }
-      ]
-    })
+      await prisma.picture.createMany({
+          data: [
+              { day: 1, year: 2023, key: '2023/1.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-01T00:00:00.000Z') },
+              { day: 2, year: 2023, key: '2023/2.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-02T00:00:00.000Z') },
+              { day: 3, year: 2023, key: '2023/3.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-03T00:00:00.000Z') },
+              { day: 4, year: 2023, key: '2023/4.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-04T00:00:00.000Z') },
+              { day: 5, year: 2023, key: '2023/5.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-05T00:00:00.000Z') },
+              { day: 6, year: 2023, key: '2023/6.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-06T00:00:00.000Z') },
+              { day: 7, year: 2023, key: '2023/7.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-07T00:00:00.000Z') },
+              { day: 8, year: 2023, key: '2023/8.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-08T00:00:00.000Z') },
+              { day: 9, year: 2023, key: '2023/9.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-09T00:00:00.000Z') },
+              { day: 10, year: 2023, key: '2023/10.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-10T00:00:00.000Z') },
+              { day: 11, year: 2023, key: '2023/11.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-11T00:00:00.000Z') },
+              { day: 12, year: 2023, key: '2023/12.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-12T00:00:00.000Z') },
+              { day: 13, year: 2023, key: '2023/13.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-13T00:00:00.000Z') },
+              { day: 14, year: 2023, key: '2023/14.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-14T00:00:00.000Z') },
+              { day: 15, year: 2023, key: '2023/15.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-15T00:00:00.000Z') },
+              { day: 16, year: 2023, key: '2023/16.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-16T00:00:00.000Z') },
+              { day: 17, year: 2023, key: '2023/17.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-17T00:00:00.000Z') },
+              { day: 18, year: 2023, key: '2023/18.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-18T00:00:00.000Z') },
+              { day: 19, year: 2023, key: '2023/19.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-19T00:00:00.000Z') },
+              { day: 20, year: 2023, key: '2023/20.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-20T00:00:00.000Z') },
+              { day: 21, year: 2023, key: '2023/21.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-21T00:00:00.000Z') },
+              { day: 22, year: 2023, key: '2023/22.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-22T00:00:00.000Z') },
+              { day: 23, year: 2023, key: '2023/23.jpg', isOpenable: false, isOpen: true, date: new Date('2023-12-23T00:00:00.000Z') },
+              { day: 24, year: 2023, key: '2023/24.png', isOpenable: false, isOpen: true, date: new Date('2023-12-24T00:00:00.000Z') }
+          ]
+      })
+
 
     console.log('✅ Pictures created (2023 real)')
   }
