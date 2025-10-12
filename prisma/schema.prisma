@@ -28,8 +28,11 @@ model Calendar {
   coverImage  String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  kindeUserId String?   // Kinde user ID - null means accessible to admins only
 
   pictures    Picture[] @relation("CalendarPictures")
+
+  @@index([kindeUserId])
 }
 
 model Picture {

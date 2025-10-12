@@ -18,12 +18,18 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    DialogContentText
+    DialogContentText,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel
 } from "@mui/material"
 import { useRouter } from "next/navigation"
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"
 import AddIcon from "@mui/icons-material/Add"
 import DeleteIcon from "@mui/icons-material/Delete"
+import { authenticatedFetch, AuthenticationError } from "@/utils/api"
+import { useLogout } from "@/hooks/useLogout"
 
 type Calendar = {
     id: number
@@ -32,46 +38,78 @@ type Calendar = {
     description: string | null
     isArchived: boolean
     isPublished: boolean
+    kindeUserId: string | null
     pictureCount: number
+}
+
+type KindeUser = {
+    id: string
+    email: string
+    fullName: string
 }
 
 export default function ManageCalendars() {
     const router = useRouter()
     const queryClient = useQueryClient()
+    const { logout } = useLogout()
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [calendarToDelete, setCalendarToDelete] = useState<Calendar | null>(null)
 
     const { data: calendars, isLoading, error } = useQuery<Calendar[], Error>({
         queryKey: ["admin-calendars"],
         queryFn: async () => {
-            const jwt = localStorage.getItem("jwt")
-            const response = await fetch("/api/admin/calendars", {
-                headers: {
-                    Authorization: `Bearer ${jwt}`
+            try {
+                const response = await authenticatedFetch("/api/admin/calendars")
+                if (!response.ok) {
+                    const errorData = await response.json()
+                    throw new Error(errorData.error || `Failed to fetch calendars (${response.status})`)
                 }
-            })
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || `Failed to fetch calendars (${response.status})`)
+                return response.json()
+            } catch (error) {
+                if (error instanceof AuthenticationError) {
+                    logout()
+                }
+                throw error
             }
-            return response.json()
+        }
+    })
+
+    const { data: users } = useQuery<KindeUser[], Error>({
+        queryKey: ["kinde-users"],
+        queryFn: async () => {
+            try {
+                const response = await authenticatedFetch("/api/admin/users")
+                if (!response.ok) {
+                    const errorData = await response.json()
+                    throw new Error(errorData.error || `Failed to fetch users (${response.status})`)
+                }
+                return response.json()
+            } catch (error) {
+                if (error instanceof AuthenticationError) {
+                    logout()
+                }
+                throw error
+            }
         }
     })
 
     const deleteMutation = useMutation({
         mutationFn: async (year: number) => {
-            const jwt = localStorage.getItem("jwt")
-            const response = await fetch(`/api/admin/calendars/${year}`, {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${jwt}`
+            try {
+                const response = await authenticatedFetch(`/api/admin/calendars/${year}`, {
+                    method: "DELETE"
+                })
+                if (!response.ok) {
+                    const errorData = await response.json()
+                    throw new Error(errorData.error || "Failed to delete calendar")
                 }
-            })
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || "Failed to delete calendar")
+                return response.json()
+            } catch (error) {
+                if (error instanceof AuthenticationError) {
+                    logout()
+                }
+                throw error
             }
-            return response.json()
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["admin-calendars"] })
@@ -79,6 +117,37 @@ export default function ManageCalendars() {
             setCalendarToDelete(null)
         }
     })
+
+    const assignUserMutation = useMutation({
+        mutationFn: async ({ year, kindeUserId }: { year: number; kindeUserId: string | null }) => {
+            try {
+                const response = await authenticatedFetch(`/api/admin/calendars/${year}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ kindeUserId })
+                })
+                if (!response.ok) {
+                    const errorData = await response.json()
+                    throw new Error(errorData.error || "Failed to assign user")
+                }
+                return response.json()
+            } catch (error) {
+                if (error instanceof AuthenticationError) {
+                    logout()
+                }
+                throw error
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["admin-calendars"] })
+        }
+    })
+
+    const handleUserAssignment = (year: number, kindeUserId: string | null) => {
+        assignUserMutation.mutate({ year, kindeUserId })
+    }
 
     const handleDeleteClick = (calendar: Calendar) => {
         setCalendarToDelete(calendar)
@@ -128,6 +197,7 @@ export default function ManageCalendars() {
                                 <TableCell>Title</TableCell>
                                 <TableCell>Description</TableCell>
                                 <TableCell>Pictures</TableCell>
+                                <TableCell>Assigned User</TableCell>
                                 <TableCell>Status</TableCell>
                                 <TableCell>Actions</TableCell>
                             </TableRow>
@@ -139,6 +209,30 @@ export default function ManageCalendars() {
                                     <TableCell>{calendar.title}</TableCell>
                                     <TableCell>{calendar.description || "-"}</TableCell>
                                     <TableCell>{calendar.pictureCount}/24</TableCell>
+                                    <TableCell>
+                                        <FormControl size="small" sx={{ minWidth: 200 }}>
+                                            <Select
+                                                value={calendar.kindeUserId || ""}
+                                                onChange={(e) =>
+                                                    handleUserAssignment(
+                                                        calendar.year,
+                                                        e.target.value === "" ? null : e.target.value
+                                                    )
+                                                }
+                                                displayEmpty
+                                                disabled={assignUserMutation.isPending}
+                                            >
+                                                <MenuItem value="">
+                                                    <em>Unassigned</em>
+                                                </MenuItem>
+                                                {users?.map((user) => (
+                                                    <MenuItem key={user.id} value={user.id}>
+                                                        {user.fullName} ({user.email})
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </TableCell>
                                     <TableCell>
                                         <Box sx={{ display: "flex", gap: 1 }}>
                                             {calendar.isPublished ? (

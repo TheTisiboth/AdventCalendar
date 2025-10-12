@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { checkAdminAuth } from "@api/lib/auth"
+import { requireKindeAdmin } from "@api/lib/kindeAuth"
 import { prisma } from "@api/lib/prisma"
 import { uploadToS3, generateS3Key } from "@api/lib/s3"
 
@@ -8,7 +8,7 @@ export async function POST(
     { params }: { params: Promise<{ year: string }> }
 ) {
     try {
-        await checkAdminAuth(request)
+        await requireKindeAdmin()
 
         const { year: yearParam } = await params
         const year = Number(yearParam)

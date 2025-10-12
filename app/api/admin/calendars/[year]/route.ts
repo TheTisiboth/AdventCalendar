@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { checkAdminAuth } from "@api/lib/auth"
+import { requireKindeAdmin } from "@api/lib/kindeAuth"
 import { prisma } from "@api/lib/prisma"
 import { deleteMultipleFromS3 } from "@api/lib/s3"
 
@@ -14,7 +14,7 @@ export async function GET(
     { params }: { params: Promise<{ year: string }> }
 ) {
     try {
-        await checkAdminAuth(request)
+        await requireKindeAdmin()
 
         const { year: yearParam } = await params
         const year = Number(yearParam)
@@ -66,13 +66,13 @@ export async function PATCH(
     { params }: { params: Promise<{ year: string }> }
 ) {
     try {
-        await checkAdminAuth(request)
+        await requireKindeAdmin()
 
         const { year: yearParam } = await params
         const year = Number(yearParam)
         const body = await request.json()
 
-        const { title, description, isPublished, isArchived } = body
+        const { title, description, isPublished, isArchived, kindeUserId } = body
 
         // Check if calendar exists
         const existingCalendar = await prisma.calendar.findUnique({
@@ -106,7 +106,8 @@ export async function PATCH(
                 title,
                 description: description || null,
                 isPublished,
-                isArchived
+                isArchived,
+                ...(kindeUserId !== undefined && { kindeUserId: kindeUserId || null })
             }
         })
 
@@ -125,7 +126,7 @@ export async function DELETE(
     { params }: { params: Promise<{ year: string }> }
 ) {
     try {
-        await checkAdminAuth(request)
+        await requireKindeAdmin()
 
         const { year: yearParam } = await params
         const year = Number(yearParam)

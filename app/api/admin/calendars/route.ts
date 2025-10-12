@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
-import { checkAdminAuth } from "@api/lib/auth"
+import { requireKindeAdmin } from "@api/lib/kindeAuth"
 import { prisma } from "@api/lib/prisma"
 
 export async function GET(request: NextRequest) {
     try {
         console.log("Admin calendars API: Checking auth...")
-        await checkAdminAuth(request)
+        await requireKindeAdmin()
         console.log("Admin calendars API: Auth passed")
 
         console.log("Admin calendars API: Fetching calendars...")
@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
             description: calendar.description,
             isArchived: calendar.isArchived,
             isPublished: calendar.isPublished,
+            kindeUserId: calendar.kindeUserId,
             pictureCount: calendar._count.pictures
         }))
 
