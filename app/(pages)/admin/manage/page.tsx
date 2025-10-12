@@ -157,6 +157,12 @@ export default function ManageCalendars() {
                 </Alert>
             )}
 
+            {usersError && (
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                    Failed to load users: {usersError.message}
+                </Alert>
+            )}
+
             {isLoading ? (
                 <Typography>Loading...</Typography>
             ) : calendars && calendars.length > 0 ? (
