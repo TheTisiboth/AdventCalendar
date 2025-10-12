@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireKindeAdmin } from "@api/lib/kindeAuth"
 
+type KindeUserResponse = {
+    id: string
+    email: string
+    first_name?: string
+    last_name?: string
+}
+
 /**
  * GET /api/admin/users
  * Returns all users from Kinde for admin to assign calendars
  * Requires admin permission
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
     try {
         // Check if user is admin
         await requireKindeAdmin()
@@ -14,8 +21,8 @@ export async function GET(request: NextRequest) {
         // Get Kinde Management API credentials
         // Use M2M credentials if available, otherwise fall back to regular credentials
         const kindeIssuerUrl = process.env.KINDE_ISSUER_URL!
-        const clientId = process.env.KINDE_M2M_CLIENT_ID || process.env.KINDE_CLIENT_ID!
-        const clientSecret = process.env.KINDE_M2M_CLIENT_SECRET || process.env.KINDE_CLIENT_SECRET!
+        const clientId = process.env.KINDE_M2M_CLIENT_ID
+        const clientSecret = process.env.KINDE_M2M_CLIENT_SECRET
 
         if (!kindeIssuerUrl || !clientId || !clientSecret) {
             throw new Error("Kinde configuration missing")
@@ -64,7 +71,7 @@ export async function GET(request: NextRequest) {
         // Kinde API might return { users: [...] } or just an array
         const usersList = Array.isArray(usersData) ? usersData : (usersData.users || [])
 
-        const users = usersList.map((user: any) => ({
+        const users = usersList.map((user: KindeUserResponse) => ({
             id: user.id,
             email: user.email,
             firstName: user.first_name,

@@ -4,7 +4,7 @@ import { requireKindeAuth } from "@api/lib/kindeAuth"
 
 export async function GET(request: NextRequest) {
     try {
-        const kindeUser = await requireKindeAuth()
+        await requireKindeAuth()
 
         const searchParams = request.nextUrl.searchParams
         const day = searchParams.get("day")

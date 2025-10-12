@@ -11,7 +11,7 @@ import { getCurrentCalendarYear, isInAdventPeriod } from "@/utils/utils"
  * - Admins: Can access any calendar
  * - Regular users: Only calendars assigned to them
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
     try {
         // Get authenticated Kinde user
         const kindeUser = await requireKindeAuth()

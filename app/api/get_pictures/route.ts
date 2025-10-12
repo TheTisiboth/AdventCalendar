@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getAllPictures } from "@api/lib/dal"
-import { requireKindeAuth } from "@api/lib/kindeAuth"
+import { requireKindeAuth, isKindeAdmin } from "@api/lib/kindeAuth"
 import { getCalendarByYear } from "@api/lib/dal/calendars"
 
 export async function GET(request: NextRequest) {
     try {
         // Get authenticated Kinde user
         const kindeUser = await requireKindeAuth()
+        const isAdmin = await isKindeAdmin()
 
         const searchParams = request.nextUrl.searchParams
         const yearParam = searchParams.get("year")
@@ -18,7 +19,8 @@ export async function GET(request: NextRequest) {
         const year = parseInt(yearParam)
 
         // Check if user has access to this calendar
-        const calendar = await getCalendarByYear(year, false, kindeUser.id)
+        // Admins can access any calendar, regular users only their assigned calendars
+        const calendar = await getCalendarByYear(year, false, isAdmin ? undefined : kindeUser.id)
 
         if (!calendar) {
             return NextResponse.json(

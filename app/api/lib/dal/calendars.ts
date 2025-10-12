@@ -4,7 +4,7 @@
  */
 
 import { prisma } from '@api/lib/prisma'
-import type { Calendar } from '@prisma/client'
+import type { Calendar, Picture } from '@prisma/client'
 
 /**
  * Get all calendars with optional filtering
@@ -33,7 +33,7 @@ export async function getCalendarByYear(
   year: number,
   includePictures = false,
   kindeUserId?: string
-): Promise<Calendar & { pictures?: any[] } | null> {
+): Promise<Calendar & { pictures?: Picture[] } | null> {
   const calendar = await prisma.calendar.findUnique({
     where: { year },
     include: {
@@ -60,7 +60,7 @@ export async function getCalendarByYear(
 export async function getLatestCalendar(
   includePictures = false,
   kindeUserId?: string
-): Promise<Calendar & { pictures?: any[] } | null> {
+): Promise<Calendar & { pictures?: Picture[] } | null> {
   return prisma.calendar.findFirst({
     where: {
       isPublished: true,

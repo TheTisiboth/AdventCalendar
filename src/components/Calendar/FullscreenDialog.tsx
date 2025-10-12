@@ -46,6 +46,7 @@ export const FullScreenDialog: FC<DialogProps> = ({ picture, open, setOpen }) =>
                 </Toolbar>
             </AppBar>
             <List className="fullscreen_container">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={imageSRC} width={"100%"} alt={"Fullscreen image " + picture.day} />
             </List>
         </Dialog>

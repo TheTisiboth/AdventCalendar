@@ -249,7 +249,7 @@ export default function CreateCalendar() {
 
             {usersError && (
                 <Alert severity="warning" sx={{ mb: 2 }}>
-                    Failed to load users: {usersError.message}. You can still create calendars but won't be able to assign them to users.
+                    Failed to load users: {usersError.message}. You can still create calendars but won&apos;t be able to assign them to users.
                 </Alert>
             )}
 

@@ -2,29 +2,29 @@
 
 import { useState } from "react"
 import {
+    Alert,
     Box,
-    Typography,
     Button,
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Paper,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    Paper,
-    Chip,
-    Alert,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    DialogContentText
+    Typography
 } from "@mui/material"
 import { useRouter } from "next/navigation"
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import AddIcon from "@mui/icons-material/Add"
 import DeleteIcon from "@mui/icons-material/Delete"
-import { authenticatedFetch, AuthenticationError } from "@/utils/api"
+import { authenticatedFetch } from "@/utils/api"
 
 type Calendar = {
     id: number
@@ -75,8 +75,8 @@ export default function ManageCalendars() {
                     const errorData = await response.json()
                     throw new Error(errorData.error || `Failed to fetch users (${response.status})`)
                 }
-                const data = await response.json()
-                return data
+
+                return await response.json()
             } catch (error) {
                 throw error
             }

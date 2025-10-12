@@ -28,6 +28,7 @@ export const Day: FC<DayProps> = ({ picture, isArchived = false }) => {
         <Button disabled={!canView} fullWidth style={{ height: imageSize, width: imageSize }} onClick={handleClick}>
             <Paper elevation={10} style={{ width: "100%", height: "100%" }} className={`${divColor} paperPicture`}>
                 {shouldShowImage && (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img ref={imageRef} src={imageSRC} className="image" alt={"Image " + picture.day} />
                 )}
 

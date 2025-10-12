@@ -28,7 +28,7 @@ export const NavBar = () => {
         const path = typeof pathOrOptions === 'string' ? pathOrOptions : pathOrOptions.to
         router.push(path)
     }
-    const { isAuthenticated, isLoading, getPermission, user } = useKindeBrowserClient()
+    const { isAuthenticated, isLoading, getPermission } = useKindeBrowserClient()
     const [mobileOpen, setMobileOpen] = useState(false)
     const [showCalendar, setShowCalendar] = useState(false)
     const [isAdmin, setIsAdmin] = useState(false)
