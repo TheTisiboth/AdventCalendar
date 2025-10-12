@@ -10,10 +10,3 @@ export const api = async <T,>(url: string, init?: RequestInit | undefined): Prom
     return response.json() as Promise<T>
   })
 }
-
-/**
- * Get authorization headers with JWT token
- */
-export const getAuthHeaders = (jwt: string): HeadersInit => {
-  return jwt ? { Authorization: `Bearer ${jwt}` } : {}
-}

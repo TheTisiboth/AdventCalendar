@@ -26,11 +26,20 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { useQuery } from "@tanstack/react-query"
+import { authenticatedFetch } from "@/utils/api"
+
+type KindeUser = {
+    id: string
+    email: string
+    fullName: string
+}
 
 const calendarSchema = z.object({
     year: z.number().min(2020).max(2100),
     title: z.string().min(1, "Title is required"),
     description: z.string().optional(),
+    kindeUserId: z.string().nullable().optional(),
     isPublished: z.boolean(),
     isArchived: z.boolean(),
     pictures: z
@@ -80,22 +89,43 @@ export default function CreateCalendar() {
     const [error, setError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
+    const { data: users, isLoading: isLoadingUsers, error: usersError } = useQuery<KindeUser[], Error>({
+        queryKey: ["kinde-users"],
+        queryFn: async () => {
+            try {
+                const response = await authenticatedFetch("/api/admin/users")
+                if (!response.ok) {
+                    const errorData = await response.json()
+                    throw new Error(errorData.error || "Failed to fetch users")
+                }
+                const data = await response.json()
+                return data
+            } catch (error) {
+                throw error
+            }
+        }
+    })
+
     const {
         register,
         handleSubmit,
         formState: { errors },
-        setValue
+        setValue,
+        watch
     } = useForm<CalendarFormData>({
         resolver: zodResolver(calendarSchema),
         defaultValues: {
             year: new Date().getFullYear(),
             title: "",
             description: "",
+            kindeUserId: null,
             isPublished: false,
             isArchived: false,
             pictures: []
         }
     })
+
+    const kindeUserId = watch("kindeUserId")
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files
@@ -173,6 +203,7 @@ export default function CreateCalendar() {
             formData.append("year", data.year.toString())
             formData.append("title", data.title)
             formData.append("description", data.description || "")
+            formData.append("kindeUserId", data.kindeUserId || "")
             formData.append("isPublished", data.isPublished.toString())
             formData.append("isArchived", data.isArchived.toString())
 
@@ -182,12 +213,8 @@ export default function CreateCalendar() {
                 formData.append(`days`, picture.day.toString())
             })
 
-            const jwt = localStorage.getItem("jwt")
-            const response = await fetch("/api/admin/calendars/create", {
+            const response = await authenticatedFetch("/api/admin/calendars/create", {
                 method: "POST",
-                headers: {
-                    Authorization: `Bearer ${jwt}`
-                },
                 body: formData
             })
 
@@ -219,6 +246,12 @@ export default function CreateCalendar() {
             <Typography variant="h4" component="h1" gutterBottom>
                 Create New Calendar
             </Typography>
+
+            {usersError && (
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                    Failed to load users: {usersError.message}. You can still create calendars but won't be able to assign them to users.
+                </Alert>
+            )}
 
             <Paper sx={{ p: 3, mt: 3 }}>
                 <form onSubmit={handleSubmit(onSubmit)}>
@@ -253,13 +286,43 @@ export default function CreateCalendar() {
                                 helperText={errors.description?.message}
                             />
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12}>
+                            <FormControl fullWidth>
+                                <InputLabel>Assign to User</InputLabel>
+                                <Select
+                                    value={kindeUserId || ""}
+                                    label="Assign to User"
+                                    onChange={(e) => setValue("kindeUserId", e.target.value === "" ? null : e.target.value)}
+                                    disabled={isLoadingUsers}
+                                >
+                                    <MenuItem value="">
+                                        <em>Unassigned (Admin only)</em>
+                                    </MenuItem>
+                                    {isLoadingUsers && (
+                                        <MenuItem disabled>
+                                            <em>Loading users...</em>
+                                        </MenuItem>
+                                    )}
+                                    {!isLoadingUsers && users && users.length === 0 && (
+                                        <MenuItem disabled>
+                                            <em>No users available</em>
+                                        </MenuItem>
+                                    )}
+                                    {!isLoadingUsers && users?.map((user) => (
+                                        <MenuItem key={user.id} value={user.id}>
+                                            {user.email}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12}>
                             <FormControlLabel
                                 control={<Checkbox {...register("isPublished")} />}
                                 label="Published (requires 24 pictures)"
                             />
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12}>
                             <FormControlLabel
                                 control={<Checkbox {...register("isArchived")} />}
                                 label="Archived"

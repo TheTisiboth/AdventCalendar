@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
-import { checkAdminAuth } from "@api/lib/auth"
+import { requireKindeAdmin } from "@api/lib/kindeAuth"
 import { prisma } from "@api/lib/prisma"
 import { uploadToS3, generateS3Key } from "@api/lib/s3"
 
 export async function POST(request: NextRequest) {
     try {
-        await checkAdminAuth(request)
+        await requireKindeAdmin()
 
         const formData = await request.formData()
 
@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
         const year = Number(formData.get("year"))
         const title = formData.get("title") as string
         const description = formData.get("description") as string
+        const kindeUserId = formData.get("kindeUserId") as string | null
         const isPublished = formData.get("isPublished") === "true"
         const isArchived = formData.get("isArchived") === "true"
 
@@ -124,6 +125,7 @@ export async function POST(request: NextRequest) {
                     year,
                     title,
                     description: description || null,
+                    kindeUserId: kindeUserId && kindeUserId !== "" ? kindeUserId : null,
                     isPublished,
                     isArchived
                 }
@@ -138,7 +140,6 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ success: true, calendar })
     } catch (error) {
-        console.error("Error creating calendar:", error)
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Failed to create calendar" },
             { status: error instanceof Error && error.message.includes("Unauthorized") ? 401 : 500 }

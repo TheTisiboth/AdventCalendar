@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
-import { useCalendarStore, useAuthStore, useSnackBarStore } from './store'
+import { useCalendarStore, useSnackBarStore } from './store'
 
 describe('useMulti hook (via store hooks)', () => {
     describe('useCalendarStore', () => {
@@ -50,37 +50,6 @@ describe('useMulti hook (via store hooks)', () => {
 
             // The hook should return the same structure
             expect(Object.keys(result.current)).toEqual(Object.keys(firstRender))
-        })
-    })
-
-    describe('useAuthStore', () => {
-        it('should retrieve multiple items from the auth store', () => {
-            const { result } = renderHook(() =>
-                useAuthStore('isLoggedIn', 'user', 'jwt')
-            )
-
-            expect(result.current).toHaveProperty('isLoggedIn')
-            expect(result.current).toHaveProperty('user')
-            expect(result.current).toHaveProperty('jwt')
-            expect(typeof result.current.isLoggedIn).toBe('boolean')
-        })
-
-        it('should update when auth values change', () => {
-            const { result } = renderHook(() =>
-                useAuthStore('isLoggedIn', 'setIsLoggedIn')
-            )
-
-            act(() => {
-                result.current.setIsLoggedIn(true)
-            })
-
-            expect(result.current.isLoggedIn).toBe(true)
-
-            act(() => {
-                result.current.setIsLoggedIn(false)
-            })
-
-            expect(result.current.isLoggedIn).toBe(false)
         })
     })
 

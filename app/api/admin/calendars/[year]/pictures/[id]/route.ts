@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { checkAdminAuth } from "@api/lib/auth"
+import { requireKindeAdmin } from "@api/lib/kindeAuth"
 import { prisma } from "@api/lib/prisma"
 import { deleteFromS3 } from "@api/lib/s3"
 
@@ -8,7 +8,7 @@ export async function DELETE(
     { params }: { params: Promise<{ year: string; id: string }> }
 ) {
     try {
-        await checkAdminAuth(request)
+        await requireKindeAdmin()
 
         const { id: idParam } = await params
         const pictureId = Number(idParam)
@@ -35,7 +35,6 @@ export async function DELETE(
 
         return NextResponse.json({ success: true })
     } catch (error) {
-        console.error("Admin delete picture error:", error)
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Failed to delete picture" },
             { status: error instanceof Error && error.message.includes("Unauthorized") ? 401 : 500 }

@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation"
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"
 import AddIcon from "@mui/icons-material/Add"
 import DeleteIcon from "@mui/icons-material/Delete"
+import { authenticatedFetch, AuthenticationError } from "@/utils/api"
 
 type Calendar = {
     id: number
@@ -32,7 +33,14 @@ type Calendar = {
     description: string | null
     isArchived: boolean
     isPublished: boolean
+    kindeUserId: string | null
     pictureCount: number
+}
+
+type KindeUser = {
+    id: string
+    email: string
+    fullName: string
 }
 
 export default function ManageCalendars() {
@@ -44,34 +52,52 @@ export default function ManageCalendars() {
     const { data: calendars, isLoading, error } = useQuery<Calendar[], Error>({
         queryKey: ["admin-calendars"],
         queryFn: async () => {
-            const jwt = localStorage.getItem("jwt")
-            const response = await fetch("/api/admin/calendars", {
-                headers: {
-                    Authorization: `Bearer ${jwt}`
+            try {
+                const response = await authenticatedFetch("/api/admin/calendars")
+                if (!response.ok) {
+                    const errorData = await response.json()
+                    throw new Error(errorData.error || `Failed to fetch calendars (${response.status})`)
                 }
-            })
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || `Failed to fetch calendars (${response.status})`)
+                return response.json()
+            } catch (error) {
+                // AuthenticationError will be handled by middleware redirecting to login
+                throw error
             }
-            return response.json()
+        }
+    })
+
+    const { data: users, isLoading: isLoadingUsers, error: usersError } = useQuery<KindeUser[], Error>({
+        queryKey: ["kinde-users"],
+        queryFn: async () => {
+            try {
+                const response = await authenticatedFetch("/api/admin/users")
+                if (!response.ok) {
+                    const errorData = await response.json()
+                    throw new Error(errorData.error || `Failed to fetch users (${response.status})`)
+                }
+                const data = await response.json()
+                return data
+            } catch (error) {
+                throw error
+            }
         }
     })
 
     const deleteMutation = useMutation({
         mutationFn: async (year: number) => {
-            const jwt = localStorage.getItem("jwt")
-            const response = await fetch(`/api/admin/calendars/${year}`, {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${jwt}`
+            try {
+                const response = await authenticatedFetch(`/api/admin/calendars/${year}`, {
+                    method: "DELETE"
+                })
+                if (!response.ok) {
+                    const errorData = await response.json()
+                    throw new Error(errorData.error || "Failed to delete calendar")
                 }
-            })
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || "Failed to delete calendar")
+                return response.json()
+            } catch (error) {
+                // AuthenticationError will be handled by middleware redirecting to login
+                throw error
             }
-            return response.json()
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["admin-calendars"] })
@@ -80,9 +106,17 @@ export default function ManageCalendars() {
         }
     })
 
+
     const handleDeleteClick = (calendar: Calendar) => {
         setCalendarToDelete(calendar)
         setDeleteDialogOpen(true)
+    }
+
+    const getUserDisplayName = (kindeUserId: string | null): string => {
+        if (!kindeUserId) return "Unassigned"
+        if (isLoadingUsers) return "Loading..."
+        const user = users?.find((u) => u.id === kindeUserId)
+        return user ? user.email : "Unknown User"
     }
 
     const handleDeleteConfirm = () => {
@@ -117,6 +151,12 @@ export default function ManageCalendars() {
                 </Alert>
             )}
 
+            {usersError && (
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                    Failed to load users: {usersError.message}
+                </Alert>
+            )}
+
             {isLoading ? (
                 <Typography>Loading...</Typography>
             ) : calendars && calendars.length > 0 ? (
@@ -128,6 +168,7 @@ export default function ManageCalendars() {
                                 <TableCell>Title</TableCell>
                                 <TableCell>Description</TableCell>
                                 <TableCell>Pictures</TableCell>
+                                <TableCell>Assigned User</TableCell>
                                 <TableCell>Status</TableCell>
                                 <TableCell>Actions</TableCell>
                             </TableRow>
@@ -139,6 +180,11 @@ export default function ManageCalendars() {
                                     <TableCell>{calendar.title}</TableCell>
                                     <TableCell>{calendar.description || "-"}</TableCell>
                                     <TableCell>{calendar.pictureCount}/24</TableCell>
+                                    <TableCell>
+                                        <Typography variant="body2">
+                                            {getUserDisplayName(calendar.kindeUserId)}
+                                        </Typography>
+                                    </TableCell>
                                     <TableCell>
                                         <Box sx={{ display: "flex", gap: 1 }}>
                                             {calendar.isPublished ? (

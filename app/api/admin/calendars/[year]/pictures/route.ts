@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { checkAdminAuth } from "@api/lib/auth"
+import { requireKindeAdmin } from "@api/lib/kindeAuth"
 import { prisma } from "@api/lib/prisma"
 import { uploadToS3, generateS3Key } from "@api/lib/s3"
 
@@ -8,7 +8,7 @@ export async function POST(
     { params }: { params: Promise<{ year: string }> }
 ) {
     try {
-        await checkAdminAuth(request)
+        await requireKindeAdmin()
 
         const { year: yearParam } = await params
         const year = Number(yearParam)
@@ -121,7 +121,6 @@ export async function POST(
 
         return NextResponse.json({ success: true, count: pictures.length })
     } catch (error) {
-        console.error("Error adding pictures:", error)
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Failed to add pictures" },
             { status: error instanceof Error && error.message.includes("Unauthorized") ? 401 : 500 }

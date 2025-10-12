@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { checkAdminAuth } from "@api/lib/auth"
+import { requireKindeAdmin } from "@api/lib/kindeAuth"
 import { prisma } from "@api/lib/prisma"
 import { deleteMultipleFromS3 } from "@api/lib/s3"
 
@@ -14,7 +14,7 @@ export async function GET(
     { params }: { params: Promise<{ year: string }> }
 ) {
     try {
-        await checkAdminAuth(request)
+        await requireKindeAdmin()
 
         const { year: yearParam } = await params
         const year = Number(yearParam)
@@ -53,7 +53,6 @@ export async function GET(
             pictures: picturesWithUrls
         })
     } catch (error) {
-        console.error("Admin get calendar error:", error)
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Unauthorized" },
             { status: 401 }
@@ -66,13 +65,13 @@ export async function PATCH(
     { params }: { params: Promise<{ year: string }> }
 ) {
     try {
-        await checkAdminAuth(request)
+        await requireKindeAdmin()
 
         const { year: yearParam } = await params
         const year = Number(yearParam)
         const body = await request.json()
 
-        const { title, description, isPublished, isArchived } = body
+        const { title, description, isPublished, isArchived, kindeUserId } = body
 
         // Check if calendar exists
         const existingCalendar = await prisma.calendar.findUnique({
@@ -106,13 +105,13 @@ export async function PATCH(
                 title,
                 description: description || null,
                 isPublished,
-                isArchived
+                isArchived,
+                ...(kindeUserId !== undefined && { kindeUserId: kindeUserId || null })
             }
         })
 
         return NextResponse.json({ success: true, calendar: updatedCalendar })
     } catch (error) {
-        console.error("Admin update calendar error:", error)
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Failed to update calendar" },
             { status: error instanceof Error && error.message.includes("Unauthorized") ? 401 : 500 }
@@ -125,7 +124,7 @@ export async function DELETE(
     { params }: { params: Promise<{ year: string }> }
 ) {
     try {
-        await checkAdminAuth(request)
+        await requireKindeAdmin()
 
         const { year: yearParam } = await params
         const year = Number(yearParam)
@@ -163,7 +162,6 @@ export async function DELETE(
 
         return NextResponse.json({ success: true })
     } catch (error) {
-        console.error("Admin delete calendar error:", error)
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Failed to delete calendar" },
             { status: error instanceof Error && error.message.includes("Unauthorized") ? 401 : 500 }

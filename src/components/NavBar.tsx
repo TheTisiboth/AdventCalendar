@@ -16,8 +16,8 @@ import {
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import MenuIcon from "@mui/icons-material/Menu"
-import { useLogout } from "@/hooks/useLogout"
-import { useAuthStore } from "@/store"
+import { LogoutLink, LoginLink } from "@kinde-oss/kinde-auth-nextjs/components"
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs"
 import { isInAdventPeriod } from "@/utils/utils"
 
 const drawerWidth = 240
@@ -28,15 +28,26 @@ export const NavBar = () => {
         const path = typeof pathOrOptions === 'string' ? pathOrOptions : pathOrOptions.to
         router.push(path)
     }
-    const { logout } = useLogout()
-    const { isLoggedIn, user } = useAuthStore("isLoggedIn", "user")
+    const { isAuthenticated, isLoading, getPermission, user } = useKindeBrowserClient()
     const [mobileOpen, setMobileOpen] = useState(false)
     const [showCalendar, setShowCalendar] = useState(false)
+    const [isAdmin, setIsAdmin] = useState(false)
 
     useEffect(() => {
         // Check if we're in the Advent period
         setShowCalendar(isInAdventPeriod())
     }, [])
+
+    useEffect(() => {
+        // Check if user has admin permission
+        const checkAdmin = async () => {
+            if (isAuthenticated) {
+                const adminPerm = await getPermission("admin:access")
+                setIsAdmin(adminPerm?.isGranted ?? false)
+            }
+        }
+        checkAdmin()
+    }, [isAuthenticated, getPermission])
 
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState)
@@ -65,7 +76,7 @@ export const NavBar = () => {
                     </ListItemButton>
                 </ListItem>
 
-                {user?.role === "admin" && (
+                {isAdmin && (
                     <ListItem key={"Admin"} disablePadding>
                         <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/admin" })}>
                             <ListItemText primary={"Admin"} />
@@ -78,18 +89,22 @@ export const NavBar = () => {
                         <ListItemText primary={"Test"} />
                     </ListItemButton>
                 </ListItem>
-                {!isLoggedIn && (
+                {!isAuthenticated && !isLoading && (
                     <ListItem key={"Login"} disablePadding>
-                        <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/login" })}>
-                            <ListItemText primary={"Login"} />
-                        </ListItemButton>
+                        <LoginLink>
+                            <ListItemButton sx={{ textAlign: "center" }}>
+                                <ListItemText primary={"Login"} />
+                            </ListItemButton>
+                        </LoginLink>
                     </ListItem>
                 )}
-                {isLoggedIn && (
+                {isAuthenticated && (
                     <ListItem key={"Logout"} disablePadding>
-                        <ListItemButton sx={{ textAlign: "center" }} onClick={logout}>
-                            <ListItemText primary={"Logout"} />
-                        </ListItemButton>
+                        <LogoutLink>
+                            <ListItemButton sx={{ textAlign: "center" }}>
+                                <ListItemText primary={"Logout"} />
+                            </ListItemButton>
+                        </LogoutLink>
                     </ListItem>
                 )}
             </List>
@@ -128,7 +143,7 @@ export const NavBar = () => {
                             <ListItemText primary="Archive" />
                         </Button>
 
-                        {user?.role === "admin" && (
+                        {isAdmin && (
                             <Button key={"Admin"} onClick={() => navigate({ to: "/admin" })}>
                                 <ListItemText primary="Admin" />
                             </Button>
@@ -137,15 +152,19 @@ export const NavBar = () => {
                         <Button key={"Test"} onClick={() => navigate({ to: "/test" })}>
                             <ListItemText primary="Test" />
                         </Button>
-                        {!isLoggedIn && (
-                            <Button key={"Login"} onClick={() => navigate({ to: "/login" })}>
-                                <ListItemText primary="Login" />
-                            </Button>
+                        {!isAuthenticated && !isLoading && (
+                            <LoginLink>
+                                <Button key={"Login"}>
+                                    <ListItemText primary="Login" />
+                                </Button>
+                            </LoginLink>
                         )}
-                        {isLoggedIn && (
-                            <Button key={"Logout"} onClick={logout}>
-                                <ListItemText primary="Logout" />
-                            </Button>
+                        {isAuthenticated && (
+                            <LogoutLink>
+                                <Button key={"Logout"}>
+                                    <ListItemText primary="Logout" />
+                                </Button>
+                            </LogoutLink>
                         )}
                     </Box>
                 </Toolbar>
