@@ -29,7 +29,7 @@ export const NavBar = () => {
         router.push(path)
     }
     const { logout } = useLogout()
-    const { isLoggedIn } = useAuthStore("isLoggedIn")
+    const { isLoggedIn, user } = useAuthStore("isLoggedIn", "user")
     const [mobileOpen, setMobileOpen] = useState(false)
     const [showCalendar, setShowCalendar] = useState(false)
 
@@ -64,6 +64,14 @@ export const NavBar = () => {
                         <ListItemText primary={"Archive"} />
                     </ListItemButton>
                 </ListItem>
+
+                {user?.role === "admin" && (
+                    <ListItem key={"Admin"} disablePadding>
+                        <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/admin" })}>
+                            <ListItemText primary={"Admin"} />
+                        </ListItemButton>
+                    </ListItem>
+                )}
 
                 <ListItem key={"Test"} disablePadding>
                     <ListItemButton sx={{ textAlign: "center" }} onClick={() => navigate({ to: "/test" })}>
@@ -119,6 +127,12 @@ export const NavBar = () => {
                         <Button key={"Archive"} onClick={() => navigate({ to: "/archive" })}>
                             <ListItemText primary="Archive" />
                         </Button>
+
+                        {user?.role === "admin" && (
+                            <Button key={"Admin"} onClick={() => navigate({ to: "/admin" })}>
+                                <ListItemText primary="Admin" />
+                            </Button>
+                        )}
 
                         <Button key={"Test"} onClick={() => navigate({ to: "/test" })}>
                             <ListItemText primary="Test" />

@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Auth } from "@/components/Auth"
 import { Calendar } from "@/components/Calendar/Calendar"
 import { API_BASE_PATH } from "@/constants"
+import { isInAdventPeriod } from "@/utils/utils"
 
 type PageProps = {
   params: Promise<{ year: string }>
@@ -21,6 +22,7 @@ export default function ArchivedCalendarPage({ params }: PageProps) {
   const [calendarTitle, setCalendarTitle] = useState<string>("")
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const inAdventPeriod = isInAdventPeriod()
 
   useEffect(() => {
     async function init() {
@@ -86,10 +88,14 @@ export default function ArchivedCalendarPage({ params }: PageProps) {
           <Link href="/archive" style={{ color: "#0070f3", textDecoration: "none" }}>
             ← Back to archive
           </Link>
-          <span style={{ color: "#999" }}>|</span>
-          <Link href="/calendar" style={{ color: "#0070f3", textDecoration: "none" }}>
-            Current calendar
-          </Link>
+          {inAdventPeriod && (
+            <>
+              <span style={{ color: "#999" }}>|</span>
+              <Link href="/calendar" style={{ color: "#0070f3", textDecoration: "none" }}>
+                Current calendar
+              </Link>
+            </>
+          )}
         </div>
 
         {calendarTitle && <h1 style={{ marginBottom: "1rem" }}>{calendarTitle}</h1>}

@@ -40,3 +40,21 @@ export const verifyRefreshToken = (token: string): Promise<User> => {
         })
     })
 }
+
+export const checkAdminAuth = async (request: NextRequest): Promise<User> => {
+    return new Promise((resolve, reject) => {
+        const authHeader = request.headers.get("authorization")
+        if (!authHeader) {
+            return reject(new Error("Missing authorization header"))
+        }
+        const authToken = authHeader.substring(7)
+        jwt.verify(authToken, ACCESS_TOKEN_SECRET, (err, user) => {
+            if (err) return reject(err)
+            const userData = user as User
+            if (userData.role !== 'admin') {
+                return reject(new Error("Unauthorized: Admin access required"))
+            }
+            return resolve(userData)
+        })
+    })
+}
