@@ -52,6 +52,23 @@ npm run db:seed
 npx prisma studio
 ```
 
+### Production Database Management
+
+When deploying on a VPS with Docker (Dokploy):
+
+```bash
+# Reset database (⚠️ DELETES ALL DATA)
+docker exec -it adventcalendar-app-r47mo1-app-1 npx prisma migrate reset --force
+
+# Reset database without seeding
+docker exec -it adventcalendar-app-r47mo1-app-1 npx prisma migrate reset --force --skip-seed
+
+# Delete postgres volume for completely fresh start (⚠️ DELETES ALL DATA)
+docker compose -p adventcalendar-app-r47mo1 down
+docker volume rm adventcalendar-app-r47mo1_postgres_data
+# Then redeploy from Dokploy dashboard
+```
+
 ## Deployment
 
 See [VPS_DEPLOYMENT.md](./VPS_DEPLOYMENT.md) for complete deployment instructions to a VPS with Docker.

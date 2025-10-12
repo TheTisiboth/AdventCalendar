@@ -3,7 +3,7 @@ import { checkAdminAuth } from "@api/lib/auth"
 import { prisma } from "@api/lib/prisma"
 import { deleteMultipleFromS3 } from "@api/lib/s3"
 
-const CDN_URL = process.env.CDN_URL
+const CDN_URL = process.env.CDN_URL!
 
 function getImageUrl(key: string): string {
     return CDN_URL + key

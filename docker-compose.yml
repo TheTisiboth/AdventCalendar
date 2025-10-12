@@ -8,6 +8,7 @@ services:
       args:
         - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
         - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+        - NEXT_PUBLIC_CDN_URL=${NEXT_PUBLIC_CDN_URL}
     ports:
       - "3003:3003"
     environment:
@@ -15,6 +16,11 @@ services:
       DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/advent_calendar?schema=public"
       ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET}
       REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
+      CDN_URL: ${CDN_URL}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
     depends_on:
       postgres:
         condition: service_healthy
