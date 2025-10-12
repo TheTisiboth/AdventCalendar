@@ -89,20 +89,39 @@ const responsiveStore = create<ResponsiveStore>()((set) => {
 export const useResponsiveStore = (...items: Array<keyof ResponsiveStore>) =>
     useMulti(responsiveStore, ...items)
 
-const authStore = create<AuthStore>()((set) => ({
-    isLoggedIn: false,
-    jwt: typeof window !== 'undefined' ? localStorage.getItem("jwt") || "" : "",
-    user: dummyUser,
-    setIsLoggedIn: (isLoggedIn) => {
-        set({ isLoggedIn })
-    },
-    setJWT: (jwt) => {
-        set({ jwt })
-    },
-    setUser: (user) => {
-        set({ user })
+const authStore = create<AuthStore>()((set) => {
+    // Load user from localStorage on initialization
+    let initialUser = dummyUser
+    if (typeof window !== 'undefined') {
+        const storedUser = localStorage.getItem("user")
+        if (storedUser) {
+            try {
+                initialUser = JSON.parse(storedUser)
+            } catch (e) {
+                console.error("Failed to parse stored user:", e)
+            }
+        }
     }
-}))
+
+    return {
+        isLoggedIn: false,
+        jwt: typeof window !== 'undefined' ? localStorage.getItem("jwt") || "" : "",
+        user: initialUser,
+        setIsLoggedIn: (isLoggedIn) => {
+            set({ isLoggedIn })
+        },
+        setJWT: (jwt) => {
+            set({ jwt })
+        },
+        setUser: (user) => {
+            set({ user })
+            // Persist user to localStorage
+            if (typeof window !== 'undefined') {
+                localStorage.setItem("user", JSON.stringify(user))
+            }
+        }
+    }
+})
 
 export const useAuthStore = (...items: Array<keyof AuthStore>) => useMulti(authStore, ...items)
 

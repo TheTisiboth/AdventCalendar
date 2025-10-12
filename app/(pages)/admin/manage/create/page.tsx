@@ -22,6 +22,7 @@ import {
 } from "@mui/material"
 import { useRouter } from "next/navigation"
 import DeleteIcon from "@mui/icons-material/Delete"
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -100,6 +101,20 @@ export default function CreateCalendar() {
         const files = event.target.files
         if (!files) return
 
+        const availableSlots = 24 - pictures.length
+
+        if (availableSlots === 0) {
+            setError("Cannot add more pictures. Maximum 24 pictures allowed.")
+            event.target.value = ""
+            return
+        }
+
+        if (files.length > availableSlots) {
+            setError(`Can only add ${availableSlots} more picture${availableSlots > 1 ? 's' : ''}. You selected ${files.length}.`)
+            event.target.value = ""
+            return
+        }
+
         const newPictures: PictureWithPreview[] = []
 
         // Try to preserve selection order and auto-assign days
@@ -126,6 +141,8 @@ export default function CreateCalendar() {
             "pictures",
             updatedPictures.map(({ file, day }) => ({ file, day }))
         )
+        // Reset file input
+        event.target.value = ""
     }
 
     const handleDayChange = (index: number, newDay: number) => {
@@ -191,6 +208,14 @@ export default function CreateCalendar() {
 
     return (
         <Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                <Button
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => router.push("/admin/manage")}
+                >
+                    Back to Manage
+                </Button>
+            </Box>
             <Typography variant="h4" component="h1" gutterBottom>
                 Create New Calendar
             </Typography>
@@ -252,16 +277,18 @@ export default function CreateCalendar() {
                                     </Typography>
                                 )}
                             </Box>
-                            <Button variant="contained" component="label">
-                                Add Pictures
-                                <input
-                                    type="file"
-                                    hidden
-                                    multiple
-                                    accept="image/*"
-                                    onChange={handleFileSelect}
-                                />
-                            </Button>
+                            {pictures.length < 24 && (
+                                <Button variant="contained" component="label">
+                                    Add Pictures
+                                    <input
+                                        type="file"
+                                        hidden
+                                        multiple
+                                        accept="image/*"
+                                        onChange={handleFileSelect}
+                                    />
+                                </Button>
+                            )}
                             {errors.pictures && (
                                 <Alert severity="error" sx={{ mt: 2 }}>
                                     {errors.pictures.message}

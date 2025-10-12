@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { checkAdminAuth } from "@api/lib/auth"
 import { prisma } from "@api/lib/prisma"
+import { deleteMultipleFromS3 } from "@api/lib/s3"
 
 const CDN_URL = process.env.CDN_URL
 
@@ -114,6 +115,57 @@ export async function PATCH(
         console.error("Admin update calendar error:", error)
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Failed to update calendar" },
+            { status: error instanceof Error && error.message.includes("Unauthorized") ? 401 : 500 }
+        )
+    }
+}
+
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ year: string }> }
+) {
+    try {
+        await checkAdminAuth(request)
+
+        const { year: yearParam } = await params
+        const year = Number(yearParam)
+
+        // Get calendar with all pictures to delete from S3
+        const calendar = await prisma.calendar.findUnique({
+            where: { year },
+            include: {
+                pictures: true
+            }
+        })
+
+        if (!calendar) {
+            return NextResponse.json(
+                { error: "Calendar not found" },
+                { status: 404 }
+            )
+        }
+
+        // Delete all pictures from S3
+        const pictureKeys = calendar.pictures.map((picture) => picture.key)
+        if (pictureKeys.length > 0) {
+            await deleteMultipleFromS3(pictureKeys)
+        }
+
+        // Delete pictures from database first
+        await prisma.picture.deleteMany({
+            where: { year }
+        })
+
+        // Then delete calendar from database
+        await prisma.calendar.delete({
+            where: { year }
+        })
+
+        return NextResponse.json({ success: true })
+    } catch (error) {
+        console.error("Admin delete calendar error:", error)
+        return NextResponse.json(
+            { error: error instanceof Error ? error.message : "Failed to delete calendar" },
             { status: error instanceof Error && error.message.includes("Unauthorized") ? 401 : 500 }
         )
     }

@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
+import { S3Client, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3"
 
 const s3Client = new S3Client({
     region: process.env.AWS_REGION || "eu-west-3",
@@ -29,4 +29,27 @@ export async function uploadToS3(
 
 export function generateS3Key(year: number, day: number, extension: string): string {
     return `${year}/${day}.${extension}`
+}
+
+export async function deleteFromS3(key: string): Promise<void> {
+    const command = new DeleteObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key
+    })
+
+    await s3Client.send(command)
+}
+
+export async function deleteMultipleFromS3(keys: string[]): Promise<void> {
+    if (keys.length === 0) return
+
+    const command = new DeleteObjectsCommand({
+        Bucket: BUCKET_NAME,
+        Delete: {
+            Objects: keys.map((key) => ({ Key: key })),
+            Quiet: false
+        }
+    })
+
+    await s3Client.send(command)
 }

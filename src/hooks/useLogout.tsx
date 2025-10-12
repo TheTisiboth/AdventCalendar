@@ -10,6 +10,7 @@ export const useLogout = () => {
         setJWT("")
         if (typeof window !== 'undefined') {
             localStorage.removeItem("jwt")
+            localStorage.removeItem("user")
         }
         router.push("/")
     }
