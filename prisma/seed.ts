@@ -21,12 +21,19 @@ async function main() {
   // Seed users if not exists
   if (userCount === 0) {
     console.log('📦 Creating users...')
-    await prisma.user.create({
-      data: {
-        name: 'paula',
-        password: '$2b$10$8x8Roob1Co8LvsZiCAT0fusGE2XX4HFXGRrFsNjRxTRf6JVQezFy6',
-        role: 'admin'
-      }
+    await prisma.user.createMany({
+      data: [
+        {
+          name: 'paula',
+          password: '$2b$10$8x8Roob1Co8LvsZiCAT0fusGE2XX4HFXGRrFsNjRxTRf6JVQezFy6',
+          role: 'user'
+        },
+        {
+          name: 'leo',
+          password: '$2b$10$N.r4m8LqCqgkn.b3ZcRdqeRT23B1TgkvJ2jXvQU.BME8MnSWk4mzS',
+          role: 'admin'
+        }
+      ]
     })
     console.log('✅ Users created')
   }
