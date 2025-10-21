@@ -46,8 +46,9 @@ export const usePictureAPI = ({ year }: UsePictureAPIProps) => {
     }
   }
 
-  const { mutate } = useMutation(openPicture, {
-    onMutate: async (newPicDay) => {
+  const { mutate } = useMutation({
+    mutationFn: openPicture,
+    onMutate: async (newPicDay: number) => {
       // Cancel any outgoing refetches
       // (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries({ queryKey })
@@ -64,7 +65,7 @@ export const usePictureAPI = ({ year }: UsePictureAPIProps) => {
       // Return a context object with the snapshotted value
       return { oldPics }
     },
-    onError: (_err, _newPicDay, context) => {
+    onError: (_err: Error, _newPicDay: number, context?: { oldPics?: Picture[] }) => {
       // Restore old state
       queryClient.setQueryData<Picture[]>(queryKey, context?.oldPics)
     },

@@ -1,6 +1,7 @@
 "use client"
 
-import { Box, Typography, Card, CardContent, Grid, Button } from "@mui/material"
+import { Box, Typography, Card, CardContent, Button } from "@mui/material"
+import Grid from "@mui/material/Grid"
 import { useRouter } from "next/navigation"
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday"
 import AddIcon from "@mui/icons-material/Add"
@@ -14,7 +15,7 @@ export default function AdminDashboard() {
                 Welcome to Admin Dashboard
             </Typography>
             <Grid container spacing={3} sx={{ mt: 2 }}>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Card>
                         <CardContent>
                             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
@@ -34,7 +35,7 @@ export default function AdminDashboard() {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Card>
                         <CardContent>
                             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>

@@ -7,7 +7,6 @@ import {
     TextField,
     Button,
     Paper,
-    Grid,
     FormControlLabel,
     Checkbox,
     Alert,
@@ -20,6 +19,7 @@ import {
     FormControl,
     InputLabel
 } from "@mui/material"
+import Grid from "@mui/material/Grid"
 import { useRouter } from "next/navigation"
 import DeleteIcon from "@mui/icons-material/Delete"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
@@ -253,7 +253,7 @@ export default function CreateCalendar() {
             <Paper sx={{ p: 3, mt: 3 }}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField
                                 {...register("year", { valueAsNumber: true })}
                                 label="Year"
@@ -263,7 +263,7 @@ export default function CreateCalendar() {
                                 helperText={errors.year?.message}
                             />
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField
                                 {...register("title")}
                                 label="Title"
@@ -272,7 +272,7 @@ export default function CreateCalendar() {
                                 helperText={errors.title?.message}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <TextField
                                 {...register("description")}
                                 label="Description"
@@ -283,7 +283,7 @@ export default function CreateCalendar() {
                                 helperText={errors.description?.message}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <FormControl fullWidth>
                                 <InputLabel>Assign to User</InputLabel>
                                 <Select
@@ -313,13 +313,13 @@ export default function CreateCalendar() {
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <FormControlLabel
                                 control={<Checkbox {...register("isPublished")} />}
                                 label="Published (requires 24 pictures)"
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                                 <Typography variant="h6">
                                     Pictures ({pictures.length}/24)
@@ -349,10 +349,10 @@ export default function CreateCalendar() {
                             )}
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <Grid container spacing={2}>
                                 {pictures.map((picture, index) => (
-                                    <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                                    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
                                         <Card>
                                             <CardMedia
                                                 component="img"
@@ -406,12 +406,12 @@ export default function CreateCalendar() {
                         </Grid>
 
                         {error && (
-                            <Grid item xs={12}>
+                            <Grid size={{ xs: 12 }}>
                                 <Alert severity="error">{error}</Alert>
                             </Grid>
                         )}
 
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <Box sx={{ display: "flex", gap: 2 }}>
                                 <Button
                                     type="submit"

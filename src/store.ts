@@ -1,5 +1,6 @@
 import { AlertColor } from "@mui/material"
 import { StoreApi, UseBoundStore, create } from "zustand"
+import { useShallow } from "zustand/shallow"
 import { computeStartingAndEndingDate } from "./utils/utils"
 import dayjs from "dayjs"
 
@@ -51,7 +52,7 @@ const calendarStore = create<CalendarStore>()((set, get) => ({
 export const useCalendarStore = (...items: Array<keyof CalendarStore>) => useMulti(calendarStore, ...items)
 
 const responsiveStore = create<ResponsiveStore>()((set) => {
-    const isMobile = typeof window !== 'undefined' ? window.innerWidth <= 992 : false
+    const isMobile = typeof window !== "undefined" ? window.innerWidth <= 992 : false
     return {
         imageSize: isMobile ? "5em" : "13em",
         isMobile,
@@ -64,8 +65,7 @@ const responsiveStore = create<ResponsiveStore>()((set) => {
     }
 })
 
-export const useResponsiveStore = (...items: Array<keyof ResponsiveStore>) =>
-    useMulti(responsiveStore, ...items)
+export const useResponsiveStore = (...items: Array<keyof ResponsiveStore>) => useMulti(responsiveStore, ...items)
 
 const snackbarStore = create<SnackbarStore>()((set) => ({
     message: "",
@@ -91,6 +91,4 @@ const useMulti = <T extends object, K extends keyof T>(
     useStoreFn: UseBoundStore<StoreApi<T>>,
     ...items: K[]
 ): Pick<T, K> =>
-    useStoreFn((state) =>
-        Object.fromEntries(items.map((item) => [item, state[item]])) as Pick<T, K>
-    )
+    useStoreFn(useShallow((state) => Object.fromEntries(items.map((item) => [item, state[item]])) as Pick<T, K>))

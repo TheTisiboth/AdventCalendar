@@ -7,7 +7,7 @@ import { useCalendarStore, useResponsiveStore } from "@/store"
 
 type UsePictureProps = {
     picture: Picture
-    imageRef?: RefObject<HTMLImageElement>
+    imageRef?: RefObject<HTMLImageElement | null>
 }
 
 type UsePictureReturn = {

@@ -15,7 +15,7 @@ export const DayGrid: FC<DayGridProps> = ({ pictures, isArchived = false }) => {
     return (
         <Grid container spacing={2}>
             {shuffle(pictures, year).map((pic) => (
-                <Grid item xs={3} lg={2} key={pic.id}>
+                <Grid size={{ xs: 3, lg: 2 }} key={pic.id}>
                     <Day picture={pic} isArchived={isArchived} />
                 </Grid>
             ))}

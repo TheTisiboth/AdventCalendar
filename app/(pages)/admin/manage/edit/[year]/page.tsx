@@ -7,7 +7,6 @@ import {
     TextField,
     Button,
     Paper,
-    Grid,
     FormControlLabel,
     Checkbox,
     Alert,
@@ -26,6 +25,7 @@ import {
     FormControl,
     InputLabel
 } from "@mui/material"
+import Grid from "@mui/material/Grid"
 import { useRouter, useParams } from "next/navigation"
 import DeleteIcon from "@mui/icons-material/Delete"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
@@ -327,7 +327,7 @@ export default function EditCalendar() {
             <Paper sx={{ p: 3, mt: 3 }}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField
                                 {...register("year", { valueAsNumber: true })}
                                 label="Year"
@@ -338,7 +338,7 @@ export default function EditCalendar() {
                                 helperText={errors.year?.message}
                             />
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField
                                 {...register("title")}
                                 label="Title"
@@ -347,7 +347,7 @@ export default function EditCalendar() {
                                 helperText={errors.title?.message}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <TextField
                                 {...register("description")}
                                 label="Description"
@@ -358,7 +358,7 @@ export default function EditCalendar() {
                                 helperText={errors.description?.message}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <FormControl fullWidth error={!!errors.kindeUserId}>
                                 <InputLabel>Assigned User</InputLabel>
                                 <Select
@@ -393,7 +393,7 @@ export default function EditCalendar() {
                                 )}
                             </FormControl>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <FormControlLabel
                                 control={<Checkbox {...register("isPublished")} />}
                                 label="Published (requires 24 pictures)"
@@ -405,7 +405,7 @@ export default function EditCalendar() {
                             )}
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                                 <Typography variant="h6">
                                     Pictures ({totalPictureCount}/24)
@@ -440,12 +440,12 @@ export default function EditCalendar() {
                             )}
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <Grid container spacing={2}>
                                 {existingPictures
                                     .sort((a, b) => a.day - b.day)
                                     .map((picture) => (
-                                        <Grid item xs={12} sm={6} md={4} lg={3} key={picture.id}>
+                                        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={picture.id}>
                                             <Card>
                                                 <CardMedia
                                                     component="img"
@@ -477,7 +477,7 @@ export default function EditCalendar() {
                                         </Grid>
                                     ))}
                                 {newPictures.map((picture, index) => (
-                                    <Grid item xs={12} sm={6} md={4} lg={3} key={`new-${index}`}>
+                                    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={`new-${index}`}>
                                         <Card sx={{ border: "2px dashed", borderColor: "primary.main" }}>
                                             <CardMedia
                                                 component="img"
@@ -523,12 +523,12 @@ export default function EditCalendar() {
                         </Grid>
 
                         {error && (
-                            <Grid item xs={12}>
+                            <Grid size={{ xs: 12 }}>
                                 <Alert severity="error">{error}</Alert>
                             </Grid>
                         )}
 
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <Box sx={{ display: "flex", gap: 2 }}>
                                 <Button
                                     type="submit"
