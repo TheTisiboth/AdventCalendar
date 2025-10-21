@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
         const publishedParam = searchParams.get("published")
 
         const options: {
-            isArchived?: boolean
+            archived?: boolean
             isPublished?: boolean
             kindeUserId?: string | null
         } = {}
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         }
 
         if (archivedParam !== null) {
-            options.isArchived = archivedParam === "true"
+            options.archived = archivedParam === "true"
         }
 
         if (publishedParam !== null) {

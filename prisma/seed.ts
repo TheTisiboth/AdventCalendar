@@ -47,7 +47,6 @@ async function main() {
           year: 2023,
           title: 'Advent Calendar 2023',
           description: 'A beautiful collection of moments from 2023',
-          isArchived: true,
           isPublished: true
         }
       ]

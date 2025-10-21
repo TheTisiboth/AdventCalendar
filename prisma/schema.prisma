@@ -23,7 +23,6 @@ model Calendar {
   year        Int       @unique
   title       String
   description String?
-  isArchived  Boolean   @default(false)
   isPublished Boolean   @default(true)
   coverImage  String?
   createdAt   DateTime  @default(now())

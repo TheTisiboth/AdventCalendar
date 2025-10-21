@@ -40,7 +40,6 @@ const calendarSchema = z.object({
     title: z.string().min(1, "Title is required"),
     description: z.string().optional(),
     isPublished: z.boolean(),
-    isArchived: z.boolean(),
     kindeUserId: z.string().nullable().optional(),
     pictureCount: z.number().optional()
 }).refine(
@@ -113,7 +112,6 @@ export default function EditCalendar() {
             title: "",
             description: "",
             isPublished: true,
-            isArchived: false,
             kindeUserId: null
         }
     })
@@ -135,7 +133,6 @@ export default function EditCalendar() {
                     title: data.title,
                     description: data.description || "",
                     isPublished: data.isPublished,
-                    isArchived: data.isArchived,
                     kindeUserId: data.kindeUserId || null,
                     pictureCount: data.pictures?.length || 0
                 })
@@ -406,12 +403,6 @@ export default function EditCalendar() {
                                     {errors.isPublished.message}
                                 </Typography>
                             )}
-                        </Grid>
-                        <Grid item xs={12}>
-                            <FormControlLabel
-                                control={<Checkbox {...register("isArchived")} />}
-                                label="Archived"
-                            />
                         </Grid>
 
                         <Grid item xs={12}>

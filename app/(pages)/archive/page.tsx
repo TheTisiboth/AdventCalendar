@@ -17,7 +17,7 @@ export default function ArchivePage() {
   useEffect(() => {
     async function fetchCalendars() {
       try {
-        const response = await authenticatedFetch(API_BASE_PATH + "calendars?published=true")
+        const response = await authenticatedFetch(API_BASE_PATH + "calendars?published=true&archived=true")
         if (response.ok) {
           const data = await response.json()
           setCalendars(data)
@@ -77,19 +77,6 @@ export default function ArchivePage() {
                 <p style={{ fontSize: "0.9rem", color: "#888", margin: 0 }}>
                   {calendar.description}
                 </p>
-              )}
-              {calendar.isArchived && (
-                <span style={{
-                  display: "inline-block",
-                  marginTop: "0.5rem",
-                  padding: "0.25rem 0.5rem",
-                  backgroundColor: "#f0f0f0",
-                  borderRadius: "4px",
-                  fontSize: "0.8rem",
-                  color: "#666"
-                }}>
-                  Archived
-                </span>
               )}
             </Link>
           ))}
