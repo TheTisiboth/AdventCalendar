@@ -8,7 +8,7 @@ import CloseIcon from "@mui/icons-material/Close"
 import Slide from "@mui/material/Slide"
 import { TransitionProps } from "@mui/material/transitions"
 import { Dispatch, FC, Ref, SetStateAction, forwardRef } from "react"
-import type { Picture } from "@prisma/client"
+import type { PictureWithUrl } from "@actions/pictures"
 import { usePicture } from "@/hooks/usePicture"
 
 const Transition = forwardRef(function Transition(
@@ -21,7 +21,7 @@ const Transition = forwardRef(function Transition(
 })
 
 type DialogProps = {
-    picture: Picture
+    picture: PictureWithUrl
     open: boolean
     setOpen: Dispatch<SetStateAction<boolean>>
 }

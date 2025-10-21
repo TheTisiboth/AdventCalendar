@@ -28,6 +28,9 @@
       ],
       "@api/*": [
         "./app/api/*"
+      ],
+      "@actions/*": [
+        "./app/actions/*"
       ]
     },
     "forceConsistentCasingInFileNames": true

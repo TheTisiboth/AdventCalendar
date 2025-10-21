@@ -2,14 +2,14 @@
 
 import { Button, Paper, Skeleton } from "@mui/material"
 import { FC, useRef } from "react"
-import type { Picture } from "@prisma/client"
+import type { PictureWithUrl } from "@actions/pictures"
 import FullScreenDialog from "./FullscreenDialog"
 import { usePicture } from "@/hooks/usePicture"
 import "./Day.css"
 import {  useResponsiveStore } from "@/store"
 
 type DayProps = {
-    picture: Picture
+    picture: PictureWithUrl
     isArchived?: boolean
 }
 export const Day: FC<DayProps> = ({ picture, isArchived = false }) => {

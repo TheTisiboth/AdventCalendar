@@ -3,8 +3,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import type { Calendar } from "@prisma/client"
-import { API_BASE_PATH } from "@/constants"
-import { authenticatedFetch } from "@/utils/api"
+import { getCalendars } from "@actions/calendars"
 
 /**
  * Archive page - Client Component
@@ -17,12 +16,9 @@ export default function ArchivePage() {
   useEffect(() => {
     async function fetchCalendars() {
       try {
-        const response = await authenticatedFetch(API_BASE_PATH + "calendars?published=true&archived=true")
-        if (response.ok) {
-          const data = await response.json()
-          setCalendars(data)
-        }
-      } catch (error) {
+        const data = await getCalendars({ archived: true, isPublished: true })
+        setCalendars(data)
+      } catch {
         // Silently fail - user will see empty state
       } finally {
         setLoading(false)

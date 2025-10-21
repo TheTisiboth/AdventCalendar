@@ -27,7 +27,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useQuery } from "@tanstack/react-query"
-import { authenticatedFetch } from "@/utils/api"
+import { getKindeUsers, adminCreateCalendar } from "@actions/admin"
 
 type KindeUser = {
     id: string
@@ -90,19 +90,7 @@ export default function CreateCalendar() {
 
     const { data: users, isLoading: isLoadingUsers, error: usersError } = useQuery<KindeUser[], Error>({
         queryKey: ["kinde-users"],
-        queryFn: async () => {
-            try {
-                const response = await authenticatedFetch("/api/admin/users")
-                if (!response.ok) {
-                    const errorData = await response.json()
-                    throw new Error(errorData.error || "Failed to fetch users")
-                }
-                const data = await response.json()
-                return data
-            } catch (error) {
-                throw error
-            }
-        }
+        queryFn: getKindeUsers
     })
 
     const {
@@ -197,28 +185,14 @@ export default function CreateCalendar() {
         setError(null)
 
         try {
-            const formData = new FormData()
-            formData.append("year", data.year.toString())
-            formData.append("title", data.title)
-            formData.append("description", data.description || "")
-            formData.append("kindeUserId", data.kindeUserId || "")
-            formData.append("isPublished", data.isPublished.toString())
-
-            // Append pictures with their day assignments
-            data.pictures.forEach((picture) => {
-                formData.append(`pictures`, picture.file)
-                formData.append(`days`, picture.day.toString())
+            await adminCreateCalendar({
+                year: data.year,
+                title: data.title,
+                description: data.description,
+                kindeUserId: data.kindeUserId,
+                isPublished: data.isPublished,
+                pictures: data.pictures
             })
-
-            const response = await authenticatedFetch("/api/admin/calendars/create", {
-                method: "POST",
-                body: formData
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || "Failed to create calendar")
-            }
 
             router.push("/admin/manage")
         } catch (err) {

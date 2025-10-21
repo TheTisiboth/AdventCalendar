@@ -1,12 +1,11 @@
 import { Dispatch, RefObject, SetStateAction, useState } from "react"
-import type { Picture } from "@prisma/client"
-import { CDN_URL } from "@/constants"
 import dayjs from "dayjs"
 import { usePictureAPI } from "./api/usePictureAPI"
 import { useCalendarStore, useResponsiveStore } from "@/store"
+import type { PictureWithUrl } from "@actions/pictures"
 
 type UsePictureProps = {
-    picture: Picture
+    picture: PictureWithUrl
     imageRef?: RefObject<HTMLImageElement | null>
 }
 
@@ -28,7 +27,8 @@ export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureRe
     const [open, setOpen] = useState(false)
     const isBefore = dayjs(picture.date).isBefore(dayjs(date))
     const isToday = dayjs(date).isSame(dayjs(picture.date), "day")
-    const imageSRC = picture.key.includes(".jpg") || picture.key.includes(".png") ? CDN_URL + picture.key : picture.key
+    // Use signed URL from picture object
+    const imageSRC = picture.url
 
     const computeTextColor = (): string => {
         if (isBefore || isToday) {
