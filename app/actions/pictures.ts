@@ -6,8 +6,34 @@ import { requireKindeAuth, isKindeAdmin } from "@api/lib/kindeAuth"
 import { getCalendarByYear } from "@api/lib/dal/calendars"
 import { getSignedUrl } from "@api/lib/s3"
 import type { Picture } from "@prisma/client"
+import { shuffle } from "@/utils/utils"
 
 export type PictureWithUrl = Picture & { url: string }
+
+/**
+ * Generate fake pictures for testing/demo purposes
+ * Does NOT require authentication - used for public test page
+ */
+export async function getFakePictures(year: number): Promise<PictureWithUrl[]> {
+    // Generate 24 fake pictures (Dec 1-24)
+    const pictures: PictureWithUrl[] = []
+
+    for (let day = 1; day <= 24; day++) {
+        pictures.push({
+            id: day,
+            day,
+            year,
+            key: `fake/${year}/${day}`,
+            url: `https://picsum.photos/400/400?sig${day}`,  // Random image from Lorem Picsum
+            isOpen: false,
+            isOpenable: true,
+            date: new Date(year, 11, day), // December is month 11
+        })
+    }
+
+    // Shuffle pictures with a consistent seed so they appear in random order
+    return shuffle(pictures, year)
+}
 
 /**
  * Get all pictures for a given year with signed URLs

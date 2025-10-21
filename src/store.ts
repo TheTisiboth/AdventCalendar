@@ -36,7 +36,7 @@ const calendarStore = create<CalendarStore>()((set, get) => ({
     date: new Date(),
     endingDate,
     startingDate,
-    isFake: true,
+    isFake: false, // Default to false (real mode), test page will set to true
     isStarted: () => dayjs(get().date).isAfter(startingDate),
     setDate: (date) => {
         set({ date })
