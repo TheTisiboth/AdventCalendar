@@ -15,7 +15,6 @@ export async function POST(request: NextRequest) {
         const description = formData.get("description") as string
         const kindeUserId = formData.get("kindeUserId") as string | null
         const isPublished = formData.get("isPublished") === "true"
-        const isArchived = formData.get("isArchived") === "true"
 
         // Validate required fields
         if (!year || !title) {
@@ -126,8 +125,7 @@ export async function POST(request: NextRequest) {
                     title,
                     description: description || null,
                     kindeUserId: kindeUserId && kindeUserId !== "" ? kindeUserId : null,
-                    isPublished,
-                    isArchived
+                    isPublished
                 }
             })
 

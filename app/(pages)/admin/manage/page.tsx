@@ -31,7 +31,6 @@ type Calendar = {
     year: number
     title: string
     description: string | null
-    isArchived: boolean
     isPublished: boolean
     kindeUserId: string | null
     pictureCount: number
@@ -192,16 +191,11 @@ export default function ManageCalendars() {
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
-                                        <Box sx={{ display: "flex", gap: 1 }}>
-                                            {calendar.isPublished ? (
-                                                <Chip label="Published" color="success" size="small" />
-                                            ) : (
-                                                <Chip label="Draft" color="warning" size="small" />
-                                            )}
-                                            {calendar.isArchived && (
-                                                <Chip label="Archived" color="default" size="small" />
-                                            )}
-                                        </Box>
+                                        {calendar.isPublished ? (
+                                            <Chip label="Published" color="success" size="small" />
+                                        ) : (
+                                            <Chip label="Draft" color="warning" size="small" />
+                                        )}
                                     </TableCell>
                                     <TableCell>
                                         <Box sx={{ display: "flex", gap: 1 }}>

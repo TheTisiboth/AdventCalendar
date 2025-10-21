@@ -20,7 +20,6 @@ export async function GET(_request: NextRequest) {
             year: calendar.year,
             title: calendar.title,
             description: calendar.description,
-            isArchived: calendar.isArchived,
             isPublished: calendar.isPublished,
             kindeUserId: calendar.kindeUserId,
             pictureCount: calendar._count.pictures

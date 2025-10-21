@@ -48,8 +48,8 @@ export async function GET(
             year: calendar.year,
             title: calendar.title,
             description: calendar.description,
-            isArchived: calendar.isArchived,
             isPublished: calendar.isPublished,
+            kindeUserId: calendar.kindeUserId,
             pictures: picturesWithUrls
         })
     } catch (error) {
@@ -71,7 +71,7 @@ export async function PATCH(
         const year = Number(yearParam)
         const body = await request.json()
 
-        const { title, description, isPublished, isArchived, kindeUserId } = body
+        const { title, description, isPublished, kindeUserId } = body
 
         // Check if calendar exists
         const existingCalendar = await prisma.calendar.findUnique({
@@ -105,7 +105,6 @@ export async function PATCH(
                 title,
                 description: description || null,
                 isPublished,
-                isArchived,
                 ...(kindeUserId !== undefined && { kindeUserId: kindeUserId || null })
             }
         })

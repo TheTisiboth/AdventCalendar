@@ -10,13 +10,16 @@ import type { Calendar, Picture } from '@prisma/client'
  * Get all calendars with optional filtering
  */
 export async function getAllCalendars(options?: {
-  isArchived?: boolean
+  archived?: boolean // if true, returns only past years; if false, returns only current year; if undefined, returns all
   isPublished?: boolean
   kindeUserId?: string | null
 }): Promise<Calendar[]> {
+  const currentYear = new Date().getFullYear()
+
   return prisma.calendar.findMany({
     where: {
-      ...(options?.isArchived !== undefined && { isArchived: options.isArchived }),
+      ...(options?.archived === true && { year: { lt: currentYear } }),
+      ...(options?.archived === false && { year: currentYear }),
       ...(options?.isPublished !== undefined && { isPublished: options.isPublished }),
       ...(options?.kindeUserId !== undefined && { kindeUserId: options.kindeUserId })
     },
@@ -53,21 +56,24 @@ export async function getCalendarByYear(
 }
 
 /**
- * Get the most recent calendar with optional user filtering
- * - If kindeUserId is undefined: Returns latest calendar regardless of assignment (admin access)
- * - If kindeUserId is provided: Returns latest calendar only if assigned to that user
+ * Get the current year's calendar with optional user filtering
+ * Only returns the calendar for the current year (not past years)
+ * - If kindeUserId is undefined: Returns calendar regardless of assignment (admin access)
+ * - If kindeUserId is provided: Returns calendar only if assigned to that user
  */
 export async function getLatestCalendar(
   includePictures = false,
   kindeUserId?: string
 ): Promise<Calendar & { pictures?: Picture[] } | null> {
+  const currentYear = new Date().getFullYear()
+
   return prisma.calendar.findFirst({
     where: {
+      year: currentYear,
       isPublished: true,
       // If kindeUserId provided, only get calendars assigned to that user
       ...(kindeUserId !== undefined && { kindeUserId: kindeUserId })
     },
-    orderBy: { year: 'desc' },
     include: {
       pictures: includePictures ? { orderBy: { day: 'asc' } } : false
     }

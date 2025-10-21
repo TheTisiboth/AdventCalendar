@@ -41,7 +41,6 @@ const calendarSchema = z.object({
     description: z.string().optional(),
     kindeUserId: z.string().nullable().optional(),
     isPublished: z.boolean(),
-    isArchived: z.boolean(),
     pictures: z
         .array(
             z.object({
@@ -120,7 +119,6 @@ export default function CreateCalendar() {
             description: "",
             kindeUserId: null,
             isPublished: false,
-            isArchived: false,
             pictures: []
         }
     })
@@ -205,7 +203,6 @@ export default function CreateCalendar() {
             formData.append("description", data.description || "")
             formData.append("kindeUserId", data.kindeUserId || "")
             formData.append("isPublished", data.isPublished.toString())
-            formData.append("isArchived", data.isArchived.toString())
 
             // Append pictures with their day assignments
             data.pictures.forEach((picture) => {
@@ -322,13 +319,6 @@ export default function CreateCalendar() {
                                 label="Published (requires 24 pictures)"
                             />
                         </Grid>
-                        <Grid item xs={12}>
-                            <FormControlLabel
-                                control={<Checkbox {...register("isArchived")} />}
-                                label="Archived"
-                            />
-                        </Grid>
-
                         <Grid item xs={12}>
                             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                                 <Typography variant="h6">
