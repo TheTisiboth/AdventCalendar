@@ -24,17 +24,10 @@ import { useRouter } from "next/navigation"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import AddIcon from "@mui/icons-material/Add"
 import DeleteIcon from "@mui/icons-material/Delete"
-import { authenticatedFetch } from "@/utils/api"
+import { adminGetAllCalendars, getKindeUsers, adminDeleteCalendar } from "@actions/admin"
+import type { Calendar } from "@prisma/client"
 
-type Calendar = {
-    id: number
-    year: number
-    title: string
-    description: string | null
-    isPublished: boolean
-    kindeUserId: string | null
-    pictureCount: number
-}
+type CalendarWithCount = Calendar & { pictureCount: number }
 
 type KindeUser = {
     id: string
@@ -46,58 +39,20 @@ export default function ManageCalendars() {
     const router = useRouter()
     const queryClient = useQueryClient()
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-    const [calendarToDelete, setCalendarToDelete] = useState<Calendar | null>(null)
+    const [calendarToDelete, setCalendarToDelete] = useState<CalendarWithCount | null>(null)
 
-    const { data: calendars, isLoading, error } = useQuery<Calendar[], Error>({
+    const { data: calendars, isLoading, error } = useQuery<CalendarWithCount[], Error>({
         queryKey: ["admin-calendars"],
-        queryFn: async () => {
-            try {
-                const response = await authenticatedFetch("/api/admin/calendars")
-                if (!response.ok) {
-                    const errorData = await response.json()
-                    throw new Error(errorData.error || `Failed to fetch calendars (${response.status})`)
-                }
-                return response.json()
-            } catch (error) {
-                // AuthenticationError will be handled by middleware redirecting to login
-                throw error
-            }
-        }
+        queryFn: () => adminGetAllCalendars()
     })
 
     const { data: users, isLoading: isLoadingUsers, error: usersError } = useQuery<KindeUser[], Error>({
         queryKey: ["kinde-users"],
-        queryFn: async () => {
-            try {
-                const response = await authenticatedFetch("/api/admin/users")
-                if (!response.ok) {
-                    const errorData = await response.json()
-                    throw new Error(errorData.error || `Failed to fetch users (${response.status})`)
-                }
-
-                return await response.json()
-            } catch (error) {
-                throw error
-            }
-        }
+        queryFn: getKindeUsers
     })
 
     const deleteMutation = useMutation({
-        mutationFn: async (year: number) => {
-            try {
-                const response = await authenticatedFetch(`/api/admin/calendars/${year}`, {
-                    method: "DELETE"
-                })
-                if (!response.ok) {
-                    const errorData = await response.json()
-                    throw new Error(errorData.error || "Failed to delete calendar")
-                }
-                return response.json()
-            } catch (error) {
-                // AuthenticationError will be handled by middleware redirecting to login
-                throw error
-            }
-        },
+        mutationFn: adminDeleteCalendar,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["admin-calendars"] })
             setDeleteDialogOpen(false)
@@ -106,7 +61,7 @@ export default function ManageCalendars() {
     })
 
 
-    const handleDeleteClick = (calendar: Calendar) => {
+    const handleDeleteClick = (calendar: CalendarWithCount) => {
         setCalendarToDelete(calendar)
         setDeleteDialogOpen(true)
     }

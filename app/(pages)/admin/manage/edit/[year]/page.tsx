@@ -7,7 +7,6 @@ import {
     TextField,
     Button,
     Paper,
-    Grid,
     FormControlLabel,
     Checkbox,
     Alert,
@@ -26,14 +25,15 @@ import {
     FormControl,
     InputLabel
 } from "@mui/material"
+import Grid from "@mui/material/Grid"
 import { useRouter, useParams } from "next/navigation"
 import DeleteIcon from "@mui/icons-material/Delete"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { useQuery } from "@tanstack/react-query"
-import { authenticatedFetch } from "@/utils/api"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { getKindeUsers, adminGetCalendar, adminUpdateCalendar, adminUploadPictures, adminDeletePicture } from "@actions/admin"
 
 const calendarSchema = z.object({
     year: z.number().min(2020).max(2100),
@@ -77,28 +77,25 @@ type KindeUser = {
 export default function EditCalendar() {
     const router = useRouter()
     const params = useParams()
+    const queryClient = useQueryClient()
     const year = Number(params.year)
 
-    const [existingPictures, setExistingPictures] = useState<ExistingPicture[]>([])
     const [newPictures, setNewPictures] = useState<NewPictureWithPreview[]>([])
-    const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [isSubmitting, setIsSubmitting] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [pictureToDelete, setPictureToDelete] = useState<ExistingPicture | null>(null)
-    const [isDeleting, setIsDeleting] = useState(false)
 
     const { data: users, isLoading: isLoadingUsers, error: usersError } = useQuery<KindeUser[], Error>({
         queryKey: ["kinde-users"],
-        queryFn: async () => {
-            const response = await authenticatedFetch("/api/admin/users")
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || `Failed to fetch users (${response.status})`)
-            }
-            return response.json()
-        }
+        queryFn: getKindeUsers
     })
+
+    const { data: calendar, isLoading, error: calendarError } = useQuery({
+        queryKey: ["admin-calendar", year],
+        queryFn: () => adminGetCalendar(year)
+    })
+
+    const existingPictures = calendar?.pictures || []
 
     const {
         register,
@@ -116,38 +113,51 @@ export default function EditCalendar() {
         }
     })
 
+    // Update form when calendar data is loaded
     useEffect(() => {
-        const fetchCalendar = async () => {
-            try {
-                const response = await authenticatedFetch(`/api/admin/calendars/${year}`)
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch calendar")
-                }
-
-                const data = await response.json()
-
-                // Set form values
-                reset({
-                    year: data.year,
-                    title: data.title,
-                    description: data.description || "",
-                    isPublished: data.isPublished,
-                    kindeUserId: data.kindeUserId || null,
-                    pictureCount: data.pictures?.length || 0
-                })
-
-                // Set existing pictures
-                setExistingPictures(data.pictures || [])
-            } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to load calendar")
-            } finally {
-                setIsLoading(false)
-            }
+        if (calendar) {
+            reset({
+                year: calendar.year,
+                title: calendar.title,
+                description: calendar.description || "",
+                isPublished: calendar.isPublished,
+                kindeUserId: calendar.kindeUserId || null,
+                pictureCount: calendar.pictures?.length || 0
+            })
         }
+    }, [calendar, reset])
 
-        fetchCalendar()
-    }, [year, reset])
+    const updateMutation = useMutation({
+        mutationFn: (data: CalendarFormData) => adminUpdateCalendar(year, {
+            title: data.title,
+            description: data.description,
+            isPublished: data.isPublished,
+            kindeUserId: data.kindeUserId
+        }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["admin-calendar", year] })
+            queryClient.invalidateQueries({ queryKey: ["admin-calendars"] })
+        }
+    })
+
+    const uploadMutation = useMutation({
+        mutationFn: (pictures: Array<{ day: number; file: File }>) => adminUploadPictures({ year, pictures }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["admin-calendar", year] })
+            queryClient.invalidateQueries({ queryKey: ["admin-calendars"] })
+            setNewPictures([])
+        }
+    })
+
+    const deleteMutation = useMutation({
+        mutationFn: adminDeletePicture,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["admin-calendar", year] })
+            queryClient.invalidateQueries({ queryKey: ["admin-calendars"] })
+            setDeleteDialogOpen(false)
+            setPictureToDelete(null)
+        }
+    })
 
     const onSubmit = async (data: CalendarFormData) => {
         // Block saving if published is checked but calendar has < 24 pictures (including new ones)
@@ -157,49 +167,22 @@ export default function EditCalendar() {
             return
         }
 
-        setIsSubmitting(true)
         setError(null)
 
         try {
             // First, upload any new pictures if they exist
             if (newPictures.length > 0) {
-                const formData = new FormData()
-
-                newPictures.forEach((picture) => {
-                    formData.append("pictures", picture.file)
-                    formData.append("days", picture.day.toString())
-                })
-
-                const uploadResponse = await authenticatedFetch(`/api/admin/calendars/${year}/pictures`, {
-                    method: "POST",
-                    body: formData
-                })
-
-                if (!uploadResponse.ok) {
-                    const errorData = await uploadResponse.json()
-                    throw new Error(errorData.error || "Failed to upload pictures")
-                }
+                await uploadMutation.mutateAsync(
+                    newPictures.map(pic => ({ day: pic.day, file: pic.file }))
+                )
             }
 
             // Then, update the calendar metadata
-            const response = await authenticatedFetch(`/api/admin/calendars/${year}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || "Failed to update calendar")
-            }
+            await updateMutation.mutateAsync(data)
 
             router.push("/admin/manage")
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to update calendar")
-        } finally {
-            setIsSubmitting(false)
         }
     }
 
@@ -208,31 +191,9 @@ export default function EditCalendar() {
         setDeleteDialogOpen(true)
     }
 
-    const handleDeleteConfirm = async () => {
+    const handleDeleteConfirm = () => {
         if (!pictureToDelete) return
-
-        setIsDeleting(true)
-        setError(null)
-
-        try {
-            const response = await authenticatedFetch(`/api/admin/calendars/${year}/pictures/${pictureToDelete.id}`, {
-                method: "DELETE"
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || "Failed to delete picture")
-            }
-
-            // Remove picture from state
-            setExistingPictures((prev) => prev.filter((p) => p.id !== pictureToDelete.id))
-            setDeleteDialogOpen(false)
-            setPictureToDelete(null)
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to delete picture")
-        } finally {
-            setIsDeleting(false)
-        }
+        deleteMutation.mutate(pictureToDelete.id)
     }
 
     const handleDeleteCancel = () => {
@@ -301,11 +262,26 @@ export default function EditCalendar() {
 
     const totalPictureCount = existingPictures.length + newPictures.length
     const availableDays = Array.from({ length: 24 }, (_, i) => i + 1)
+    const isSubmitting = updateMutation.isPending || uploadMutation.isPending
+    const isDeleting = deleteMutation.isPending
 
     if (isLoading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
                 <CircularProgress />
+            </Box>
+        )
+    }
+
+    if (calendarError || !calendar) {
+        return (
+            <Box>
+                <Typography variant="h5" color="error">
+                    Failed to load calendar
+                </Typography>
+                <Button onClick={() => router.push("/admin/manage")}>
+                    Back to Manage
+                </Button>
             </Box>
         )
     }
@@ -327,7 +303,7 @@ export default function EditCalendar() {
             <Paper sx={{ p: 3, mt: 3 }}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField
                                 {...register("year", { valueAsNumber: true })}
                                 label="Year"
@@ -338,7 +314,7 @@ export default function EditCalendar() {
                                 helperText={errors.year?.message}
                             />
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField
                                 {...register("title")}
                                 label="Title"
@@ -347,7 +323,7 @@ export default function EditCalendar() {
                                 helperText={errors.title?.message}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <TextField
                                 {...register("description")}
                                 label="Description"
@@ -358,7 +334,7 @@ export default function EditCalendar() {
                                 helperText={errors.description?.message}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <FormControl fullWidth error={!!errors.kindeUserId}>
                                 <InputLabel>Assigned User</InputLabel>
                                 <Select
@@ -393,7 +369,7 @@ export default function EditCalendar() {
                                 )}
                             </FormControl>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <FormControlLabel
                                 control={<Checkbox {...register("isPublished")} />}
                                 label="Published (requires 24 pictures)"
@@ -405,7 +381,7 @@ export default function EditCalendar() {
                             )}
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                                 <Typography variant="h6">
                                     Pictures ({totalPictureCount}/24)
@@ -440,12 +416,12 @@ export default function EditCalendar() {
                             )}
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <Grid container spacing={2}>
                                 {existingPictures
                                     .sort((a, b) => a.day - b.day)
                                     .map((picture) => (
-                                        <Grid item xs={12} sm={6} md={4} lg={3} key={picture.id}>
+                                        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={picture.id}>
                                             <Card>
                                                 <CardMedia
                                                     component="img"
@@ -477,7 +453,7 @@ export default function EditCalendar() {
                                         </Grid>
                                     ))}
                                 {newPictures.map((picture, index) => (
-                                    <Grid item xs={12} sm={6} md={4} lg={3} key={`new-${index}`}>
+                                    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={`new-${index}`}>
                                         <Card sx={{ border: "2px dashed", borderColor: "primary.main" }}>
                                             <CardMedia
                                                 component="img"
@@ -523,12 +499,12 @@ export default function EditCalendar() {
                         </Grid>
 
                         {error && (
-                            <Grid item xs={12}>
+                            <Grid size={{ xs: 12 }}>
                                 <Alert severity="error">{error}</Alert>
                             </Grid>
                         )}
 
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <Box sx={{ display: "flex", gap: 2 }}>
                                 <Button
                                     type="submit"

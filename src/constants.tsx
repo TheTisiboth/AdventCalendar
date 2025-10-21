@@ -1,5 +1,3 @@
-export const API_BASE_PATH = "/api/"
-
 export const CDN_URL = process.env.NEXT_PUBLIC_CDN_URL!
 export const ONE_SECOND_MS = 1000
 export const ONE_MINUTE_MS = ONE_SECOND_MS * 60

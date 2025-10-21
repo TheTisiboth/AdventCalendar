@@ -4,9 +4,8 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Calendar } from "@/components/Calendar/Calendar"
-import { API_BASE_PATH } from "@/constants"
 import { isInAdventPeriod } from "@/utils/utils"
-import { authenticatedFetch } from "@/utils/api"
+import { getCalendar } from "@actions/calendars"
 
 type PageProps = {
   params: Promise<{ year: string }>
@@ -38,15 +37,14 @@ export default function ArchivedCalendarPage({ params }: PageProps) {
 
       // Verify calendar exists
       try {
-        const response = await authenticatedFetch(API_BASE_PATH + `calendars/${parsedYear}`)
+        const calendar = await getCalendar(parsedYear)
 
-        if (response.ok) {
-          const calendar = await response.json()
+        if (calendar) {
           setCalendarTitle(calendar.title)
         } else {
           setNotFound(true)
         }
-      } catch (error) {
+      } catch {
         setNotFound(true)
       } finally {
         setLoading(false)

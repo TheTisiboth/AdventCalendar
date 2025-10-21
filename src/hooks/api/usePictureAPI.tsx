@@ -1,8 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import type { Picture } from "@prisma/client"
-import { API_BASE_PATH } from "@/constants"
 import { useCalendarStore, useSnackBarStore } from "@/store"
-import { api } from "./baseAPI"
+import { getPictures, openPicture as openPictureAction, resetPictures as resetPicturesAction, type PictureWithUrl } from "@actions/pictures"
 
 const QUERY_KEY = "pictures"
 
@@ -11,7 +9,7 @@ type UsePictureAPIProps = {
 }
 
 /**
- * Hook for picture-related API operations
+ * Hook for picture-related operations using server actions
  * Handles fetching, opening, and resetting pictures for a specific year
  */
 export const usePictureAPI = ({ year }: UsePictureAPIProps) => {
@@ -23,40 +21,34 @@ export const usePictureAPI = ({ year }: UsePictureAPIProps) => {
 
   const resetPictures = async () => {
     try {
-      await api(API_BASE_PATH + "reset_pictures")
+      await resetPicturesAction(year)
       queryClient.invalidateQueries({ queryKey })
-    } catch (e) {
-      handleClick("Server error")
+    } catch (error) {
+      handleClick(error instanceof Error ? error.message : "Server error")
     }
   }
 
-  const openPicture = async (day: number) => {
-    const openPicturePath = isFake ? "open_fake_picture" : "open_picture"
+  const openPictureMutation = async (day: number) => {
     try {
-      const params = new URLSearchParams({
-        day: day.toString(),
-        year: year.toString()
-      })
-
-      return await api<Picture>(
-        API_BASE_PATH + `${openPicturePath}?` + params
-      )
-    } catch (e) {
-      handleClick("Server error")
+      return await openPictureAction(day, year)
+    } catch (error) {
+      handleClick(error instanceof Error ? error.message : "Server error")
+      throw error
     }
   }
 
-  const { mutate } = useMutation(openPicture, {
-    onMutate: async (newPicDay) => {
+  const { mutate } = useMutation({
+    mutationFn: openPictureMutation,
+    onMutate: async (newPicDay: number) => {
       // Cancel any outgoing refetches
       // (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries({ queryKey })
 
       // Snapshot the previous value
-      const oldPics = queryClient.getQueryData<Picture[]>(queryKey)
+      const oldPics = queryClient.getQueryData<PictureWithUrl[]>(queryKey)
 
       // Perform optimistic update on the relevant picture
-      queryClient.setQueryData<Picture[]>(
+      queryClient.setQueryData<PictureWithUrl[]>(
         queryKey,
         (oldPics) => oldPics?.map((oldPic) => (oldPic.day === newPicDay ? { ...oldPic, isOpen: true } : oldPic))
       )
@@ -64,9 +56,9 @@ export const usePictureAPI = ({ year }: UsePictureAPIProps) => {
       // Return a context object with the snapshotted value
       return { oldPics }
     },
-    onError: (_err, _newPicDay, context) => {
+    onError: (_err: Error, _newPicDay: number, context?: { oldPics?: PictureWithUrl[] }) => {
       // Restore old state
-      queryClient.setQueryData<Picture[]>(queryKey, context?.oldPics)
+      queryClient.setQueryData<PictureWithUrl[]>(queryKey, context?.oldPics)
     },
     onSettled: () => {
       // Invalidate the queries, so all the Pictures will be refetched
@@ -75,16 +67,15 @@ export const usePictureAPI = ({ year }: UsePictureAPIProps) => {
   })
 
   const fetchPictures = async () => {
-    const getPicturePath = isFake ? "get_fake_pictures" : "get_pictures"
     try {
-      const url = API_BASE_PATH + getPicturePath + "?" + new URLSearchParams({ year: year.toString() })
-      return await api<Picture[]>(url)
-    } catch (e) {
+      return await getPictures(year)
+    } catch (error) {
+      console.error("Failed to fetch pictures:", error)
       return []
     }
   }
 
-  const { data: pictures, isLoading: isPictureLoading } = useQuery<Picture[]>({
+  const { data: pictures, isLoading: isPictureLoading } = useQuery<PictureWithUrl[]>({
     queryFn: fetchPictures,
     queryKey
   })
