@@ -2,11 +2,12 @@ import { Dispatch, RefObject, SetStateAction, useState, useTransition } from "re
 import dayjs from "dayjs"
 import { useCalendarStore, useResponsiveStore } from "@/store"
 import type { PictureWithUrl } from "@actions/pictures"
-import { openPicture as openPictureAction } from "@actions/pictures"
+import { openPicture as openPictureAction, openDummyPicture as openDummyPictureAction } from "@actions/pictures"
 
 type UsePictureProps = {
     picture: PictureWithUrl
     imageRef?: RefObject<HTMLImageElement | null>
+    isFakeMode?: boolean
 }
 
 type UsePictureReturn = {
@@ -20,7 +21,7 @@ type UsePictureReturn = {
     imageSRC: string
     isPending: boolean
 }
-export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureReturn => {
+export const usePicture = ({ picture, imageRef, isFakeMode = false }: UsePictureProps): UsePictureReturn => {
     const { isMobile } = useResponsiveStore("isMobile")
     const { date } = useCalendarStore("date")
     const [isPending, startTransition] = useTransition()
@@ -52,7 +53,13 @@ export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureRe
             // Use server action with React 19 useTransition for optimistic UI
             startTransition(async () => {
                 try {
-                    await openPictureAction(picture.day, picture.year)
+                    if (isFakeMode) {
+                        // For fake/test mode, use openDummyPicture (only requires day)
+                        await openDummyPictureAction(picture.day)
+                    } else {
+                        // For real calendars, use openPicture (requires day and year)
+                        await openPictureAction(picture.day, picture.year)
+                    }
                 } catch (error) {
                     console.error("Failed to open picture:", error)
                 }

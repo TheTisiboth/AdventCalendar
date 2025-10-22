@@ -2,39 +2,29 @@
 
 import { revalidatePath } from "next/cache"
 import { getAllPictures, updatePictureOpenStatus } from "@api/lib/dal/pictures"
+import { getAllDummyPictures } from "@api/lib/dal/dummyPictures"
 import { requireKindeAuth, isKindeAdmin } from "@api/lib/kindeAuth"
 import { getCalendarByYear } from "@api/lib/dal/calendars"
 import { getSignedUrl } from "@api/lib/s3"
-import type { Picture } from "@prisma/client"
+import type { Picture, DummyPicture } from "@prisma/client"
 
 export type PictureWithUrl = Picture & { url: string }
+export type DummyPictureWithUrl = DummyPicture & { url: string }
 
 /**
  * Get all pictures for a given year with signed URLs
+ * Requires authentication
  * @param year - Calendar year
- * @param requireAuth - Whether authentication is required (default: true)
- *                      Set to false for public calendars (e.g., test page)
  */
-export async function getPictures(year: number, requireAuth: boolean = true): Promise<PictureWithUrl[]> {
-    let calendar
+export async function getPictures(year: number): Promise<PictureWithUrl[]> {
+    // Authenticated access - check user permissions
+    const kindeUser = await requireKindeAuth()
+    const isAdmin = await isKindeAdmin()
 
-    if (requireAuth) {
-        // Authenticated access - check user permissions
-        const kindeUser = await requireKindeAuth()
-        const isAdmin = await isKindeAdmin()
+    const calendar = await getCalendarByYear(year, false, isAdmin ? undefined : kindeUser.id)
 
-        calendar = await getCalendarByYear(year, false, isAdmin ? undefined : kindeUser.id)
-
-        if (!calendar) {
-            throw new Error("Calendar not found or access denied")
-        }
-    } else {
-        // Public access - only allow published calendars
-        calendar = await getCalendarByYear(year, false, undefined)
-
-        if (!calendar || !calendar.isPublished) {
-            throw new Error("Calendar not found or not published")
-        }
+    if (!calendar) {
+        throw new Error("Calendar not found or access denied")
     }
 
     const pictures = await getAllPictures(year)
@@ -92,5 +82,47 @@ export async function resetPictures(year: number): Promise<void> {
         revalidatePath(`/archive/${year}`)
     } catch (error) {
         throw new Error(error instanceof Error ? error.message : "Failed to reset pictures")
+    }
+}
+
+/**
+ * Get all dummy pictures for the test page
+ * These are fake pictures used for demo/testing purposes only
+ * No authentication required as this is for public test page
+ */
+export async function getDummyPictures(): Promise<DummyPictureWithUrl[]> {
+    const dummyPictures = await getAllDummyPictures()
+
+    // Dummy pictures already have URLs in their 'key' field (picsum URLs)
+    // So we just map them to include a 'url' property
+    const dummyPicturesWithUrls = dummyPictures.map((picture) => ({
+        ...picture,
+        url: picture.key // For dummy pictures, the key IS the URL
+    }))
+
+    return dummyPicturesWithUrls
+}
+
+/**
+ * Open a dummy picture for a specific day
+ * Used in fake/test mode only
+ * No authentication required
+ */
+export async function openDummyPicture(day: number): Promise<DummyPicture> {
+    try {
+        const { updateDummyPictureOpenStatus } = await import("@api/lib/dal/dummyPictures")
+
+        const picture = await updateDummyPictureOpenStatus(day, true)
+
+        if (!picture) {
+            throw new Error("Dummy picture not found")
+        }
+
+        // Revalidate the test page to show updated state
+        revalidatePath(`/test`)
+
+        return picture
+    } catch (error) {
+        throw new Error(error instanceof Error ? error.message : "Failed to open dummy picture")
     }
 }

@@ -22,7 +22,7 @@ export default function AdminDashboard() {
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                                 View, edit, and manage all advent calendars
                             </Typography>
-                            <Link href="/admin/manage" passHref legacyBehavior>
+                            <Link href="/admin/manage">
                                 <AdminDashboardButton variant="contained" fullWidth>
                                     Go to Calendars
                                 </AdminDashboardButton>
@@ -40,7 +40,7 @@ export default function AdminDashboard() {
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                                 Create a new advent calendar with 24 pictures
                             </Typography>
-                            <Link href="/admin/manage/create" passHref legacyBehavior>
+                            <Link href="/admin/manage/create">
                                 <AdminDashboardButton variant="contained" color="secondary" fullWidth>
                                     Create New
                                 </AdminDashboardButton>
@@ -50,5 +50,5 @@ export default function AdminDashboard() {
                 </Grid>
             </Grid>
         </Box>
-    )
+    );
 }

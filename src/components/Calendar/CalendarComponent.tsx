@@ -50,7 +50,7 @@ export const CalendarComponent: FC<CalendarComponentProps> = ({ pictures, year, 
             <Grid container>
                 {(!isFakeMode || isArchived) && (
                     <Grid size={{ xs: 12 }}>
-                        <DayGrid pictures={pictures} isArchived={isArchived} />
+                        <DayGrid pictures={pictures} isArchived={isArchived} isFakeMode={isFakeMode} />
                     </Grid>
                 )}
                 {isFakeMode && !isArchived && (
@@ -77,7 +77,7 @@ export const CalendarComponent: FC<CalendarComponentProps> = ({ pictures, year, 
                             </Grid>
                         </Grid>
                         <Grid size={{ xs: 10, lg: 9 }} offset={{ xs: 1 }}>
-                            <DayGrid pictures={pictures} />
+                            <DayGrid pictures={pictures} isFakeMode={isFakeMode} />
                         </Grid>
                     </>
                 )}

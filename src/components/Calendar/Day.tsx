@@ -11,13 +11,15 @@ import {  useResponsiveStore } from "@/store"
 type DayProps = {
     picture: PictureWithUrl
     isArchived?: boolean
+    isFakeMode?: boolean
 }
-export const Day: FC<DayProps> = ({ picture, isArchived = false }) => {
+export const Day: FC<DayProps> = ({ picture, isArchived = false, isFakeMode = false }) => {
     const imageRef = useRef<HTMLImageElement>(null)
     const { imageSize } = useResponsiveStore("imageSize")
     const { open, setOpen, isToday, isBefore, handleClick, textColor, divColor, imageSRC } = usePicture({
         picture,
-        imageRef
+        imageRef,
+        isFakeMode
     })
 
     // For archived calendars, all pictures are viewable
