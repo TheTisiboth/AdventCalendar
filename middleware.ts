@@ -20,6 +20,8 @@ export default withAuth(
 export const config = {
     matcher: [
         // Protected routes - require authentication
+        // Note: These routes are also protected by layout safeguards
+        // Middleware provides initial auth check, layouts enforce additional rules
         "/calendar/:path*",
         "/archive/:path*",
         "/admin/:path*"

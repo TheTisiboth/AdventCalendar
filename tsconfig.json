@@ -31,6 +31,9 @@
       ],
       "@actions/*": [
         "./app/actions/*"
+      ],
+      "@safeguards": [
+        "./app/safeguards"
       ]
     },
     "forceConsistentCasingInFileNames": true
