@@ -2,7 +2,7 @@ import { Dispatch, RefObject, SetStateAction, useState, useTransition } from "re
 import dayjs from "dayjs"
 import { useCalendarStore, useResponsiveStore } from "@/store"
 import type { PictureWithUrl } from "@actions/pictures"
-import { openPicture as openPictureAction, openDummyPicture as openDummyPictureAction } from "@actions/pictures"
+import { openPicture as openPictureAction, openTestPicture as openTestPictureAction } from "@actions/pictures"
 
 type UsePictureProps = {
     picture: PictureWithUrl
@@ -27,8 +27,19 @@ export const usePicture = ({ picture, imageRef, isFakeMode = false }: UsePicture
     const [isPending, startTransition] = useTransition()
 
     const [open, setOpen] = useState(false)
-    const isBefore = dayjs(picture.date).isBefore(dayjs(date))
-    const isToday = dayjs(date).isSame(dayjs(picture.date), "day")
+
+    // In fake mode, normalize dates to same year for comparison (ignore year difference)
+    // In real mode, compare full dates
+    const pictureDate = dayjs(picture.date)
+    const currentDate = dayjs(date)
+
+    const normalizedPictureDate = isFakeMode
+        ? pictureDate.year(currentDate.year())
+        : pictureDate
+
+    const isBefore = normalizedPictureDate.isBefore(currentDate, 'day')
+    const isToday = normalizedPictureDate.isSame(currentDate, 'day')
+
     // Use signed URL from picture object
     const imageSRC = picture.url
 
@@ -54,8 +65,8 @@ export const usePicture = ({ picture, imageRef, isFakeMode = false }: UsePicture
             startTransition(async () => {
                 try {
                     if (isFakeMode) {
-                        // For fake/test mode, use openDummyPicture (only requires day)
-                        await openDummyPictureAction(picture.day)
+                        // For fake/test mode, use openTestPicture (only requires day)
+                        await openTestPictureAction(picture.day)
                     } else {
                         // For real calendars, use openPicture (requires day and year)
                         await openPictureAction(picture.day, picture.year)

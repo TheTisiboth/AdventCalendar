@@ -87,7 +87,8 @@ export async function adminGetAllCalendars(options?: {
         where: {
             ...(options?.archived === true && { year: { lt: currentYear } }),
             ...(options?.archived === false && { year: currentYear }),
-            ...(options?.isPublished !== undefined && { isPublished: options.isPublished })
+            ...(options?.isPublished !== undefined && { isPublished: options.isPublished }),
+            isFake: false // Exclude fake calendars from admin manage page
         },
         include: {
             _count: {
@@ -127,6 +128,7 @@ export async function adminCreateCalendar(data: {
             description: data.description ?? null,
             kindeUserId: data.kindeUserId ?? null,
             isPublished: data.isPublished,
+            isFake: false,
             coverImage: null
         })
 

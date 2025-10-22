@@ -1,27 +1,23 @@
 import { CalendarTest } from "@/components/Calendar/CalendarTest"
-import { getDummyPictures } from "@actions/pictures"
+import { getTestPictures } from "@actions/pictures"
 import { notFound } from "next/navigation"
+import { TEST_YEAR } from "@/constants"
 
 /**
  * Test Page - Public
  * Displays a test calendar (fixed year) with demo mode enabled
- * Uses dummy/fake pictures from the DummyPicture table
+ * Uses fake pictures from the test calendar (year 1996)
  */
 export default async function TestPage() {
-    const TEST_YEAR = 1996
-
     try {
-        // Fetch dummy pictures (fake data for testing)
-        const pictures = await getDummyPictures()
+        const pictures = await getTestPictures()
 
         if (pictures.length === 0) {
-            // If no dummy pictures exist, show 404
             notFound()
         }
 
         return <CalendarTest pictures={pictures} year={TEST_YEAR} />
     } catch {
-        // If something goes wrong, show 404
         notFound()
     }
 }

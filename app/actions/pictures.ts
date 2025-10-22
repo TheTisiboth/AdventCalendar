@@ -2,18 +2,18 @@
 
 import { revalidatePath } from "next/cache"
 import { getAllPictures, updatePictureOpenStatus } from "@api/lib/dal/pictures"
-import { getAllDummyPictures } from "@api/lib/dal/dummyPictures"
 import { requireKindeAuth, isKindeAdmin } from "@api/lib/kindeAuth"
 import { getCalendarByYear } from "@api/lib/dal/calendars"
 import { getSignedUrl } from "@api/lib/s3"
-import type { Picture, DummyPicture } from "@prisma/client"
+import { TEST_YEAR } from "@/constants"
+import type { Picture } from "@prisma/client"
 
 export type PictureWithUrl = Picture & { url: string }
-export type DummyPictureWithUrl = DummyPicture & { url: string }
 
 /**
  * Get all pictures for a given year with signed URLs
  * Requires authentication
+ * Excludes fake calendars (use getTestPictures for those)
  * @param year - Calendar year
  */
 export async function getPictures(year: number): Promise<PictureWithUrl[]> {
@@ -27,9 +27,14 @@ export async function getPictures(year: number): Promise<PictureWithUrl[]> {
         throw new Error("Calendar not found or access denied")
     }
 
+    // Prevent access to fake calendars through this endpoint
+    if (calendar.isFake) {
+        throw new Error("Use test endpoint for fake calendars")
+    }
+
     const pictures = await getAllPictures(year)
 
-    // Generate signed URLs for all pictures
+    // Generate signed URLs for real calendars (S3 keys)
     const picturesWithUrls = pictures.map((picture) => ({
         ...picture,
         url: getSignedUrl(picture.key)
@@ -86,36 +91,38 @@ export async function resetPictures(year: number): Promise<void> {
 }
 
 /**
- * Get all dummy pictures for the test page
- * These are fake pictures used for demo/testing purposes only
+ * Get all pictures for the test page (fake calendar)
  * No authentication required as this is for public test page
+ * Returns pictures from the fake calendar (year 1996)
  */
-export async function getDummyPictures(): Promise<DummyPictureWithUrl[]> {
-    const dummyPictures = await getAllDummyPictures()
+export async function getTestPictures(): Promise<PictureWithUrl[]> {
+    const calendar = await getCalendarByYear(TEST_YEAR, false, undefined)
 
-    // Dummy pictures already have URLs in their 'key' field (picsum URLs)
-    // So we just map them to include a 'url' property
-    const dummyPicturesWithUrls = dummyPictures.map((picture) => ({
+    if (!calendar || !calendar.isPublished || !calendar.isFake) {
+        throw new Error("Test calendar not found or not published")
+    }
+
+    const pictures = await getAllPictures(TEST_YEAR)
+
+    // For fake calendars, the key IS the full URL (no need for S3 signing)
+    const picturesWithUrls = pictures.map((picture) => ({
         ...picture,
-        url: picture.key // For dummy pictures, the key IS the URL
+        url: picture.key
     }))
 
-    return dummyPicturesWithUrls
+    return picturesWithUrls
 }
 
 /**
- * Open a dummy picture for a specific day
- * Used in fake/test mode only
+ * Open a picture in the test calendar
  * No authentication required
  */
-export async function openDummyPicture(day: number): Promise<DummyPicture> {
+export async function openTestPicture(day: number): Promise<Picture> {
     try {
-        const { updateDummyPictureOpenStatus } = await import("@api/lib/dal/dummyPictures")
-
-        const picture = await updateDummyPictureOpenStatus(day, true)
+        const picture = await updatePictureOpenStatus(day, TEST_YEAR, true)
 
         if (!picture) {
-            throw new Error("Dummy picture not found")
+            throw new Error("Test picture not found")
         }
 
         // Revalidate the test page to show updated state
@@ -123,6 +130,6 @@ export async function openDummyPicture(day: number): Promise<DummyPicture> {
 
         return picture
     } catch (error) {
-        throw new Error(error instanceof Error ? error.message : "Failed to open dummy picture")
+        throw new Error(error instanceof Error ? error.message : "Failed to open test picture")
     }
 }

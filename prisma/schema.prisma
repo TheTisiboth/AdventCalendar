@@ -11,19 +11,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       Int    @id @default(autoincrement())
-  name     String @unique
-  role     String
-  password String
-}
-
 model Calendar {
   id          Int       @id @default(autoincrement())
   year        Int       @unique
   title       String
   description String?
   isPublished Boolean   @default(true)
+  isFake      Boolean   @default(false) // True for test/demo calendars with fake pictures
   coverImage  String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -38,7 +32,7 @@ model Picture {
   id         Int      @id @default(autoincrement())
   day        Int
   year       Int
-  key        String
+  key        String   // For real calendars: S3 key (e.g., "2023/1.jpg"). For fake calendars: full URL (e.g., "https://picsum.photos/...")
   isOpenable Boolean  @default(false)
   isOpen     Boolean  @default(false)
   date       DateTime
@@ -46,21 +40,4 @@ model Picture {
   calendar   Calendar @relation("CalendarPictures", fields: [year], references: [year])
 
   @@unique([day, year])
-}
-
-model DummyPicture {
-  id         Int      @id @default(autoincrement())
-  day        Int
-  year       Int
-  key        String
-  isOpenable Boolean  @default(false)
-  isOpen     Boolean  @default(false)
-  date       DateTime
-
-  @@unique([day, year])
-}
-
-model RefreshToken {
-  id    Int    @id @default(autoincrement())
-  token String @unique
 }

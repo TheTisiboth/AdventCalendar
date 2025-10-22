@@ -8,7 +8,7 @@ export const ExpiredNotice = () => {
     const inAdventPeriod = isInAdventPeriod()
 
     if (dayjs(new Date()).isAfter(startingDate)) {
-        if (!isStarted) setIsStarted(true)
+        if (!isStarted()) setIsStarted(true)
     }
 
     return (

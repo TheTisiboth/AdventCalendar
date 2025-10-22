@@ -6,3 +6,5 @@ export const ONE_DAY_MS = ONE_HOUR_MS * 24
 // Using ISO 8601 format with timezone offset for UTC+1 (Germany/Central European Time)
 export const STARTING_DATE = "2024-12-01T00:00:00+01:00"
 export const ENDING_DATE = "2024-12-24T23:59:59+01:00"
+
+export const TEST_YEAR = 1996
