@@ -6,6 +6,7 @@ import { createPictures } from "@api/lib/dal/pictures"
 import { requireKindeAdmin } from "@api/lib/kindeAuth"
 import type { Calendar, Picture } from "@prisma/client"
 import { uploadToS3 } from "@api/lib/s3"
+import { env } from "@/config"
 
 type KindeUser = {
     id: string
@@ -21,13 +22,9 @@ export async function getKindeUsers(): Promise<KindeUser[]> {
     try {
         await requireKindeAdmin()
 
-        const kindeIssuerUrl = process.env.KINDE_ISSUER_URL!
-        const clientId = process.env.KINDE_M2M_CLIENT_ID
-        const clientSecret = process.env.KINDE_M2M_CLIENT_SECRET
-
-        if (!kindeIssuerUrl || !clientId || !clientSecret) {
-            throw new Error("Kinde configuration missing")
-        }
+        const kindeIssuerUrl = env.KINDE_ISSUER_URL
+        const clientId = env.KINDE_M2M_CLIENT_ID
+        const clientSecret = env.KINDE_M2M_CLIENT_SECRET
 
         // Get access token for Management API
         const tokenResponse = await fetch(`${kindeIssuerUrl}/oauth2/token`, {
