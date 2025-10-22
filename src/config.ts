@@ -10,8 +10,6 @@ const envSchema = z.object({
 
     // Database Configuration
     DATABASE_URL: z.url(),
-    POSTGRES_USER: z.string().min(1),
-    POSTGRES_PASSWORD: z.string().min(1),
 
     // AWS S3 Configuration
     AWS_REGION: z.string().min(1),
