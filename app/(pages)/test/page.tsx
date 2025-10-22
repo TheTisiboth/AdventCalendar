@@ -1,8 +1,22 @@
 import { CalendarTest } from "@/components/Calendar/CalendarTest"
-import { getFakePictures } from "@actions/pictures"
+import { getPictures } from "@actions/pictures"
+import { notFound } from "next/navigation"
 
+/**
+ * Test Page - Public
+ * Displays a test calendar (fixed year) with demo mode enabled
+ * Only works if a published calendar exists for the test year
+ */
 export default async function TestPage() {
-  const pictures = await getFakePictures(2025)
+    const TEST_YEAR = 2025
 
-  return <CalendarTest pictures={pictures} />
+    try {
+        // Fetch public calendar pictures (requireAuth = false)
+        const pictures = await getPictures(TEST_YEAR, false)
+
+        return <CalendarTest pictures={pictures} year={TEST_YEAR} />
+    } catch {
+        // If no published test calendar exists, show 404
+        notFound()
+    }
 }

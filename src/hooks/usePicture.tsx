@@ -22,7 +22,7 @@ type UsePictureReturn = {
 }
 export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureReturn => {
     const { isMobile } = useResponsiveStore("isMobile")
-    const { date, isFake } = useCalendarStore("date", "isFake")
+    const { date } = useCalendarStore("date")
     const [isPending, startTransition] = useTransition()
 
     const [open, setOpen] = useState(false)
@@ -52,10 +52,7 @@ export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureRe
             // Use server action with React 19 useTransition for optimistic UI
             startTransition(async () => {
                 try {
-                    // Skip server action in fake mode
-                    if (!isFake) {
-                        await openPictureAction(picture.day, picture.year)
-                    }
+                    await openPictureAction(picture.day, picture.year)
                 } catch (error) {
                     console.error("Failed to open picture:", error)
                 }

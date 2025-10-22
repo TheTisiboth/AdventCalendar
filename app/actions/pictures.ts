@@ -6,63 +6,46 @@ import { requireKindeAuth, isKindeAdmin } from "@api/lib/kindeAuth"
 import { getCalendarByYear } from "@api/lib/dal/calendars"
 import { getSignedUrl } from "@api/lib/s3"
 import type { Picture } from "@prisma/client"
-import { shuffle } from "@/utils/utils"
 
 export type PictureWithUrl = Picture & { url: string }
 
 /**
- * Generate fake pictures for testing/demo purposes
- * Does NOT require authentication - used for public test page
- */
-export async function getFakePictures(year: number): Promise<PictureWithUrl[]> {
-    // Generate 24 fake pictures (Dec 1-24)
-    const pictures: PictureWithUrl[] = []
-
-    for (let day = 1; day <= 24; day++) {
-        pictures.push({
-            id: day,
-            day,
-            year,
-            key: `fake/${year}/${day}`,
-            url: `https://picsum.photos/400/400?sig${day}`,  // Random image from Lorem Picsum
-            isOpen: false,
-            isOpenable: true,
-            date: new Date(year, 11, day), // December is month 11
-        })
-    }
-
-    // Shuffle pictures with a consistent seed so they appear in random order
-    return shuffle(pictures, year)
-}
-
-/**
  * Get all pictures for a given year with signed URLs
- * Requires authentication and checks calendar access permissions
+ * @param year - Calendar year
+ * @param requireAuth - Whether authentication is required (default: true)
+ *                      Set to false for public calendars (e.g., test page)
  */
-export async function getPictures(year: number): Promise<PictureWithUrl[]> {
-    try {
+export async function getPictures(year: number, requireAuth: boolean = true): Promise<PictureWithUrl[]> {
+    let calendar
+
+    if (requireAuth) {
+        // Authenticated access - check user permissions
         const kindeUser = await requireKindeAuth()
         const isAdmin = await isKindeAdmin()
 
-        // Check if user has access to this calendar
-        const calendar = await getCalendarByYear(year, false, isAdmin ? undefined : kindeUser.id)
+        calendar = await getCalendarByYear(year, false, isAdmin ? undefined : kindeUser.id)
 
         if (!calendar) {
             throw new Error("Calendar not found or access denied")
         }
+    } else {
+        // Public access - only allow published calendars
+        calendar = await getCalendarByYear(year, false, undefined)
 
-        const pictures = await getAllPictures(year)
-
-        // Generate signed URLs for all pictures
-        const picturesWithUrls = pictures.map((picture) => ({
-            ...picture,
-            url: getSignedUrl(picture.key)
-        }))
-
-        return picturesWithUrls
-    } catch (error) {
-        throw new Error(error instanceof Error ? error.message : "Failed to fetch pictures")
+        if (!calendar || !calendar.isPublished) {
+            throw new Error("Calendar not found or not published")
+        }
     }
+
+    const pictures = await getAllPictures(year)
+
+    // Generate signed URLs for all pictures
+    const picturesWithUrls = pictures.map((picture) => ({
+        ...picture,
+        url: getSignedUrl(picture.key)
+    }))
+
+    return picturesWithUrls
 }
 
 /**

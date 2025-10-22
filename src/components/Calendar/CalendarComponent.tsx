@@ -15,13 +15,13 @@ type CalendarComponentProps = {
     pictures: PictureWithUrl[]
     year: number
     isArchived?: boolean
+    isFakeMode?: boolean
 }
 
-export const CalendarComponent: FC<CalendarComponentProps> = ({ pictures, year, isArchived = false }) => {
-    const { setDate, date, isFake, startingDate, endingDate } = useCalendarStore(
+export const CalendarComponent: FC<CalendarComponentProps> = ({ pictures, year, isArchived = false, isFakeMode = false }) => {
+    const { setDate, date, startingDate, endingDate } = useCalendarStore(
         "date",
         "setDate",
-        "isFake",
         "startingDate",
         "endingDate"
     )
@@ -42,18 +42,18 @@ export const CalendarComponent: FC<CalendarComponentProps> = ({ pictures, year, 
 
     return (
         <div className="App">
-            {isFake && !isArchived && (
+            {isFakeMode && !isArchived && (
                 <Button variant="contained" color="error" onClick={handleResetPictures}>
                     Reset pictures
                 </Button>
             )}
             <Grid container>
-                {(!isFake || isArchived) && (
+                {(!isFakeMode || isArchived) && (
                     <Grid size={{ xs: 12 }}>
                         <DayGrid pictures={pictures} isArchived={isArchived} />
                     </Grid>
                 )}
-                {isFake && !isArchived && (
+                {isFakeMode && !isArchived && (
                     <>
                         <Grid size={{ lg: 2 }}>
                             <Grid size={{ xs: 11, sm: 12 }}>
