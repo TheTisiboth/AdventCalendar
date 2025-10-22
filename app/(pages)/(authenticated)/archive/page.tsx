@@ -1,6 +1,10 @@
 import { getCalendars } from "@actions/calendars"
 import { ArchiveCard } from "@/components/Archive/ArchiveCard"
 
+// Force dynamic rendering to prevent prerendering at build time
+// This page requires authentication which is not available during build
+export const dynamic = 'force-dynamic'
+
 /**
  * Archive page - Server Component
  * Displays all available calendar years for viewing past Advent calendars

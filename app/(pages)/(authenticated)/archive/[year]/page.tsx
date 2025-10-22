@@ -6,6 +6,10 @@ import { getCalendar } from "@actions/calendars"
 import { getPictures } from "@actions/pictures"
 import { validateYearParam } from "@safeguards"
 
+// Force dynamic rendering to prevent prerendering at build time
+// This page requires authentication which is not available during build
+export const dynamic = 'force-dynamic'
+
 type PageProps = {
   params: Promise<{ year: string }>
 }

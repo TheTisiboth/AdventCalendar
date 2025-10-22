@@ -109,8 +109,8 @@ npx prisma migrate dev --name your_migration_name
 # Apply migrations
 npx prisma migrate deploy
 
-# Reset database (WARNING: deletes all data)
-npx prisma migrate reset
+# Reset and reseed database (⚠️ DELETES ALL DATA)
+npx prisma migrate reset --force
 
 # Seed database
 npm run db:seed

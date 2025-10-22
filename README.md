@@ -57,11 +57,12 @@ npx prisma studio
 When deploying on a VPS with Docker (Dokploy):
 
 ```bash
-# Reset database (⚠️ DELETES ALL DATA)
-docker exec -it adventcalendar-app-r47mo1-app-1 npx prisma migrate reset --force
+# Reset and reseed database (⚠️ DELETES ALL DATA)
+docker exec -it <container-name> sh
+npx prisma migrate reset --force
 
 # Reset database without seeding
-docker exec -it adventcalendar-app-r47mo1-app-1 npx prisma migrate reset --force --skip-seed
+docker exec -it <container-name> npx prisma migrate reset --force --skip-seed
 
 # Delete postgres volume for completely fresh start (⚠️ DELETES ALL DATA)
 docker compose -p adventcalendar-app-r47mo1 down
@@ -106,6 +107,24 @@ See [VPS_DEPLOYMENT.md](./VPS_DEPLOYMENT.md) for complete deployment instruction
 ## Environment Variables
 
 See [.env.production.example](./.env.production.example) for required environment variables.
+
+## Technical Notes
+
+### Dynamic Rendering for Authenticated Pages
+
+All authenticated pages use `export const dynamic = 'force-dynamic'` to prevent Next.js from attempting to prerender them at build time. This is necessary because:
+
+1. These pages require authentication via Kinde
+2. Authentication is not available during the build process
+3. Without this setting, Docker builds would fail with "Authentication required" errors
+
+Affected pages:
+- `/app/(pages)/(authenticated)/archive/page.tsx`
+- `/app/(pages)/(authenticated)/calendar/page.tsx`
+- `/app/(pages)/(authenticated)/archive/[year]/page.tsx`
+- `/app/(pages)/admin/manage/page.tsx`
+
+This ensures pages are rendered on-demand when users visit them, with proper authentication checks.
 
 ## License
 
