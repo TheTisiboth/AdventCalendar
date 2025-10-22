@@ -5,64 +5,42 @@ import { getAllPictures, updatePictureOpenStatus } from "@api/lib/dal/pictures"
 import { requireKindeAuth, isKindeAdmin } from "@api/lib/kindeAuth"
 import { getCalendarByYear } from "@api/lib/dal/calendars"
 import { getSignedUrl } from "@api/lib/s3"
+import { TEST_YEAR } from "@/constants"
 import type { Picture } from "@prisma/client"
-import { shuffle } from "@/utils/utils"
 
 export type PictureWithUrl = Picture & { url: string }
 
 /**
- * Generate fake pictures for testing/demo purposes
- * Does NOT require authentication - used for public test page
- */
-export async function getFakePictures(year: number): Promise<PictureWithUrl[]> {
-    // Generate 24 fake pictures (Dec 1-24)
-    const pictures: PictureWithUrl[] = []
-
-    for (let day = 1; day <= 24; day++) {
-        pictures.push({
-            id: day,
-            day,
-            year,
-            key: `fake/${year}/${day}`,
-            url: `https://picsum.photos/400/400?sig${day}`,  // Random image from Lorem Picsum
-            isOpen: false,
-            isOpenable: true,
-            date: new Date(year, 11, day), // December is month 11
-        })
-    }
-
-    // Shuffle pictures with a consistent seed so they appear in random order
-    return shuffle(pictures, year)
-}
-
-/**
  * Get all pictures for a given year with signed URLs
- * Requires authentication and checks calendar access permissions
+ * Requires authentication
+ * Excludes fake calendars (use getTestPictures for those)
+ * @param year - Calendar year
  */
 export async function getPictures(year: number): Promise<PictureWithUrl[]> {
-    try {
-        const kindeUser = await requireKindeAuth()
-        const isAdmin = await isKindeAdmin()
+    // Authenticated access - check user permissions
+    const kindeUser = await requireKindeAuth()
+    const isAdmin = await isKindeAdmin()
 
-        // Check if user has access to this calendar
-        const calendar = await getCalendarByYear(year, false, isAdmin ? undefined : kindeUser.id)
+    const calendar = await getCalendarByYear(year, false, isAdmin ? undefined : kindeUser.id)
 
-        if (!calendar) {
-            throw new Error("Calendar not found or access denied")
-        }
-
-        const pictures = await getAllPictures(year)
-
-        // Generate signed URLs for all pictures
-        const picturesWithUrls = pictures.map((picture) => ({
-            ...picture,
-            url: getSignedUrl(picture.key)
-        }))
-
-        return picturesWithUrls
-    } catch (error) {
-        throw new Error(error instanceof Error ? error.message : "Failed to fetch pictures")
+    if (!calendar) {
+        throw new Error("Calendar not found or access denied")
     }
+
+    // Prevent access to fake calendars through this endpoint
+    if (calendar.isFake) {
+        throw new Error("Use test endpoint for fake calendars")
+    }
+
+    const pictures = await getAllPictures(year)
+
+    // Generate signed URLs for real calendars (S3 keys)
+    const picturesWithUrls = pictures.map((picture) => ({
+        ...picture,
+        url: getSignedUrl(picture.key)
+    }))
+
+    return picturesWithUrls
 }
 
 /**
@@ -109,5 +87,49 @@ export async function resetPictures(year: number): Promise<void> {
         revalidatePath(`/archive/${year}`)
     } catch (error) {
         throw new Error(error instanceof Error ? error.message : "Failed to reset pictures")
+    }
+}
+
+/**
+ * Get all pictures for the test page (fake calendar)
+ * No authentication required as this is for public test page
+ * Returns pictures from the fake calendar (year 1996)
+ */
+export async function getTestPictures(): Promise<PictureWithUrl[]> {
+    const calendar = await getCalendarByYear(TEST_YEAR, false, undefined)
+
+    if (!calendar || !calendar.isPublished || !calendar.isFake) {
+        throw new Error("Test calendar not found or not published")
+    }
+
+    const pictures = await getAllPictures(TEST_YEAR)
+
+    // For fake calendars, the key IS the full URL (no need for S3 signing)
+    const picturesWithUrls = pictures.map((picture) => ({
+        ...picture,
+        url: picture.key
+    }))
+
+    return picturesWithUrls
+}
+
+/**
+ * Open a picture in the test calendar
+ * No authentication required
+ */
+export async function openTestPicture(day: number): Promise<Picture> {
+    try {
+        const picture = await updatePictureOpenStatus(day, TEST_YEAR, true)
+
+        if (!picture) {
+            throw new Error("Test picture not found")
+        }
+
+        // Revalidate the test page to show updated state
+        revalidatePath(`/test`)
+
+        return picture
+    } catch (error) {
+        throw new Error(error instanceof Error ? error.message : "Failed to open test picture")
     }
 }

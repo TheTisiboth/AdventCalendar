@@ -1,28 +1,29 @@
 "use client"
 
-import { FC, useLayoutEffect, useState } from "react"
-
+import { useEffect } from "react"
+import type { PictureWithUrl } from "@actions/pictures"
 import CalendarComponent from "./CalendarComponent"
 import { useCalendarStore } from "@/store"
 
-export const CalendarTest: FC = () => {
-    const { setIsFake, setDate, startingDate } = useCalendarStore("setIsFake", "setDate", "startingDate")
-    const [initialized, setInitialized] = useState(false)
+type CalendarTestProps = {
+    pictures: PictureWithUrl[]
+    year: number
+}
 
-    // Use layoutEffect to set isFake BEFORE rendering children
-    // This ensures the query in usePictureAPI uses the correct isFake value
-    useLayoutEffect(() => {
-        setIsFake(true)
-        setDate(startingDate)
-        setInitialized(true)
-    }, [setIsFake, setDate, startingDate])
+/**
+ * CalendarTest - Client Component for test/demo calendar
+ * Sets the date to December 1st of the current year on mount
+ */
+export const CalendarTest = ({ pictures, year }: CalendarTestProps) => {
+    const { setDate } = useCalendarStore("setDate")
 
-    // Don't render calendar until isFake is set
-    if (!initialized) {
-        return null
-    }
+    useEffect(() => {
+        // Set date to December 1st of the current year
+        const currentYear = new Date().getFullYear()
+        setDate(new Date(currentYear, 11, 1)) // Month is 0-indexed, so 11 = December
+    }, [setDate])
 
-    return <CalendarComponent year={2025} />
+    return <CalendarComponent pictures={pictures} year={year} isFakeMode={true} />
 }
 
 export default CalendarTest

@@ -1,12 +1,13 @@
-import { Dispatch, RefObject, SetStateAction, useState } from "react"
+import { Dispatch, RefObject, SetStateAction, useState, useTransition } from "react"
 import dayjs from "dayjs"
-import { usePictureAPI } from "./api/usePictureAPI"
 import { useCalendarStore, useResponsiveStore } from "@/store"
 import type { PictureWithUrl } from "@actions/pictures"
+import { openPicture as openPictureAction, openTestPicture as openTestPictureAction } from "@actions/pictures"
 
 type UsePictureProps = {
     picture: PictureWithUrl
     imageRef?: RefObject<HTMLImageElement | null>
+    isFakeMode?: boolean
 }
 
 type UsePictureReturn = {
@@ -18,15 +19,27 @@ type UsePictureReturn = {
     textColor: string
     divColor: string
     imageSRC: string
+    isPending: boolean
 }
-export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureReturn => {
+export const usePicture = ({ picture, imageRef, isFakeMode = false }: UsePictureProps): UsePictureReturn => {
     const { isMobile } = useResponsiveStore("isMobile")
     const { date } = useCalendarStore("date")
-    const { openPicture } = usePictureAPI({ year: picture.year })
+    const [isPending, startTransition] = useTransition()
 
     const [open, setOpen] = useState(false)
-    const isBefore = dayjs(picture.date).isBefore(dayjs(date))
-    const isToday = dayjs(date).isSame(dayjs(picture.date), "day")
+
+    // In fake mode, normalize dates to same year for comparison (ignore year difference)
+    // In real mode, compare full dates
+    const pictureDate = dayjs(picture.date)
+    const currentDate = dayjs(date)
+
+    const normalizedPictureDate = isFakeMode
+        ? pictureDate.year(currentDate.year())
+        : pictureDate
+
+    const isBefore = normalizedPictureDate.isBefore(currentDate, 'day')
+    const isToday = normalizedPictureDate.isSame(currentDate, 'day')
+
     // Use signed URL from picture object
     const imageSRC = picture.url
 
@@ -48,7 +61,20 @@ export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureRe
 
     const handleClick = () => {
         if (!picture.isOpen) {
-            openPicture(picture.day)
+            // Use server action with React 19 useTransition for optimistic UI
+            startTransition(async () => {
+                try {
+                    if (isFakeMode) {
+                        // For fake/test mode, use openTestPicture (only requires day)
+                        await openTestPictureAction(picture.day)
+                    } else {
+                        // For real calendars, use openPicture (requires day and year)
+                        await openPictureAction(picture.day, picture.year)
+                    }
+                } catch (error) {
+                    console.error("Failed to open picture:", error)
+                }
+            })
         } else {
             togglePictureFullscreen()
         }
@@ -73,6 +99,7 @@ export const usePicture = ({ picture, imageRef }: UsePictureProps): UsePictureRe
         handleClick,
         textColor,
         divColor,
-        imageSRC
+        imageSRC,
+        isPending
     }
 }

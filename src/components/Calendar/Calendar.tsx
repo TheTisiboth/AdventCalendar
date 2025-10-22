@@ -1,29 +1,15 @@
-"use client"
-
-import { FC, useEffect } from "react"
-
+import { FC } from "react"
+import type { PictureWithUrl } from "@actions/pictures"
 import CalendarComponent from "./CalendarComponent"
-import { useCalendarStore } from "@/store"
-import { getCurrentCalendarYear } from "@/utils/utils"
 
 type CalendarProps = {
-    year?: number
+    pictures: PictureWithUrl[]
+    year: number
     isArchived?: boolean
 }
 
-export const Calendar: FC<CalendarProps> = ({ year, isArchived = false }) => {
-    const { setIsFake, setDate } = useCalendarStore("setIsFake", "setDate")
-
-    // Use provided year or calculate current year
-    const displayYear = year ?? getCurrentCalendarYear()
-
-    useEffect(() => {
-        // For archived calendars, we don't want fake mode
-        setIsFake(false)
-        setDate(new Date())
-    }, [setIsFake, setDate, isArchived])
-
-    return <CalendarComponent year={displayYear} isArchived={isArchived} />
+export const Calendar: FC<CalendarProps> = ({ pictures, year, isArchived = false }) => {
+    return <CalendarComponent pictures={pictures} year={year} isArchived={isArchived} />
 }
 
 export default Calendar

@@ -1,50 +1,12 @@
-"use client"
-
-import { ReactNode, useEffect, useState } from "react"
-import { Box, Container, Alert, Typography } from "@mui/material"
-import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs"
+import { ReactNode } from "react"
+import { Box, Container } from "@mui/material"
 import { NavBar } from "@/components/NavBar"
-import { BackdropSpinner } from "@/components/Calendar/Backdrop"
+import { requireAdmin } from "@safeguards"
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
-    const { isAuthenticated, isLoading, getPermission } = useKindeBrowserClient()
-    const [isAdmin, setIsAdmin] = useState(false)
-    const [checkingPermissions, setCheckingPermissions] = useState(true)
-
-    useEffect(() => {
-        const checkAdmin = async () => {
-            if (!isLoading && isAuthenticated) {
-                const adminPerm = await getPermission("admin:access")
-                setIsAdmin(adminPerm?.isGranted ?? false)
-                setCheckingPermissions(false)
-            } else if (!isLoading && !isAuthenticated) {
-                setCheckingPermissions(false)
-            }
-        }
-        checkAdmin()
-    }, [isAuthenticated, isLoading, getPermission])
-
-    if (isLoading || checkingPermissions) {
-        return <BackdropSpinner />
-    }
-
-    if (!isAuthenticated || !isAdmin) {
-        return (
-            <>
-                <NavBar />
-                <Container maxWidth="sm" sx={{ mt: 15 }}>
-                    <Alert severity="error">
-                        <Typography variant="h6" gutterBottom>
-                            Access Denied
-                        </Typography>
-                        <Typography>
-                            You do not have permission to access the admin panel. Please contact an administrator if you need access.
-                        </Typography>
-                    </Alert>
-                </Container>
-            </>
-        )
-    }
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+    // Safeguard: Require admin access for all admin routes
+    // This layout protects all /admin/* pages
+    await requireAdmin()
 
     return (
         <>

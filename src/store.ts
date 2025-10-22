@@ -7,8 +7,6 @@ import dayjs from "dayjs"
 type CalendarStore = {
     date: Date
     setDate: (d: Date) => void
-    isFake: boolean
-    setIsFake: (f: boolean) => void
     startingDate: Date
     endingDate: Date
     isStarted: () => boolean
@@ -36,13 +34,9 @@ const calendarStore = create<CalendarStore>()((set, get) => ({
     date: new Date(),
     endingDate,
     startingDate,
-    isFake: false, // Default to false (real mode), test page will set to true
     isStarted: () => dayjs(get().date).isAfter(startingDate),
     setDate: (date) => {
         set({ date })
-    },
-    setIsFake: (isFake) => {
-        set({ isFake })
     },
     setIsStarted: (isStarted) => {
         set({ isStarted: () => isStarted })

@@ -6,41 +6,43 @@ describe('useMulti hook (via store hooks)', () => {
     describe('useCalendarStore', () => {
         it('should retrieve multiple items from the calendar store', () => {
             const { result } = renderHook(() =>
-                useCalendarStore('date', 'isFake', 'startingDate')
+                useCalendarStore('date', 'startingDate', 'endingDate')
             )
 
             expect(result.current).toHaveProperty('date')
-            expect(result.current).toHaveProperty('isFake')
             expect(result.current).toHaveProperty('startingDate')
+            expect(result.current).toHaveProperty('endingDate')
             expect(result.current.date).toBeInstanceOf(Date)
-            expect(typeof result.current.isFake).toBe('boolean')
             expect(result.current.startingDate).toBeInstanceOf(Date)
+            expect(result.current.endingDate).toBeInstanceOf(Date)
         })
 
         it('should retrieve a single item from the store', () => {
-            const { result } = renderHook(() => useCalendarStore('isFake'))
+            const { result } = renderHook(() => useCalendarStore('date'))
 
-            expect(result.current).toHaveProperty('isFake')
-            expect(typeof result.current.isFake).toBe('boolean')
+            expect(result.current).toHaveProperty('date')
+            expect(result.current.date).toBeInstanceOf(Date)
         })
 
         it('should update when store values change', () => {
             const { result } = renderHook(() =>
-                useCalendarStore('isFake', 'setIsFake')
+                useCalendarStore('date', 'setDate')
             )
 
-            const initialValue = result.current.isFake
+            const initialValue = result.current.date
+            const newDate = new Date('2025-12-25')
 
             act(() => {
-                result.current.setIsFake(!initialValue)
+                result.current.setDate(newDate)
             })
 
-            expect(result.current.isFake).toBe(!initialValue)
+            expect(result.current.date).toBe(newDate)
+            expect(result.current.date).not.toBe(initialValue)
         })
 
         it('should maintain consistent hook calls across re-renders', () => {
             const { result, rerender } = renderHook(() =>
-                useCalendarStore('date', 'isFake', 'startingDate')
+                useCalendarStore('date', 'startingDate', 'endingDate')
             )
 
             const firstRender = result.current
@@ -94,18 +96,18 @@ describe('useMulti hook (via store hooks)', () => {
 
             // First render with 3 items
             const { result: result1, rerender: rerender1 } = renderHook(() =>
-                useCalendarStore('date', 'isFake', 'startingDate')
+                useCalendarStore('date', 'startingDate', 'endingDate')
             )
 
             expect(result1.current).toHaveProperty('date')
-            expect(result1.current).toHaveProperty('isFake')
             expect(result1.current).toHaveProperty('startingDate')
+            expect(result1.current).toHaveProperty('endingDate')
 
             // Re-render should work consistently
             rerender1()
             expect(result1.current).toHaveProperty('date')
-            expect(result1.current).toHaveProperty('isFake')
             expect(result1.current).toHaveProperty('startingDate')
+            expect(result1.current).toHaveProperty('endingDate')
 
             // Second hook with different number of items should also work
             const { result: result2 } = renderHook(() =>
@@ -127,8 +129,6 @@ describe('useMulti hook (via store hooks)', () => {
                 useCalendarStore(
                     'date',
                     'setDate',
-                    'isFake',
-                    'setIsFake',
                     'startingDate',
                     'endingDate',
                     'isStarted',
@@ -136,7 +136,7 @@ describe('useMulti hook (via store hooks)', () => {
                 )
             )
 
-            expect(Object.keys(result.current).length).toBe(8)
+            expect(Object.keys(result.current).length).toBe(6)
         })
     })
 })

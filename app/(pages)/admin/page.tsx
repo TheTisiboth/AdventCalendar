@@ -1,14 +1,11 @@
-"use client"
-
-import { Box, Typography, Card, CardContent, Button } from "@mui/material"
+import { Box, Typography, Card, CardContent } from "@mui/material"
 import Grid from "@mui/material/Grid"
-import { useRouter } from "next/navigation"
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday"
 import AddIcon from "@mui/icons-material/Add"
+import Link from "next/link"
+import { AdminDashboardButton } from "@/components/Admin/AdminDashboardButton"
 
 export default function AdminDashboard() {
-    const router = useRouter()
-
     return (
         <Box>
             <Typography variant="h4" component="h1" gutterBottom>
@@ -25,13 +22,11 @@ export default function AdminDashboard() {
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                                 View, edit, and manage all advent calendars
                             </Typography>
-                            <Button
-                                variant="contained"
-                                onClick={() => router.push("/admin/manage")}
-                                fullWidth
-                            >
-                                Go to Calendars
-                            </Button>
+                            <Link href="/admin/manage">
+                                <AdminDashboardButton variant="contained" fullWidth>
+                                    Go to Calendars
+                                </AdminDashboardButton>
+                            </Link>
                         </CardContent>
                     </Card>
                 </Grid>
@@ -45,18 +40,15 @@ export default function AdminDashboard() {
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                                 Create a new advent calendar with 24 pictures
                             </Typography>
-                            <Button
-                                variant="contained"
-                                color="secondary"
-                                onClick={() => router.push("/admin/manage/create")}
-                                fullWidth
-                            >
-                                Create New
-                            </Button>
+                            <Link href="/admin/manage/create">
+                                <AdminDashboardButton variant="contained" color="secondary" fullWidth>
+                                    Create New
+                                </AdminDashboardButton>
+                            </Link>
                         </CardContent>
                     </Card>
                 </Grid>
             </Grid>
         </Box>
-    )
+    );
 }

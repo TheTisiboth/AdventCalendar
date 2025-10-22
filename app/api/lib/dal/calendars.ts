@@ -8,11 +8,13 @@ import type { Calendar, Picture } from '@prisma/client'
 
 /**
  * Get all calendars with optional filtering
+ * By default, excludes fake/test calendars
  */
 export async function getAllCalendars(options?: {
   archived?: boolean // if true, returns only past years; if false, returns only current year; if undefined, returns all
   isPublished?: boolean
   kindeUserId?: string | null
+  includeFake?: boolean // if true, includes fake calendars; defaults to false
 }): Promise<Calendar[]> {
   const currentYear = new Date().getFullYear()
 
@@ -21,7 +23,8 @@ export async function getAllCalendars(options?: {
       ...(options?.archived === true && { year: { lt: currentYear } }),
       ...(options?.archived === false && { year: currentYear }),
       ...(options?.isPublished !== undefined && { isPublished: options.isPublished }),
-      ...(options?.kindeUserId !== undefined && { kindeUserId: options.kindeUserId })
+      ...(options?.kindeUserId !== undefined && { kindeUserId: options.kindeUserId }),
+      ...(!options?.includeFake && { isFake: false }) // Exclude fake calendars by default
     },
     orderBy: { year: 'desc' }
   })
@@ -58,6 +61,7 @@ export async function getCalendarByYear(
 /**
  * Get the current year's calendar with optional user filtering
  * Only returns the calendar for the current year (not past years)
+ * Excludes fake calendars
  * - If kindeUserId is undefined: Returns calendar regardless of assignment (admin access)
  * - If kindeUserId is provided: Returns calendar only if assigned to that user
  */
@@ -71,6 +75,7 @@ export async function getLatestCalendar(
     where: {
       year: currentYear,
       isPublished: true,
+      isFake: false, // Exclude fake calendars
       // If kindeUserId provided, only get calendars assigned to that user
       ...(kindeUserId !== undefined && { kindeUserId: kindeUserId })
     },

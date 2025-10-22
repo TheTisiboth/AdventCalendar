@@ -9,7 +9,6 @@ import Slide from "@mui/material/Slide"
 import { TransitionProps } from "@mui/material/transitions"
 import { Dispatch, FC, Ref, SetStateAction, forwardRef } from "react"
 import type { PictureWithUrl } from "@actions/pictures"
-import { usePicture } from "@/hooks/usePicture"
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
@@ -27,8 +26,6 @@ type DialogProps = {
 }
 
 export const FullScreenDialog: FC<DialogProps> = ({ picture, open, setOpen }) => {
-    const { imageSRC } = usePicture({ picture })
-
     const handleClose = () => {
         setOpen((prev) => !prev)
     }
@@ -47,7 +44,7 @@ export const FullScreenDialog: FC<DialogProps> = ({ picture, open, setOpen }) =>
             </AppBar>
             <List className="fullscreen_container">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageSRC} width={"100%"} alt={"Fullscreen image " + picture.day} />
+                <img src={picture.url} width={"100%"} alt={"Fullscreen image " + picture.day} />
             </List>
         </Dialog>
     )
