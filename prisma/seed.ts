@@ -5,10 +5,11 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Starting database seed...')
 
-  // Check if database is already seeded
+  // Check current state
   const pictureCount = await prisma.picture.count()
   const calendarCount = await prisma.calendar.count()
 
+  // If fully seeded, skip
   if (pictureCount > 0 && calendarCount > 0) {
     console.log('✅ Database already seeded')
     console.log('   Found:', pictureCount, 'pictures,', calendarCount, 'calendars')
@@ -38,9 +39,11 @@ async function main() {
       ]
     })
     console.log('✅ Calendars created')
+  } else {
+    console.log('✅ Calendars already exist')
   }
 
-  // Seed pictures if not exists (AFTER calendars)
+  // Seed pictures (AFTER ensuring calendars exist)
   if (pictureCount === 0) {
     console.log('📦 Creating pictures...')
 
