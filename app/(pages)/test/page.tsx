@@ -3,6 +3,9 @@ import { getTestPictures } from "@actions/pictures"
 import { notFound } from "next/navigation"
 import { TEST_YEAR } from "@/constants"
 
+// Force dynamic rendering so database is accessed at request time, not build time
+export const dynamic = 'force-dynamic'
+
 /**
  * Test Page - Public
  * Displays a test calendar (fixed year) with demo mode enabled
