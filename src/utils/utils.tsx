@@ -1,6 +1,6 @@
 import dayjs from "dayjs"
 import { cloneDeep } from "lodash"
-import { STARTING_DATE, ENDING_DATE } from "@/constants"
+import { ADVENT_START, ADVENT_END } from "@/constants"
 
 export const shuffle = <T,>(array: T[], seed: number) => {
     const copy = cloneDeep(array)
@@ -28,30 +28,33 @@ function random(seed: number) {
 
 export const computeStartingAndEndingDate = () => {
     const now = new Date()
-    const currentYear = now.getUTCFullYear()
-    const startingDate = new Date(STARTING_DATE)
-    startingDate.setUTCFullYear(currentYear) // Actualise with the current year
-    const endingDate = new Date(ENDING_DATE)
-    endingDate.setUTCFullYear(currentYear) // Actualise with the current year
+    const currentYear = now.getFullYear()
+
+    // Build dates dynamically using current year and configured month/day
+    // Note: month is 0-indexed in Date constructor (0 = January, 11 = December)
+    const startingDate = new Date(currentYear, ADVENT_START.month - 1, ADVENT_START.day, 0, 0, 0)
+    const endingDate = new Date(currentYear, ADVENT_END.month - 1, ADVENT_END.day, 23, 59, 59)
 
     // If the advent calendar is over
     if (dayjs(now).isAfter(endingDate)) {
-        // The starting date is the set to the next year
-        startingDate.setUTCFullYear(currentYear + 1)
-        endingDate.setUTCFullYear(currentYear + 1)
+        // The starting date is set to the next year
+        startingDate.setFullYear(currentYear + 1)
+        endingDate.setFullYear(currentYear + 1)
     }
     return { startingDate, endingDate }
 }
 
 /**
- * Checks if the current date is within the Advent period (December 1-24)
+ * Checks if the current date is within the Advent period (December 1-24) in local timezone
  * @returns true if we're in the Advent period, false otherwise
  */
 export const isInAdventPeriod = (): boolean => {
     const now = dayjs()
     const { startingDate, endingDate } = computeStartingAndEndingDate()
+    const start = dayjs(startingDate)
+    const end = dayjs(endingDate)
 
-    return now.isAfter(dayjs(startingDate)) && now.isBefore(dayjs(endingDate))
+    return (now.isAfter(start) || now.isSame(start)) && (now.isBefore(end) || now.isSame(end))
 }
 
 /**
