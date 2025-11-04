@@ -1,5 +1,7 @@
 # AdventCalendar
 
+![Status](https://status.leojan.fr/api/badge/2/status) ![Uptime](https://status.leojan.fr/api/badge/2/uptime/24)
+
 An interactive Advent Calendar web application built with Next.js.
 
 ## Stack
