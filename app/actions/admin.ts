@@ -1,11 +1,11 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { createCalendar, updateCalendar } from "@api/lib/dal/calendars"
+import { createCalendar, updateCalendar, getCalendarById, deleteCalendar } from "@api/lib/dal/calendars"
 import { createPictures } from "@api/lib/dal/pictures"
 import { requireKindeAdmin } from "@api/lib/kindeAuth"
 import type { Calendar, Picture } from "@prisma/client"
-import { uploadToS3 } from "@api/lib/s3"
+import { uploadToS3, copyCalendarInS3 } from "@api/lib/s3"
 import { env } from "@/config"
 
 type KindeUser = {
@@ -137,11 +137,12 @@ export async function adminCreateCalendar(data: {
             const arrayBuffer = await pic.file.arrayBuffer()
             const buffer = Buffer.from(arrayBuffer)
 
-            const key = await uploadToS3(buffer, `${data.year}/${pic.day}.jpg`, pic.file.type)
+            const key = await uploadToS3(buffer, `${data.year}/${calendar.id}/${pic.day}.jpg`, pic.file.type)
 
             return {
                 day: pic.day,
                 year: data.year,
+                calendarId: calendar.id,
                 key,
                 isOpen: false,
                 isOpenable: true,
@@ -154,10 +155,10 @@ export async function adminCreateCalendar(data: {
 
         // Revalidate admin pages
         revalidatePath("/admin/manage")
-        revalidatePath(`/admin/manage/edit/${data.year}`)
+        revalidatePath(`/admin/manage/edit/${calendar.id}`)
         revalidatePath(`/calendar`)
         revalidatePath(`/archive`)
-        revalidatePath(`/archive/${data.year}`)
+        revalidatePath(`/archive/${calendar.id}`)
 
         return calendar
     } catch (error) {
@@ -169,7 +170,7 @@ export async function adminCreateCalendar(data: {
  * Update an existing calendar (admin only)
  */
 export async function adminUpdateCalendar(
-    year: number,
+    id: number,
     data: {
         title?: string
         description?: string
@@ -180,11 +181,12 @@ export async function adminUpdateCalendar(
     try {
         await requireKindeAdmin()
 
-        const calendar = await updateCalendar(year, data)
+        const calendar = await updateCalendar(id, data)
 
         // Revalidate relevant pages
         revalidatePath("/admin/manage")
-        revalidatePath(`/admin/manage/edit/${year}`)
+        revalidatePath(`/admin/manage/edit/${id}`)
+        revalidatePath(`/archive/${id}`)
         if (data.isPublished !== undefined) {
             revalidatePath("/calendar")
             revalidatePath("/archive")
@@ -199,27 +201,24 @@ export async function adminUpdateCalendar(
 /**
  * Delete a calendar and all its pictures (admin only)
  */
-export async function adminDeleteCalendar(year: number): Promise<void> {
+export async function adminDeleteCalendar(id: number): Promise<void> {
     try {
         await requireKindeAdmin()
 
-        const { prisma } = await import("@api/lib/prisma")
+        // Get calendar before deletion for revalidation
+        const calendar = await getCalendarById(id)
+        if (!calendar) {
+            throw new Error("Calendar not found")
+        }
 
-        // Delete pictures first (foreign key constraint)
-        await prisma.picture.deleteMany({
-            where: { year }
-        })
-
-        // Delete calendar
-        await prisma.calendar.delete({
-            where: { year }
-        })
+        // Delete calendar (pictures cascade delete)
+        await deleteCalendar(id)
 
         // Revalidate relevant pages
         revalidatePath("/admin/manage")
         revalidatePath(`/calendar`)
         revalidatePath(`/archive`)
-        revalidatePath(`/archive/${year}`)
+        revalidatePath(`/archive/${id}`)
     } catch (error) {
         throw new Error(error instanceof Error ? error.message : "Failed to delete calendar")
     }
@@ -229,33 +228,40 @@ export async function adminDeleteCalendar(year: number): Promise<void> {
  * Upload a new picture for a calendar (admin only)
  */
 export async function adminUploadPicture(data: {
-    year: number
+    calendarId: number
     day: number
     file: File
 }): Promise<void> {
     try {
         await requireKindeAdmin()
 
+        // Get calendar for year info
+        const calendar = await getCalendarById(data.calendarId)
+        if (!calendar) {
+            throw new Error("Calendar not found")
+        }
+
         const arrayBuffer = await data.file.arrayBuffer()
         const buffer = Buffer.from(arrayBuffer)
 
-        const key = await uploadToS3(buffer, `${data.year}/${data.day}.jpg`, data.file.type)
+        const key = await uploadToS3(buffer, `${calendar.year}/${data.calendarId}/${data.day}.jpg`, data.file.type)
 
         await createPictures([
             {
                 day: data.day,
-                year: data.year,
+                year: calendar.year,
+                calendarId: data.calendarId,
                 key,
                 isOpen: false,
                 isOpenable: true,
-                date: new Date(data.year, 11, data.day)
+                date: new Date(calendar.year, 11, data.day)
             }
         ])
 
         // Revalidate relevant pages
-        revalidatePath(`/admin/manage/edit/${data.year}`)
+        revalidatePath(`/admin/manage/edit/${data.calendarId}`)
         revalidatePath(`/calendar`)
-        revalidatePath(`/archive/${data.year}`)
+        revalidatePath(`/archive/${data.calendarId}`)
     } catch (error) {
         throw new Error(error instanceof Error ? error.message : "Failed to upload picture")
     }
@@ -265,26 +271,33 @@ export async function adminUploadPicture(data: {
  * Upload multiple pictures for a calendar (admin only)
  */
 export async function adminUploadPictures(data: {
-    year: number
+    calendarId: number
     pictures: Array<{ day: number; file: File }>
 }): Promise<void> {
     try {
         await requireKindeAdmin()
+
+        // Get calendar for year info
+        const calendar = await getCalendarById(data.calendarId)
+        if (!calendar) {
+            throw new Error("Calendar not found")
+        }
 
         // Upload all pictures to S3 and create database records
         const picturePromises = data.pictures.map(async (pic) => {
             const arrayBuffer = await pic.file.arrayBuffer()
             const buffer = Buffer.from(arrayBuffer)
 
-            const key = await uploadToS3(buffer, `${data.year}/${pic.day}.jpg`, pic.file.type)
+            const key = await uploadToS3(buffer, `${calendar.year}/${data.calendarId}/${pic.day}.jpg`, pic.file.type)
 
             return {
                 day: pic.day,
-                year: data.year,
+                year: calendar.year,
+                calendarId: data.calendarId,
                 key,
                 isOpen: false,
                 isOpenable: true,
-                date: new Date(data.year, 11, pic.day)
+                date: new Date(calendar.year, 11, pic.day)
             }
         })
 
@@ -292,9 +305,9 @@ export async function adminUploadPictures(data: {
         await createPictures(pictureData)
 
         // Revalidate relevant pages
-        revalidatePath(`/admin/manage/edit/${data.year}`)
+        revalidatePath(`/admin/manage/edit/${data.calendarId}`)
         revalidatePath(`/calendar`)
-        revalidatePath(`/archive/${data.year}`)
+        revalidatePath(`/archive/${data.calendarId}`)
     } catch (error) {
         throw new Error(error instanceof Error ? error.message : "Failed to upload pictures")
     }
@@ -303,7 +316,7 @@ export async function adminUploadPictures(data: {
 /**
  * Get a calendar with pictures (admin only)
  */
-export async function adminGetCalendar(year: number): Promise<
+export async function adminGetCalendar(id: number): Promise<
     | (Calendar & {
           pictures: Array<Picture & { url: string }>
       })
@@ -312,22 +325,13 @@ export async function adminGetCalendar(year: number): Promise<
     try {
         await requireKindeAdmin()
 
-        const { prisma } = await import("@api/lib/prisma")
-
-        const calendar = await prisma.calendar.findUnique({
-            where: { year },
-            include: {
-                pictures: {
-                    orderBy: { day: "asc" }
-                }
-            }
-        })
+        const calendar = await getCalendarById(id, true)
 
         if (!calendar) return null
 
         // Add signed URLs to pictures
         const { getSignedUrl } = await import("@api/lib/s3")
-        const picturesWithUrls = calendar.pictures.map((picture) => ({
+        const picturesWithUrls = (calendar.pictures || []).map((picture) => ({
             ...picture,
             url: getSignedUrl(picture.key)
         }))
@@ -374,5 +378,68 @@ export async function adminDeletePicture(pictureId: number): Promise<void> {
         revalidatePath(`/archive/${picture.year}`)
     } catch (error) {
         throw new Error(error instanceof Error ? error.message : "Failed to delete picture")
+    }
+}
+
+/**
+ * Duplicate an existing calendar (admin only)
+ * Creates a copy with " (copy)" appended to title, unassigned
+ */
+export async function adminDuplicateCalendar(sourceId: number): Promise<Calendar> {
+    try {
+        await requireKindeAdmin()
+
+        // Get source calendar with pictures
+        const sourceCalendar = await getCalendarById(sourceId, true)
+
+        if (!sourceCalendar) {
+            throw new Error("Source calendar not found")
+        }
+
+        // Create new calendar (same year, unassigned, unpublished)
+        const newCalendar = await createCalendar({
+            year: sourceCalendar.year,
+            title: `${sourceCalendar.title} (copy)`,
+            description: sourceCalendar.description,
+            kindeUserId: null, // Unassigned
+            isPublished: false, // Unpublished
+            isFake: sourceCalendar.isFake,
+            coverImage: sourceCalendar.coverImage
+        })
+
+        // Copy pictures in S3 and create records
+        if (sourceCalendar.pictures && sourceCalendar.pictures.length > 0) {
+            const days = sourceCalendar.pictures.map(p => p.day)
+
+            // Copy S3 folder
+            await copyCalendarInS3(
+                sourceCalendar.year,
+                sourceId,
+                newCalendar.year,
+                newCalendar.id,
+                days
+            )
+
+            // Create picture records
+            const pictureData = sourceCalendar.pictures.map((pic) => ({
+                day: pic.day,
+                year: newCalendar.year,
+                calendarId: newCalendar.id,
+                key: `${newCalendar.year}/${newCalendar.id}/${pic.day}.jpg`,
+                isOpen: false, // Reset open status
+                isOpenable: pic.isOpenable,
+                date: new Date(newCalendar.year, 11, pic.day)
+            }))
+
+            await createPictures(pictureData)
+        }
+
+        // Revalidate admin pages
+        revalidatePath("/admin/manage")
+        revalidatePath(`/admin/manage/edit/${newCalendar.id}`)
+
+        return newCalendar
+    } catch (error) {
+        throw new Error(error instanceof Error ? error.message : "Failed to duplicate calendar")
     }
 }

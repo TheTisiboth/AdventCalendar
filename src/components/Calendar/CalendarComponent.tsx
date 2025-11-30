@@ -18,7 +18,7 @@ type CalendarComponentProps = {
     isFakeMode?: boolean
 }
 
-export const CalendarComponent: FC<CalendarComponentProps> = ({ pictures, year, isArchived = false, isFakeMode = false }) => {
+export const CalendarComponent: FC<CalendarComponentProps> = ({ pictures, year: _year, isArchived = false, isFakeMode = false }) => {
     const { setDate, date, startingDate, endingDate } = useCalendarStore(
         "date",
         "setDate",
@@ -33,7 +33,11 @@ export const CalendarComponent: FC<CalendarComponentProps> = ({ pictures, year, 
 
     const handleResetPictures = async () => {
         try {
-            await resetPictures(year)
+            if (pictures.length === 0) {
+                handleClick("No pictures to reset", "warning")
+                return
+            }
+            await resetPictures(pictures[0].calendarId)
             handleClick("Pictures reset successfully", "success")
         } catch (error) {
             handleClick(error instanceof Error ? error.message : "Failed to reset pictures", "error")

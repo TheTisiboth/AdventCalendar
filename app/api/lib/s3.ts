@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3"
+import { S3Client, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, CopyObjectCommand } from "@aws-sdk/client-s3"
 import { getSignedUrl as getCloudFrontSignedUrl } from "@aws-sdk/cloudfront-signer"
 import { env } from "@/config"
 
@@ -32,8 +32,8 @@ export async function uploadToS3(
     return key
 }
 
-export function generateS3Key(year: number, day: number, extension: string): string {
-    return `${year}/${day}.${extension}`
+export function generateS3Key(year: number, calendarId: number, day: number, extension: string): string {
+    return `${year}/${calendarId}/${day}.${extension}`
 }
 
 export async function deleteFromS3(key: string): Promise<void> {
@@ -57,6 +57,32 @@ export async function deleteMultipleFromS3(keys: string[]): Promise<void> {
     })
 
     await s3Client.send(command)
+}
+
+export async function copyInS3(sourceKey: string, destinationKey: string): Promise<void> {
+    const command = new CopyObjectCommand({
+        Bucket: BUCKET_NAME,
+        CopySource: `${BUCKET_NAME}/${sourceKey}`,
+        Key: destinationKey
+    })
+
+    await s3Client.send(command)
+}
+
+export async function copyCalendarInS3(
+    sourceYear: number,
+    sourceCalendarId: number,
+    targetYear: number,
+    targetCalendarId: number,
+    days: number[]
+): Promise<void> {
+    const copyPromises = days.map(async (day) => {
+        const sourceKey = `${sourceYear}/${sourceCalendarId}/${day}.jpg`
+        const destinationKey = `${targetYear}/${targetCalendarId}/${day}.jpg`
+        await copyInS3(sourceKey, destinationKey)
+    })
+
+    await Promise.all(copyPromises)
 }
 
 /**

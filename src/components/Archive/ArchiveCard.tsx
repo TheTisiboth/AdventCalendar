@@ -13,7 +13,7 @@ export const ArchiveCard = ({ calendar }: ArchiveCardProps) => {
 
   return (
     <Link
-      href={`/archive/${calendar.year}`}
+      href={`/archive/${calendar.id}`}
       style={{
         display: "block",
         padding: "1.5rem",
@@ -28,10 +28,7 @@ export const ArchiveCard = ({ calendar }: ArchiveCardProps) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <h2 style={{ margin: "0 0 0.5rem 0" }}>{calendar.title}</h2>
-      <p style={{ color: "#666", margin: "0 0 0.5rem 0" }}>
-        Year: {calendar.year}
-      </p>
+      <h2 style={{ margin: "0 0 0.5rem 0" }}>{calendar.year} - {calendar.title}</h2>
       {calendar.description && (
         <p style={{ fontSize: "0.9rem", color: "#888", margin: 0 }}>
           {calendar.description}

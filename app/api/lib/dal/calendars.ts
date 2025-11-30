@@ -31,17 +31,17 @@ export async function getAllCalendars(options?: {
 }
 
 /**
- * Get a calendar by year with optional picture inclusion and user filtering
+ * Get a calendar by ID with optional picture inclusion and user filtering
  * - If kindeUserId is undefined: Returns calendar regardless of assignment (admin access)
  * - If kindeUserId is provided: Returns calendar only if assigned to that user
  */
-export async function getCalendarByYear(
-  year: number,
+export async function getCalendarById(
+  id: number,
   includePictures = false,
   kindeUserId?: string
 ): Promise<Calendar & { pictures?: Picture[] } | null> {
   const calendar = await prisma.calendar.findUnique({
-    where: { year },
+    where: { id },
     include: {
       pictures: includePictures ? { orderBy: { day: 'asc' } } : false
     }
@@ -100,11 +100,21 @@ export async function createCalendar(
  * Update an existing calendar
  */
 export async function updateCalendar(
-  year: number,
+  id: number,
   data: Partial<Omit<Calendar, 'id' | 'year' | 'createdAt' | 'updatedAt'>>
 ): Promise<Calendar> {
   return prisma.calendar.update({
-    where: { year },
+    where: { id },
     data
+  })
+}
+
+/**
+ * Delete a calendar by ID
+ * Pictures will be cascade deleted
+ */
+export async function deleteCalendar(id: number): Promise<void> {
+  await prisma.calendar.delete({
+    where: { id }
   })
 }

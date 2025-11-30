@@ -68,8 +68,8 @@ export const usePicture = ({ picture, imageRef, isFakeMode = false }: UsePicture
                         // For fake/test mode, use openTestPicture (only requires day)
                         await openTestPictureAction(picture.day)
                     } else {
-                        // For real calendars, use openPicture (requires day and year)
-                        await openPictureAction(picture.day, picture.year)
+                        // For real calendars, use openPicture (requires day and calendarId)
+                        await openPictureAction(picture.day, picture.calendarId)
                     }
                 } catch (error) {
                     console.error("Failed to open picture:", error)

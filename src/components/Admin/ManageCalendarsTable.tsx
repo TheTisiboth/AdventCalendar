@@ -22,7 +22,8 @@ import {
 import { useRouter } from "next/navigation"
 import AddIcon from "@mui/icons-material/Add"
 import DeleteIcon from "@mui/icons-material/Delete"
-import { adminDeleteCalendar } from "@actions/admin"
+import ContentCopyIcon from "@mui/icons-material/ContentCopy"
+import { adminDeleteCalendar, adminDuplicateCalendar } from "@actions/admin"
 import type { Calendar } from "@prisma/client"
 
 type CalendarWithCount = Calendar & { pictureCount: number }
@@ -43,35 +44,42 @@ export function ManageCalendarsTable({ calendars, users }: ManageCalendarsTableP
     const [isPending, startTransition] = useTransition()
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [calendarToDelete, setCalendarToDelete] = useState<CalendarWithCount | null>(null)
-    const [isDeleting, setIsDeleting] = useState(false)
 
     const handleDeleteClick = (calendar: CalendarWithCount) => {
         setCalendarToDelete(calendar)
         setDeleteDialogOpen(true)
     }
 
+    const handleDeleteConfirm = () => {
+        if (!calendarToDelete) return
+
+        startTransition(async () => {
+            try {
+                await adminDeleteCalendar(calendarToDelete.id)
+                setDeleteDialogOpen(false)
+                setCalendarToDelete(null)
+                router.refresh()
+            } catch (error) {
+                console.error("Failed to delete calendar:", error)
+            }
+        })
+    }
+
+    const handleDuplicate = (id: number) => {
+        startTransition(async () => {
+            try {
+                await adminDuplicateCalendar(id)
+                router.refresh()
+            } catch (error) {
+                console.error("Failed to duplicate calendar:", error)
+            }
+        })
+    }
+
     const getUserDisplayName = (kindeUserId: string | null): string => {
         if (!kindeUserId) return "Unassigned"
         const user = users?.find((u) => u.id === kindeUserId)
         return user ? user.email : "Unknown User"
-    }
-
-    const handleDeleteConfirm = () => {
-        if (calendarToDelete) {
-            setIsDeleting(true)
-            startTransition(async () => {
-                try {
-                    await adminDeleteCalendar(calendarToDelete.year)
-                    setDeleteDialogOpen(false)
-                    setCalendarToDelete(null)
-                    router.refresh()
-                } catch (error) {
-                    console.error("Failed to delete calendar:", error)
-                } finally {
-                    setIsDeleting(false)
-                }
-            })
-        }
     }
 
     const handleDeleteCancel = () => {
@@ -99,8 +107,7 @@ export function ManageCalendarsTable({ calendars, users }: ManageCalendarsTableP
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>Year</TableCell>
-                                <TableCell>Title</TableCell>
+                                <TableCell>Calendar</TableCell>
                                 <TableCell>Description</TableCell>
                                 <TableCell>Pictures</TableCell>
                                 <TableCell>Assigned User</TableCell>
@@ -111,8 +118,7 @@ export function ManageCalendarsTable({ calendars, users }: ManageCalendarsTableP
                         <TableBody>
                             {calendars.map((calendar) => (
                                 <TableRow key={calendar.id}>
-                                    <TableCell>{calendar.year}</TableCell>
-                                    <TableCell>{calendar.title}</TableCell>
+                                    <TableCell>{calendar.year} - {calendar.title}</TableCell>
                                     <TableCell>{calendar.description || "-"}</TableCell>
                                     <TableCell>{calendar.pictureCount}/24</TableCell>
                                     <TableCell>
@@ -131,16 +137,24 @@ export function ManageCalendarsTable({ calendars, users }: ManageCalendarsTableP
                                         <Box sx={{ display: "flex", gap: 1 }}>
                                             <Button
                                                 size="small"
-                                                onClick={() => router.push(`/admin/manage/edit/${calendar.year}`)}
+                                                onClick={() => router.push(`/admin/manage/edit/${calendar.id}`)}
                                             >
                                                 Edit
+                                            </Button>
+                                            <Button
+                                                size="small"
+                                                startIcon={<ContentCopyIcon />}
+                                                onClick={() => handleDuplicate(calendar.id)}
+                                                disabled={isPending}
+                                            >
+                                                Duplicate
                                             </Button>
                                             <Button
                                                 size="small"
                                                 color="error"
                                                 startIcon={<DeleteIcon />}
                                                 onClick={() => handleDeleteClick(calendar)}
-                                                disabled={isDeleting || isPending}
+                                                disabled={isPending}
                                             >
                                                 Delete
                                             </Button>
@@ -159,22 +173,22 @@ export function ManageCalendarsTable({ calendars, users }: ManageCalendarsTableP
                 <DialogTitle>Delete Calendar</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Are you sure you want to delete the calendar for {calendarToDelete?.year}?
+                        Are you sure you want to delete &quot;{calendarToDelete?.year} - {calendarToDelete?.title}&quot;?
                         This will permanently delete all {calendarToDelete?.pictureCount} pictures from storage.
                         This action cannot be undone.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleDeleteCancel} disabled={isDeleting}>
+                    <Button onClick={handleDeleteCancel} disabled={isPending}>
                         Cancel
                     </Button>
                     <Button
                         onClick={handleDeleteConfirm}
                         color="error"
                         variant="contained"
-                        disabled={isDeleting}
+                        disabled={isPending}
                     >
-                        {isDeleting ? "Deleting..." : "Delete"}
+                        {isPending ? "Deleting..." : "Delete"}
                     </Button>
                 </DialogActions>
             </Dialog>

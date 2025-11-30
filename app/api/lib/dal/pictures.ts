@@ -4,19 +4,19 @@
  */
 
 import { prisma } from '@api/lib/prisma'
-import type { Picture } from '@prisma/client'
+import type { Picture, Calendar } from '@prisma/client'
 
-export async function getAllPictures(year: number): Promise<Picture[]> {
+export async function getAllPicturesByCalendarId(calendarId: number): Promise<Picture[]> {
   return prisma.picture.findMany({
-    where: { year },
+    where: { calendarId },
     orderBy: { day: 'asc' }
   })
 }
 
-export async function updatePictureOpenStatus(day: number, year: number, isOpen: boolean) {
+export async function updatePictureOpenStatus(day: number, calendarId: number, isOpen: boolean) {
   return prisma.picture.update({
     where: {
-      day_year: { day, year }
+      day_calendarId: { day, calendarId }
     },
     data: { isOpen }
   })
@@ -25,5 +25,18 @@ export async function updatePictureOpenStatus(day: number, year: number, isOpen:
 export async function createPictures(pictures: Omit<Picture, 'id'>[]) {
   return prisma.picture.createMany({
     data: pictures
+  })
+}
+
+/**
+ * Get the test/fake calendar
+ * Used for public test page
+ */
+export async function getTestCalendar(): Promise<Calendar | null> {
+  return prisma.calendar.findFirst({
+    where: {
+      isFake: true,
+      isPublished: true
+    }
   })
 }

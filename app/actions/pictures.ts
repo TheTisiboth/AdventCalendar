@@ -1,27 +1,26 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { getAllPictures, updatePictureOpenStatus } from "@api/lib/dal/pictures"
+import { getAllPicturesByCalendarId, updatePictureOpenStatus, getTestCalendar } from "@api/lib/dal/pictures"
 import { requireKindeAuth, isKindeAdmin } from "@api/lib/kindeAuth"
-import { getCalendarByYear } from "@api/lib/dal/calendars"
+import { getCalendarById } from "@api/lib/dal/calendars"
 import { getSignedUrl } from "@api/lib/s3"
-import { TEST_YEAR } from "@/constants"
 import type { Picture } from "@prisma/client"
 
 export type PictureWithUrl = Picture & { url: string }
 
 /**
- * Get all pictures for a given year with signed URLs
+ * Get all pictures for a calendar by ID with signed URLs
  * Requires authentication
  * Excludes fake calendars (use getTestPictures for those)
- * @param year - Calendar year
+ * @param calendarId - Calendar ID
  */
-export async function getPictures(year: number): Promise<PictureWithUrl[]> {
+export async function getPicturesByCalendarId(calendarId: number): Promise<PictureWithUrl[]> {
     // Authenticated access - check user permissions
     const kindeUser = await requireKindeAuth()
     const isAdmin = await isKindeAdmin()
 
-    const calendar = await getCalendarByYear(year, false, isAdmin ? undefined : kindeUser.id)
+    const calendar = await getCalendarById(calendarId, false, isAdmin ? undefined : kindeUser.id)
 
     if (!calendar) {
         throw new Error("Calendar not found or access denied")
@@ -32,7 +31,7 @@ export async function getPictures(year: number): Promise<PictureWithUrl[]> {
         throw new Error("Use test endpoint for fake calendars")
     }
 
-    const pictures = await getAllPictures(year)
+    const pictures = await getAllPicturesByCalendarId(calendarId)
 
     // Generate signed URLs for real calendars (S3 keys)
     const picturesWithUrls = pictures.map((picture) => ({
@@ -43,15 +42,16 @@ export async function getPictures(year: number): Promise<PictureWithUrl[]> {
     return picturesWithUrls
 }
 
+
 /**
- * Open a picture for a specific day and year
+ * Open a picture for a specific day and calendar ID
  * Requires authentication
  */
-export async function openPicture(day: number, year: number): Promise<Picture> {
+export async function openPicture(day: number, calendarId: number): Promise<Picture> {
     try {
         await requireKindeAuth()
 
-        const picture = await updatePictureOpenStatus(day, year, true)
+        const picture = await updatePictureOpenStatus(day, calendarId, true)
 
         if (!picture) {
             throw new Error("Picture not found")
@@ -59,7 +59,7 @@ export async function openPicture(day: number, year: number): Promise<Picture> {
 
         // Revalidate the calendar page to show updated state
         revalidatePath(`/calendar`)
-        revalidatePath(`/archive/${year}`)
+        revalidatePath(`/archive/${calendarId}`)
 
         return picture
     } catch (error) {
@@ -68,23 +68,23 @@ export async function openPicture(day: number, year: number): Promise<Picture> {
 }
 
 /**
- * Reset all pictures for a given year (set isOpen to false)
+ * Reset all pictures for a given calendar (set isOpen to false)
  * This is typically used for testing/demo purposes
  */
-export async function resetPictures(year: number): Promise<void> {
+export async function resetPictures(calendarId: number): Promise<void> {
     try {
         await requireKindeAuth()
 
-        const pictures = await getAllPictures(year)
+        const pictures = await getAllPicturesByCalendarId(calendarId)
 
         // Update all pictures to closed
         await Promise.all(
-            pictures.map((pic) => updatePictureOpenStatus(pic.day, pic.year, false))
+            pictures.map((pic) => updatePictureOpenStatus(pic.day, pic.calendarId, false))
         )
 
         // Revalidate relevant pages
         revalidatePath(`/calendar`)
-        revalidatePath(`/archive/${year}`)
+        revalidatePath(`/archive/${calendarId}`)
     } catch (error) {
         throw new Error(error instanceof Error ? error.message : "Failed to reset pictures")
     }
@@ -93,16 +93,16 @@ export async function resetPictures(year: number): Promise<void> {
 /**
  * Get all pictures for the test page (fake calendar)
  * No authentication required as this is for public test page
- * Returns pictures from the fake calendar (year 1996)
+ * Returns pictures and calendar year
  */
-export async function getTestPictures(): Promise<PictureWithUrl[]> {
-    const calendar = await getCalendarByYear(TEST_YEAR, false, undefined)
+export async function getTestPictures(): Promise<{ pictures: PictureWithUrl[], year: number }> {
+    const calendar = await getTestCalendar()
 
     if (!calendar || !calendar.isPublished || !calendar.isFake) {
         throw new Error("Test calendar not found or not published")
     }
 
-    const pictures = await getAllPictures(TEST_YEAR)
+    const pictures = await getAllPicturesByCalendarId(calendar.id)
 
     // For fake calendars, the key IS the full URL (no need for S3 signing)
     const picturesWithUrls = pictures.map((picture) => ({
@@ -110,7 +110,7 @@ export async function getTestPictures(): Promise<PictureWithUrl[]> {
         url: picture.key
     }))
 
-    return picturesWithUrls
+    return { pictures: picturesWithUrls, year: calendar.year }
 }
 
 /**
@@ -119,7 +119,13 @@ export async function getTestPictures(): Promise<PictureWithUrl[]> {
  */
 export async function openTestPicture(day: number): Promise<Picture> {
     try {
-        const picture = await updatePictureOpenStatus(day, TEST_YEAR, true)
+        const calendar = await getTestCalendar()
+
+        if (!calendar) {
+            throw new Error("Test calendar not found")
+        }
+
+        const picture = await updatePictureOpenStatus(day, calendar.id, true)
 
         if (!picture) {
             throw new Error("Test picture not found")

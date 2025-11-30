@@ -78,7 +78,7 @@ export default function EditCalendar() {
     const router = useRouter()
     const params = useParams()
     const queryClient = useQueryClient()
-    const year = Number(params.year)
+    const id = Number(params.id)
 
     const [newPictures, setNewPictures] = useState<NewPictureWithPreview[]>([])
     const [error, setError] = useState<string | null>(null)
@@ -91,8 +91,8 @@ export default function EditCalendar() {
     })
 
     const { data: calendar, isLoading, error: calendarError } = useQuery({
-        queryKey: ["admin-calendar", year],
-        queryFn: () => adminGetCalendar(year)
+        queryKey: ["admin-calendar", id],
+        queryFn: () => adminGetCalendar(id)
     })
 
     const existingPictures = calendar?.pictures || []
@@ -105,7 +105,7 @@ export default function EditCalendar() {
     } = useForm<CalendarFormData>({
         resolver: zodResolver(calendarSchema),
         defaultValues: {
-            year,
+            year: new Date().getFullYear(),
             title: "",
             description: "",
             isPublished: true,
@@ -128,22 +128,22 @@ export default function EditCalendar() {
     }, [calendar, reset])
 
     const updateMutation = useMutation({
-        mutationFn: (data: CalendarFormData) => adminUpdateCalendar(year, {
+        mutationFn: (data: CalendarFormData) => adminUpdateCalendar(id, {
             title: data.title,
             description: data.description,
             isPublished: data.isPublished,
             kindeUserId: data.kindeUserId
         }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["admin-calendar", year] })
+            queryClient.invalidateQueries({ queryKey: ["admin-calendar", id] })
             queryClient.invalidateQueries({ queryKey: ["admin-calendars"] })
         }
     })
 
     const uploadMutation = useMutation({
-        mutationFn: (pictures: Array<{ day: number; file: File }>) => adminUploadPictures({ year, pictures }),
+        mutationFn: (pictures: Array<{ day: number; file: File }>) => adminUploadPictures({ calendarId: id, pictures }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["admin-calendar", year] })
+            queryClient.invalidateQueries({ queryKey: ["admin-calendar", id] })
             queryClient.invalidateQueries({ queryKey: ["admin-calendars"] })
             setNewPictures([])
         }
@@ -152,7 +152,7 @@ export default function EditCalendar() {
     const deleteMutation = useMutation({
         mutationFn: adminDeletePicture,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["admin-calendar", year] })
+            queryClient.invalidateQueries({ queryKey: ["admin-calendar", id] })
             queryClient.invalidateQueries({ queryKey: ["admin-calendars"] })
             setDeleteDialogOpen(false)
             setPictureToDelete(null)
@@ -297,7 +297,7 @@ export default function EditCalendar() {
                 </Button>
             </Box>
             <Typography variant="h4" component="h1" gutterBottom>
-                Edit Calendar {year}
+                Edit Calendar: {calendar.year} - {calendar.title}
             </Typography>
 
             <Paper sx={{ p: 3, mt: 3 }}>

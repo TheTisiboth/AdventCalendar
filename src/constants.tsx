@@ -6,5 +6,3 @@ export const ONE_DAY_MS = ONE_HOUR_MS * 24
 // Advent period dates (year computed dynamically based on current date)
 export const ADVENT_START = { month: 12, day: 1 }
 export const ADVENT_END = { month: 12, day: 24 }
-
-export const TEST_YEAR = 1996

@@ -1,6 +1,7 @@
+import { notFound } from "next/navigation"
 import Calendar from "@/components/Calendar/Calendar"
-import { getCurrentCalendarYear } from "@/utils/utils"
-import { getPictures } from "@actions/pictures"
+import { getCurrentCalendar } from "@actions/calendars"
+import { getPicturesByCalendarId } from "@actions/pictures"
 import { requireAdventPeriod } from "@safeguards"
 
 // Force dynamic rendering to prevent prerendering at build time
@@ -10,11 +11,15 @@ export const dynamic = 'force-dynamic'
 export default async function CalendarPage() {
   await requireAdventPeriod()
 
-  // Get current calendar year
-  const year = getCurrentCalendarYear()
+  // Get current calendar for authenticated user
+  const calendar = await getCurrentCalendar()
 
-  // Fetch pictures on the server
-  const pictures = await getPictures(year)
+  if (!calendar) {
+    notFound()
+  }
 
-  return <Calendar pictures={pictures} year={year} />
+  // Fetch pictures by calendar ID
+  const pictures = await getPicturesByCalendarId(calendar.id)
+
+  return <Calendar pictures={pictures} year={calendar.year} />
 }
