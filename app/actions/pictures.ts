@@ -48,23 +48,19 @@ export async function getPicturesByCalendarId(calendarId: number): Promise<Pictu
  * Requires authentication
  */
 export async function openPicture(day: number, calendarId: number): Promise<Picture> {
-    try {
-        await requireKindeAuth()
+    await requireKindeAuth()
 
-        const picture = await updatePictureOpenStatus(day, calendarId, true)
+    const picture = await updatePictureOpenStatus(day, calendarId, true)
 
-        if (!picture) {
-            throw new Error("Picture not found")
-        }
-
-        // Revalidate the calendar page to show updated state
-        revalidatePath(`/calendar`)
-        revalidatePath(`/archive/${calendarId}`)
-
-        return picture
-    } catch (error) {
-        throw new Error(error instanceof Error ? error.message : "Failed to open picture")
+    if (!picture) {
+        throw new Error("Picture not found")
     }
+
+    // Revalidate the calendar page to show updated state
+    revalidatePath(`/calendar`)
+    revalidatePath(`/archive/${calendarId}`)
+
+    return picture
 }
 
 /**
@@ -72,22 +68,18 @@ export async function openPicture(day: number, calendarId: number): Promise<Pict
  * This is typically used for testing/demo purposes
  */
 export async function resetPictures(calendarId: number): Promise<void> {
-    try {
-        await requireKindeAuth()
+    await requireKindeAuth()
 
-        const pictures = await getAllPicturesByCalendarId(calendarId)
+    const pictures = await getAllPicturesByCalendarId(calendarId)
 
-        // Update all pictures to closed
-        await Promise.all(
-            pictures.map((pic) => updatePictureOpenStatus(pic.day, pic.calendarId, false))
-        )
+    // Update all pictures to closed
+    await Promise.all(
+        pictures.map((pic) => updatePictureOpenStatus(pic.day, pic.calendarId, false))
+    )
 
-        // Revalidate relevant pages
-        revalidatePath(`/calendar`)
-        revalidatePath(`/archive/${calendarId}`)
-    } catch (error) {
-        throw new Error(error instanceof Error ? error.message : "Failed to reset pictures")
-    }
+    // Revalidate relevant pages
+    revalidatePath(`/calendar`)
+    revalidatePath(`/archive/${calendarId}`)
 }
 
 /**
@@ -118,24 +110,20 @@ export async function getTestPictures(): Promise<{ pictures: PictureWithUrl[], y
  * No authentication required
  */
 export async function openTestPicture(day: number): Promise<Picture> {
-    try {
-        const calendar = await getTestCalendar()
+    const calendar = await getTestCalendar()
 
-        if (!calendar) {
-            throw new Error("Test calendar not found")
-        }
-
-        const picture = await updatePictureOpenStatus(day, calendar.id, true)
-
-        if (!picture) {
-            throw new Error("Test picture not found")
-        }
-
-        // Revalidate the test page to show updated state
-        revalidatePath(`/test`)
-
-        return picture
-    } catch (error) {
-        throw new Error(error instanceof Error ? error.message : "Failed to open test picture")
+    if (!calendar) {
+        throw new Error("Test calendar not found")
     }
+
+    const picture = await updatePictureOpenStatus(day, calendar.id, true)
+
+    if (!picture) {
+        throw new Error("Test picture not found")
+    }
+
+    // Revalidate the test page to show updated state
+    revalidatePath(`/test`)
+
+    return picture
 }
