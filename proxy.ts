@@ -11,7 +11,7 @@ export default withAuth({
     }
 })
 
-// admin routes
+// protected routes that require authentication
 export const config = {
     matcher: ["/calendar/:path*", "/archive/:path*", "/admin/:path*"]
 }
