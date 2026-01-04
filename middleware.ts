@@ -1,9 +1,12 @@
 import { withAuth } from "@kinde-oss/kinde-auth-nextjs/middleware"
-import { NextRequest } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 export default withAuth(
     async function middleware(req: NextRequest) {
-        // Middleware logic runs after authentication is verified
+        if (req.method === "POST" && req.headers.has("next-action")) {
+            return NextResponse.next()
+        }
+
         return undefined
     },
     {

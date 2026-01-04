@@ -48,6 +48,8 @@ export async function getPicturesByCalendarId(calendarId: number): Promise<Pictu
  * Requires authentication
  */
 export async function openPicture(day: number, calendarId: number): Promise<Picture> {
+    await requireKindeAuth()
+
     const picture = await updatePictureOpenStatus(day, calendarId, true)
 
     if (!picture) {
