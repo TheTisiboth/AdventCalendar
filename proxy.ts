@@ -1,32 +1,16 @@
 import { withAuth } from "@kinde-oss/kinde-auth-nextjs/middleware"
-import { NextRequest, NextResponse } from "next/server"
 
-export default withAuth(
-    async function middleware(req: NextRequest) {
-        if (req.method === "POST" && req.headers.has("next-action")) {
-            return NextResponse.next()
-        }
-
-        return undefined
-    },
-    {
-        isReturnToCurrentPage: true,
-        // Protect these routes - user must be authenticated to access
-        loginPage: "/api/auth/login",
-        isAuthorized: ({ token }: { token: unknown }) => {
-            // Allow access if user has a valid token
-            return token !== null
-        }
+// in the admin routes, user needs to be authenticated
+export default withAuth({
+    isReturnToCurrentPage: true,
+    loginPage: "/api/auth/login",
+    isAuthorized: ({ token }: { token: { permissions: string[] } }) => {
+        // the user needs specific permission to access admin route
+        return token?.permissions?.includes("admin:access")
     }
-)
+})
 
+// admin routes
 export const config = {
-    matcher: [
-        // Protected routes - require authentication
-        // Note: These routes are also protected by layout safeguards
-        // Middleware provides initial auth check, layouts enforce additional rules
-        "/calendar/:path*",
-        "/archive/:path*",
-        "/admin/:path*"
-    ]
+    matcher: ["/calendar/:path*", "/archive/:path*", "/admin/:path*"]
 }

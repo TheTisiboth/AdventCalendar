@@ -4,10 +4,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs"
 import { Alert, Box, Snackbar } from "@mui/material"
-import { NavBar } from "@/components/NavBar"
 import { useSnackBarStore } from "@/store"
 import { useMainHook } from "@/hooks/useMainHook"
 import { useState } from "react"
+import dynamic from "next/dynamic"
+
+const NavBar = dynamic(() => import("@/components/NavBar").then(mod => ({ default: mod.NavBar })), { ssr: false })
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({

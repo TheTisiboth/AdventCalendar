@@ -114,7 +114,7 @@ export const NavBar = () => {
     const container = typeof window !== 'undefined' ? () => window.document.body : undefined
 
     return (
-        <Box sx={{ display: "flex", className: "NavBar" }}>
+        <Box sx={{ display: "flex" }} className="NavBar">
             <CssBaseline />
             <AppBar component="nav">
                 <Toolbar>
