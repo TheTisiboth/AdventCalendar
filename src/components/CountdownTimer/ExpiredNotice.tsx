@@ -1,11 +1,9 @@
 import Link from "next/link"
 import dayjs from "dayjs"
 import { useCalendarStore } from "@/store"
-import { isInAdventPeriod } from "@/utils/utils"
 
 export const ExpiredNotice = () => {
     const { startingDate, isStarted, setIsStarted } = useCalendarStore("startingDate", "isStarted", "setIsStarted")
-    const inAdventPeriod = isInAdventPeriod()
 
     if (dayjs(new Date()).isAfter(startingDate)) {
         if (!isStarted()) setIsStarted(true)
@@ -13,14 +11,15 @@ export const ExpiredNotice = () => {
 
     return (
         <div className="expired-notice">
-            <span>Time has come!!!</span>
-            {inAdventPeriod && (
-                <p>
-                    You can now open your <Link href="/calendar">advent calendar</Link>
-                </p>
-            )}
+            <span>The advent calendar is open!</span>
             <p>
-                If you don&apos;t have access, you can still try the <Link href="/test">test version.</Link>
+                Open your <Link href="/calendar">advent calendar</Link> to discover daily surprises.
+            </p>
+            <p className="secondary-text">
+                Each day unlocks a new surprise. Come back daily to open the next door.
+            </p>
+            <p className="test-link">
+                No access? Try the <Link href="/test">test version</Link>.
             </p>
         </div>
     )
