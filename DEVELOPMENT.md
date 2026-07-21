@@ -93,7 +93,7 @@ Test the production build locally:
 # Build and start
 docker compose up --build
 
-# Access at http://localhost:3006
+# Access at http://localhost:${APP_PORT:-3006}
 ```
 
 ---
@@ -163,6 +163,7 @@ docker compose down -v
 The `.env` file contains all necessary configuration. Key variables:
 
 - `DATABASE_URL`: PostgreSQL connection string (port 5434 for Docker)
+- `APP_PORT`: external port to redeploy on (default 3006; container stays on 3006)
 - `AWS_*`: S3 bucket configuration for image storage
 - `KINDE_*`: Authentication configuration
 - `CDN_URL`: URL for serving images
@@ -192,7 +193,7 @@ Connect using:
 
 ### Port Already in Use
 
-If port 3000 or 5434 is already in use:
+If port 3000 or 5434 is already in use (or set a different `APP_PORT` in `.env`):
 
 ```bash
 # Find process using port
