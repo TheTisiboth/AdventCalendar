@@ -72,9 +72,9 @@ USER nextjs
 RUN --mount=type=cache,target=/home/nextjs/.npm,uid=1001,gid=1001 \
     npm ci --omit=dev
 
-EXPOSE 3003
+EXPOSE 3006
 
-ENV PORT 3003
+ENV PORT 3006
 ENV HOSTNAME "0.0.0.0"
 
 CMD ["./docker-entrypoint.sh"]

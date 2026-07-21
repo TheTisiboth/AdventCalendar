@@ -93,7 +93,7 @@ Test the production build locally:
 # Build and start
 docker compose up --build
 
-# Access at http://localhost:3003
+# Access at http://localhost:3006
 ```
 
 ---

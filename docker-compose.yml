@@ -14,7 +14,7 @@ services:
         - KINDE_POST_LOGOUT_REDIRECT_URL=${KINDE_POST_LOGOUT_REDIRECT_URL}
         - KINDE_POST_LOGIN_REDIRECT_URL=${KINDE_POST_LOGIN_REDIRECT_URL}
     ports:
-      - "3003:3003"
+      - "3006:3006"
     environment:
       NODE_ENV: production
       DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/advent_calendar?schema=public"
