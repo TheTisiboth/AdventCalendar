@@ -59,7 +59,7 @@ docker-compose up -d --build
 2. App container waits for PostgreSQL to be healthy
 3. `docker-entrypoint.sh` runs Prisma migrations (`prisma migrate deploy`)
 4. Database is seeded automatically if empty
-5. Next.js application starts on port 3006
+5. Next.js application starts on `APP_PORT` (default 3006)
 
 ## Step 3: Verify Deployment
 
@@ -71,7 +71,7 @@ docker-compose ps
 docker-compose logs -f app
 docker-compose logs -f postgres
 
-# Test the API
+# Test the API (default port 3006; use your APP_PORT if changed)
 curl http://localhost:3006/api/get_fake_pictures
 ```
 
@@ -95,6 +95,10 @@ ACCESS_TOKEN_SECRET=<generate-random-32-char-string>
 REFRESH_TOKEN_SECRET=<generate-random-32-char-string>
 ```
 
+### Configurable Port
+
+Set `APP_PORT` in `.env` to redeploy on a different external port (no code change, no rebuild). The container always listens on 3006.
+
 ### Automatic Configuration
 
 The following are automatically configured in `docker-compose.yml`:
@@ -102,7 +106,6 @@ The following are automatically configured in `docker-compose.yml`:
 - **Database Name**: `advent_calendar` (hardcoded)
 - **DATABASE_URL**: Automatically constructed as `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/advent_calendar?schema=public`
 - **PostgreSQL Port**: 5432 (internal Docker network)
-- **App Port**: 3006 (exposed to host on port 3006)
 
 ### Important Notes:
 
@@ -170,6 +173,7 @@ server {
     server_name your-domain.com;
 
     location / {
+        # match APP_PORT (default 3006)
         proxy_pass http://localhost:3006;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -302,10 +306,9 @@ docker exec adventcalendar-app-1 npm run db:seed
 
 ### Port 3006 already in use
 
-Change the port in `docker-compose.yml`:
-```yaml
-ports:
-  - "8080:3006"  # Access on port 8080 instead
+Set a different port in `.env` (no code change, no rebuild):
+```env
+APP_PORT=8080
 ```
 
 ### App container crashes
